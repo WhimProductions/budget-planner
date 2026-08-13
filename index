@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whim Productions - Season Financial & Production Budget Hub</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --accent-bg: #eef2ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; max-width: 1280px; margin: 0 auto; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--border); }
+    h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-main); }
+    .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+    
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 18px; border: 1px solid var(--border); background: var(--card-bg); font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; color: var(--text-main); }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); padding: 16px; border-radius: 8px; }
+    .kpi-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .kpi-value { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
+    .kpi-value.positive { color: var(--success); }
+    .kpi-value.negative { color: var(--danger); }
+
+    .scenario-picker { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; background: var(--accent-bg); padding: 14px 20px; border-radius: 8px; border: 1px solid #c7d2fe; }
+    .scenario-picker label { font-weight: 700; color: #3730a3; }
+    
+    select, input, button { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; }
+    button.btn-primary { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; }
+    button.btn-primary:hover { background: var(--primary-hover); }
+    button.btn-secondary { background: #0284c7; color: white; border: none; font-weight: 600; cursor: pointer; }
+    button.btn-secondary:hover { background: #0369a1; }
+    button.btn-danger { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; font-weight: 600; cursor: pointer; }
+    button.btn-danger:hover { background: #fecaca; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { background: #f1f5f9; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .chart-container { height: 320px; margin-top: 16px; }
+    
+    .show-card { border: 1px solid var(--border); padding: 18px; border-radius: 8px; margin-bottom: 16px; background: #ffffff; }
+    .show-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .section-title { font-weight: 700; font-size: 0.95rem; margin: 14px 0 8px 0; color: var(--primary); border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
+    .form-group input, .form-group select { width: 100%; }
+
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    .badge-awarded { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .badge-anticipated { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
+
+    .grant-card { border: 1px solid var(--border); padding: 16px; border-radius: 8px; margin-bottom: 14px; background: #ffffff; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+    .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; background: #f1f5f9; padding: 4px 10px; border-radius: 4px; }
+
+    @media print {
+      body { background: #ffffff; padding: 0; margin: 0; max-width: 100%; }
+      header div:last-child, .nav-tabs, button, input[type="file"], .btn-danger { display: none !important; }
+      .tab-content { display: block !important; }
+      .card, .kpi-card, .show-card, .grant-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; page-break-inside: avoid; }
+      input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; font-weight: bold; padding: 0 !important; }
+      .scenario-picker { border: 1px solid #a5b4fc !important; background: #f5f3ff !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Whim Productions - Budget & Scenario Hub</h1>
+      <div class="subtitle">Consolidated Financial Planning, Production Budgets & Grant Allocations</div>
+    </div>
+    <div>
+      <button class="btn-secondary" onclick="printReport()">🖨️ Print / Save PDF</button>
+      <button class="btn-primary" onclick="exportData()">Export Data (JSON)</button>
+      <button onclick="document.getElementById('importFile').click()">Import Data</button>
+      <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+    </div>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">Consolidated P&L</button>
+    <button class="tab-btn" onclick="switchTab('builder')">✨ New Show Builder</button>
+    <button class="tab-btn" onclick="switchTab('productions')">Productions & Events</button>
+    <button class="tab-btn" onclick="switchTab('grants')">Grants & Sponsorship Hub</button>
+    <button class="tab-btn" onclick="switchTab('overhead')">Operating Overhead</button>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="dashboard" class="tab-content active">
+    <div class="scenario-picker">
+      <div>
+        <label>Capacity Mode:</label>
+        <select id="capacityMode" onchange="renderApp()">
+          <option value="anticipated" selected>Anticipated Capacity (~55% expected attendance)</option>
+          <option value="full">Full Capacity (100% Sold Out)</option>
+        </select>
+      </div>
+      <div style="font-size:0.85rem; color:#4338ca; font-weight:600;">
+        Apportioned Admin/Insurance Overhead to Shows: Active (1/12th rule)
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Projected Revenue</div>
+        <div class="kpi-value" id="kpi-rev">$0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Operating & Production Expenses</div>
+        <div class="kpi-value" id="kpi-exp">$0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Net Operating Income</div>
+        <div class="kpi-value" id="kpi-margin">$0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Artist Stipend Pool (Account 53500)</div>
+        <div class="kpi-value" id="kpi-stipends">$0</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Annual Season Budget Summary</h3>
+      <div class="chart-container">
+        <canvas id="financialChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOW BUILDER TAB -->
+  <div id="builder" class="tab-content">
+    <div class="grid-2">
+      <div class="card">
+        <h3>Show Modeling Form</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Model a new production with multi-tier ticket pricing before adding it to your season budget.</p>
+        
+        <div class="section-title">1. Show Parameters</div>
+        <div class="form-group"><label>Show Title</label><input type="text" id="f_name" value="New Mainstage Proposal" oninput="calculateBuilder()"></div>
+        <div class="grid-3">
+          <div class="form-group"><label>Performances</label><input type="number" id="f_performances" value="8" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>House Capacity</label><input type="number" id="f_capacity" value="62" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Expected Cap %</label><input type="number" id="f_expectedAttendancePct" value="55" oninput="calculateBuilder()"></div>
+        </div>
+
+        <div class="section-title">2. Ticket Tier Breakdown (% of House)</div>
+        <div class="grid-3">
+          <div class="form-group"><label>General Admin Price ($)</label><input type="number" id="f_gaPrice" value="30.00" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>GA % of House</label><input type="number" id="f_gaPct" value="70" oninput="calculateBuilder()"></div>
+          <div></div>
+          <div class="form-group"><label>Pay What You Whim ($)</label><input type="number" id="f_pwywPrice" value="15.00" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>PWYW % of House</label><input type="number" id="f_pwywPct" value="20" oninput="calculateBuilder()"></div>
+          <div></div>
+          <div class="form-group"><label>Production Comps ($0)</label><input type="number" value="0" disabled></div>
+          <div class="form-group"><label>Comp % of House</label><input type="number" id="f_compPct" value="10" oninput="calculateBuilder()"></div>
+        </div>
+
+        <div class="section-title">3. Non-Box Office Revenue</div>
+        <div class="grid-3">
+          <div class="form-group"><label>Sponsorships ($)</label><input type="number" id="f_sponsorships" value="250" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Concessions ($)</label><input type="number" id="f_concessions" value="800" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Merch ($)</label><input type="number" id="f_merch" value="50" oninput="calculateBuilder()"></div>
+        </div>
+
+        <div class="section-title">4. Account 53500 Artist & Tech Stipends</div>
+        <div class="grid-4">
+          <div class="form-group"><label>Actor Count</label><input type="number" id="f_actorsCount" value="6" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Actor Rate ($)</label><input type="number" id="f_actorRate" value="400" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Carpentry Hours</label><input type="number" id="f_carpentryHours" value="40" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Carpentry Rate ($)</label><input type="number" id="f_carpentryRate" value="20" oninput="calculateBuilder()"></div>
+        </div>
+        <div class="grid-4">
+          <div class="form-group"><label>Director ($)</label><input type="number" id="f_directorPay" value="700" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Stage Manager ($)</label><input type="number" id="f_stageManagerPay" value="800" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Fight Choreographer ($)</label><input type="number" id="f_fightChoreographerPay" value="350" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Designers Total ($)</label><input type="number" id="f_designersPay" value="2500" oninput="calculateBuilder()"></div>
+        </div>
+
+        <div class="section-title">5. Production Expenses</div>
+        <div class="grid-4">
+          <div class="form-group"><label>Script Rights ($)</label><input type="number" id="f_scriptRights" value="800" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Sets, Costumes, Mktg ($)</label><input type="number" id="f_otherProdExpenses" value="2500" oninput="calculateBuilder()"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="background: #faf5ff; border-color: #d8b4fe;">
+          <h3 style="color: #6b21a8;">Anticipated Outcome Preview</h3>
+          <p style="font-size:0.85rem; color:#7e22ce; margin-bottom:16px;">Dynamic ticket tier calculation & stipend summary.</p>
+
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Anticipated Ticket Rev</div>
+              <div class="kpi-value" id="prev-tix">$0</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);" id="prev-tix-sub">0 seats sold</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Effective Avg Ticket</div>
+              <div class="kpi-value" id="prev-avg-tix">$0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Total Expenses + Admin</div>
+              <div class="kpi-value" id="prev-exp">$0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Net Show Contribution</div>
+              <div class="kpi-value" id="prev-margin">$0</div>
+            </div>
+          </div>
+
+          <button class="btn-primary" style="width:100%; padding:14px; font-size:1.05rem;" onclick="commitBuilderShow()">+ Add This Show to Master Season Budget</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTIONS TAB -->
+  <div id="productions" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h3>Season Productions & Events</h3>
+        <button class="btn-primary" onclick="switchTab('builder')">+ Open Show Builder Form</button>
+      </div>
+      <div id="productions-container" style="margin-top: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- GRANTS TAB -->
+  <div id="grants" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h3>Grants & Sponsorship Hub (Account 40000)</h3>
+        <button class="btn-primary" onclick="addGrant()">+ Add New Grant/Sponsor</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+        Assign grants to specific productions using the checkboxes below. Grant funds are automatically apportioned across selected shows.
+      </p>
+      <div id="grants-container"></div>
+    </div>
+  </div>
+
+  <!-- OVERHEAD TAB -->
+  <div id="overhead" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h3>General Annual Operating Expenses (Overhead & Occupancy)</h3>
+        <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
+      </div>
+      <table id="overhead-table">
+        <thead>
+          <tr>
+            <th>Account / Expense Name</th>
+            <th>Annual Amount ($)</th>
+            <th>Apportion to Shows?</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
+      overhead: [
+        { id: 1, name: "53300 Fees for Accounting / Bookkeeping", annual: 6038, apportion: true },
+        { id: 2, name: "62310 General Liability Insurance", annual: 614, apportion: true },
+        { id: 3, name: "58000 Occupancy & Facility Rental", annual: 12684, apportion: false },
+        { id: 4, name: "54000 Advertising & Marketing", annual: 2650, apportion: false },
+        { id: 5, name: "56000 IT & Website Hosting", annual: 1130, apportion: false }
+      ],
+      grants: [
+        { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1, 2] },
+        { id: 102, name: "Kids Christmas Grant", amount: 8875, status: "Anticipated", targetShowIds: [] }
+      ],
+      productions: [
+        {
+          id: 1,
+          name: "Lipstick",
+          performances: 8, capacity: 62, expectedAttendancePct: 55,
+          gaPrice: 30.00, gaPct: 70,
+          pwywPrice: 15.00, pwywPct: 20,
+          compPct: 10,
+          sponsorships: 250, concessions: 1000, merch: 30,
+          scriptRights: 900, actorsCount: 7, actorRate: 400, directorPay: 700,
+          stageManagerPay: 800, fightChoreographerPay: 350, carpentryHours: 95, carpentryRate: 20, designersPay: 2750, otherProdExpenses: 3000
+        },
+        {
+          id: 2,
+          name: "Alphabet Soup 2026",
+          performances: 8, capacity: 62, expectedAttendancePct: 60,
+          gaPrice: 27.50, gaPct: 75,
+          pwywPrice: 15.00, pwywPct: 15,
+          compPct: 10,
+          sponsorships: 1500, concessions: 1000, merch: 30,
+          scriptRights: 1200, actorsCount: 40, actorRate: 100, directorPay: 700,
+          stageManagerPay: 800, fightChoreographerPay: 0, carpentryHours: 50, carpentryRate: 20, designersPay: 2850, otherProdExpenses: 3100
+        }
+      ]
+    };
+
+    let chartInstance = null;
+
+    function saveState() {
+      localStorage.setItem('whim_budget_data', JSON.stringify(state));
+      renderApp();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (targetBtn) targetBtn.classList.add('active');
+      
+      document.getElementById(tabId).classList.add('active');
+      if (tabId === 'builder') calculateBuilder();
+    }
+
+    // HELPER: CALCULATE TICKET METRICS FOR A SHOW
+    function getShowTicketMetrics(p, isFullCap) {
+      let attPct = isFullCap ? 1.0 : ((p.expectedAttendancePct || 55) / 100);
+      let totalAttendedSeats = p.capacity * p.performances * attPct;
+
+      let gaSeats = totalAttendedSeats * ((p.gaPct || 70) / 100);
+      let pwywSeats = totalAttendedSeats * ((p.pwywPct || 20) / 100);
+      let compSeats = totalAttendedSeats * ((p.compPct || 10) / 100);
+
+      let gaRev = gaSeats * (p.gaPrice || 27.50);
+      let pwywRev = pwywSeats * (p.pwywPrice || 15.00);
+
+      let totalTixRev = gaRev + pwywRev;
+      let weightedAvgTicket = totalAttendedSeats > 0 ? (totalTixRev / totalAttendedSeats) : 0;
+
+      return { totalAttendedSeats, gaSeats, pwywSeats, compSeats, totalTixRev, weightedAvgTicket };
+    }
+
+    // HELPER: CALCULATE APPORTIONED GRANTS FOR A SPECIFIC SHOW
+    function getShowAllocatedGrants(showId) {
+      let total = 0;
+      state.grants.forEach(g => {
+        if (g.targetShowIds && g.targetShowIds.includes(showId)) {
+          total += (g.amount / g.targetShowIds.length);
+        }
+      });
+      return total;
+    }
+
+    function calculateBuilder() {
+      const per = parseFloat(document.getElementById('f_performances').value) || 0;
+      const cap = parseFloat(document.getElementById('f_capacity').value) || 0;
+      const attPct = (parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0) / 100;
+
+      const gaPrice = parseFloat(document.getElementById('f_gaPrice').value) || 0;
+      const gaPct = (parseFloat(document.getElementById('f_gaPct').value) || 0) / 100;
+      const pwywPrice = parseFloat(document.getElementById('f_pwywPrice').value) || 0;
+      const pwywPct = (parseFloat(document.getElementById('f_pwywPct').value) || 0) / 100;
+
+      const spon = parseFloat(document.getElementById('f_sponsorships').value) || 0;
+      const conc = parseFloat(document.getElementById('f_concessions').value) || 0;
+      const merch = parseFloat(document.getElementById('f_merch').value) || 0;
+
+      const actQty = parseFloat(document.getElementById('f_actorsCount').value) || 0;
+      const actRate = parseFloat(document.getElementById('f_actorRate').value) || 0;
+      const carpHrs = parseFloat(document.getElementById('f_carpentryHours').value) || 0;
+      const carpRate = parseFloat(document.getElementById('f_carpentryRate').value) || 0;
+      const dir = parseFloat(document.getElementById('f_directorPay').value) || 0;
+      const sm = parseFloat(document.getElementById('f_stageManagerPay').value) || 0;
+      const fight = parseFloat(document.getElementById('f_fightChoreographerPay').value) || 0;
+      const des = parseFloat(document.getElementById('f_designersPay').value) || 0;
+
+      const rights = parseFloat(document.getElementById('f_scriptRights').value) || 0;
+      const other = parseFloat(document.getElementById('f_otherProdExpenses').value) || 0;
+
+      const apportionedItems = state.overhead.filter(o => o.apportion);
+      const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
+      const perShowAdmin = (annualApportionedPool / 12);
+
+      const seatsSold = per * cap * attPct;
+      const tixRev = (seatsSold * gaPct * gaPrice) + (seatsSold * pwywPct * pwywPrice);
+      const avgTix = seatsSold > 0 ? (tixRev / seatsSold) : 0;
+
+      const stipends = (actQty * actRate) + (carpHrs * carpRate) + dir + sm + fight + des;
+      const exp = stipends + rights + other + perShowAdmin;
+      const netMargin = (tixRev + spon + conc + merch) - exp;
+
+      document.getElementById('prev-tix').innerText = '$' + tixRev.toLocaleString(undefined, {maximumFractionDigits:0});
+      document.getElementById('prev-tix-sub').innerText = `${seatsSold.toFixed(0)} seats projected`;
+      document.getElementById('prev-avg-tix').innerText = '$' + avgTix.toFixed(2);
+      document.getElementById('prev-exp').innerText = '$' + exp.toLocaleString(undefined, {maximumFractionDigits:0});
+      
+      const marginEl = document.getElementById('prev-margin');
+      marginEl.innerText = '$' + netMargin.toLocaleString(undefined, {maximumFractionDigits:0});
+      marginEl.className = 'kpi-value ' + (netMargin >= 0 ? 'positive' : 'negative');
+    }
+
+    function commitBuilderShow() {
+      const newShow = {
+        id: Date.now(),
+        name: document.getElementById('f_name').value || "New Show",
+        performances: parseInt(document.getElementById('f_performances').value) || 0,
+        capacity: parseInt(document.getElementById('f_capacity').value) || 0,
+        expectedAttendancePct: parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0,
+        gaPrice: parseFloat(document.getElementById('f_gaPrice').value) || 0,
+        gaPct: parseFloat(document.getElementById('f_gaPct').value) || 0,
+        pwywPrice: parseFloat(document.getElementById('f_pwywPrice').value) || 0,
+        pwywPct: parseFloat(document.getElementById('f_pwywPct').value) || 0,
+        compPct: parseFloat(document.getElementById('f_compPct').value) || 0,
+        sponsorships: parseFloat(document.getElementById('f_sponsorships').value) || 0,
+        concessions: parseFloat(document.getElementById('f_concessions').value) || 0,
+        merch: parseFloat(document.getElementById('f_merch').value) || 0,
+        actorsCount: parseInt(document.getElementById('f_actorsCount').value) || 0,
+        actorRate: parseFloat(document.getElementById('f_actorRate').value) || 0,
+        carpentryHours: parseInt(document.getElementById('f_carpentryHours').value) || 0,
+        carpentryRate: parseFloat(document.getElementById('f_carpentryRate').value) || 0,
+        directorPay: parseFloat(document.getElementById('f_directorPay').value) || 0,
+        stageManagerPay: parseFloat(document.getElementById('f_stageManagerPay').value) || 0,
+        fightChoreographerPay: parseFloat(document.getElementById('f_fightChoreographerPay').value) || 0,
+        designersPay: parseFloat(document.getElementById('f_designersPay').value) || 0,
+        scriptRights: parseFloat(document.getElementById('f_scriptRights').value) || 0,
+        otherProdExpenses: parseFloat(document.getElementById('f_otherProdExpenses').value) || 0
+      };
+
+      state.productions.push(newShow);
+      saveState();
+      alert(`"${newShow.name}" has been added to your Season Budget!`);
+      switchTab('productions');
+    }
+
+    function renderApp() {
+      const isFullCap = document.getElementById('capacityMode').value === 'full';
+      const totalOverhead = state.overhead.reduce((sum, item) => sum + item.annual, 0);
+      const totalGrants = state.grants.reduce((sum, item) => sum + item.amount, 0);
+
+      const apportionedItems = state.overhead.filter(o => o.apportion);
+      const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
+      const perShowApportionedAdmin = (annualApportionedPool / 12);
+
+      let totalTicketRevenue = 0;
+      let totalNonBoxRevenue = 0;
+      let totalProductionExpenses = 0;
+      let totalStipendsPool = 0;
+
+      state.productions.forEach(p => {
+        let metrics = getShowTicketMetrics(p, isFullCap);
+        let showGrantAlloc = getShowAllocatedGrants(p.id);
+        let showNonBoxRev = showGrantAlloc + p.sponsorships + p.concessions + p.merch;
+        
+        let actorStipends = p.actorsCount * p.actorRate;
+        let carpentryStipends = p.carpentryHours * p.carpentryRate;
+        let fightPay = p.fightChoreographerPay || 0;
+        let showStipends = actorStipends + carpentryStipends + p.directorPay + p.stageManagerPay + fightPay + p.designersPay;
+        let showExpenses = showStipends + p.scriptRights + p.otherProdExpenses + perShowApportionedAdmin;
+
+        totalTicketRevenue += metrics.totalTixRev;
+        totalNonBoxRevenue += showNonBoxRev;
+        totalProductionExpenses += showExpenses;
+        totalStipendsPool += showStipends;
+      });
+
+      // Avoid double counting grants allocated to shows vs general pool
+      let unallocatedGrants = state.grants.filter(g => !g.targetShowIds || g.targetShowIds.length === 0).reduce((s, g) => s + g.amount, 0);
+      const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + unallocatedGrants;
+      const totalExpenses = totalOverhead + (totalProductionExpenses - (state.productions.length * perShowApportionedAdmin));
+      const netIncome = totalRevenue - totalExpenses;
+
+      document.getElementById('kpi-rev').innerText = '$' + totalRevenue.toLocaleString(undefined, {maximumFractionDigits:0});
+      document.getElementById('kpi-exp').innerText = '$' + totalExpenses.toLocaleString(undefined, {maximumFractionDigits:0});
+      
+      const marginEl = document.getElementById('kpi-margin');
+      marginEl.innerText = '$' + netIncome.toLocaleString(undefined, {maximumFractionDigits:0});
+      marginEl.className = 'kpi-value ' + (netIncome >= 0 ? 'positive' : 'negative');
+
+      document.getElementById('kpi-stipends').innerText = '$' + totalStipendsPool.toLocaleString(undefined, {maximumFractionDigits:0});
+
+      renderOverheadTable();
+      renderGrantsHub();
+      renderProductions(isFullCap, perShowApportionedAdmin);
+      renderChart(totalTicketRevenue, totalNonBoxRevenue, totalProductionExpenses, totalOverhead);
+    }
+
+    function renderGrantsHub() {
+      const container = document.getElementById('grants-container');
+      container.innerHTML = '';
+
+      state.grants.forEach(g => {
+        let showCheckboxes = state.productions.map(p => {
+          let isChecked = g.targetShowIds && g.targetShowIds.includes(p.id) ? 'checked' : '';
+          return `
+            <label class="checkbox-item">
+              <input type="checkbox" ${isChecked} onchange="toggleGrantShow(${g.id}, ${p.id}, this.checked)">
+              ${p.name}
+            </label>`;
+        }).join('');
+
+        let allocCount = g.targetShowIds ? g.targetShowIds.length : 0;
+        let perShowAmt = allocCount > 0 ? (g.amount / allocCount) : 0;
+
+        container.innerHTML += `
+          <div class="grant-card">
+            <div class="flex-between" style="margin-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <input type="text" value="${g.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateGrant(${g.id}, 'name', this.value)">
+                <span class="badge ${g.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${g.status}</span>
+              </div>
+              <button class="btn-danger" onclick="deleteGrant(${g.id})">Delete Grant</button>
+            </div>
+            
+            <div class="grid-3" style="margin-bottom:12px;">
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">GRANT AMOUNT ($)</label><br>
+                $<input type="number" value="${g.amount}" style="font-weight:bold;" onchange="updateGrant(${g.id}, 'amount', parseFloat(this.value))">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
+                <select onchange="updateGrant(${g.id}, 'status', this.value)">
+                  <option value="Awarded" ${g.status==='Awarded'?'selected':''}>Awarded / Confirmed</option>
+                  <option value="Anticipated" ${g.status==='Anticipated'?'selected':''}>Anticipated / Applied</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW</label><br>
+                <strong style="color:var(--primary); font-size:1.1rem;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold; text-transform:uppercase;">Apportion Funds To Shows/Events:</label>
+              <div class="checkbox-group">
+                ${showCheckboxes || '<span style="font-size:0.85rem; color:var(--text-muted);">No shows created yet.</span>'}
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+
+    function toggleGrantShow(grantId, showId, isChecked) {
+      const grant = state.grants.find(g => g.id === grantId);
+      if (grant) {
+        if (!grant.targetShowIds) grant.targetShowIds = [];
+        if (isChecked && !grant.targetShowIds.includes(showId)) {
+          grant.targetShowIds.push(showId);
+        } else if (!isChecked) {
+          grant.targetShowIds = grant.targetShowIds.filter(id => id !== showId);
+        }
+        saveState();
+      }
+    }
+
+    function updateGrant(id, field, val) {
+      const item = state.grants.find(g => g.id === id);
+      if (item) { item[field] = val; saveState(); }
+    }
+    function addGrant() {
+      state.grants.push({ id: Date.now(), name: "New Grant Opportunity", amount: 2500, status: "Anticipated", targetShowIds: [] });
+      saveState();
+    }
+    function deleteGrant(id) {
+      state.grants = state.grants.filter(g => g.id !== id);
+      saveState();
+    }
+
+    function renderProductions(isFullCap, apportionedAdmin) {
+      const container = document.getElementById('productions-container');
+      container.innerHTML = '';
+      state.productions.forEach(p => {
+        let metrics = getShowTicketMetrics(p, isFullCap);
+        let showGrantAlloc = getShowAllocatedGrants(p.id);
+
+        let actorPay = p.actorsCount * p.actorRate;
+        let carpPay = p.carpentryHours * p.carpentryRate;
+        let fightPay = p.fightChoreographerPay || 0;
+        let totalStipends = actorPay + carpPay + p.directorPay + p.stageManagerPay + fightPay + p.designersPay;
+        let totalShowExpenses = totalStipends + p.scriptRights + p.otherProdExpenses + apportionedAdmin;
+        let totalShowRev = metrics.totalTixRev + showGrantAlloc + p.sponsorships + p.concessions + p.merch;
+        let showGross = totalShowRev - totalShowExpenses;
+
+        container.innerHTML += `
+          <div class="show-card">
+            <div class="show-header">
+              <div>
+                <input type="text" value="${p.name}" style="font-weight:bold; font-size:1.15rem; width:260px;" onchange="updateProd(${p.id}, 'name', this.value)">
+                <span style="font-size:0.85rem; color:var(--text-muted); margin-left:12px;">Net Margin: <strong style="color:${showGross>=0?'var(--success)':'var(--danger)'}">$${showGross.toLocaleString(undefined,{maximumFractionDigits:0})}</strong></span>
+              </div>
+              <button class="btn-danger" onclick="deleteProd(${p.id})">Delete Show</button>
+            </div>
+
+            <div class="section-title">1. Performance & Capacity Parameters</div>
+            <div class="grid-3">
+              <div><label>Performances:</label><br><input type="number" value="${p.performances}" onchange="updateProd(${p.id}, 'performances', parseInt(this.value))"></div>
+              <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" onchange="updateProd(${p.id}, 'capacity', parseInt(this.value))"></div>
+              <div><label>Expected Capacity %:</label><br><input type="number" value="${p.expectedAttendancePct}" onchange="updateProd(${p.id}, 'expectedAttendancePct', parseFloat(this.value))">%</div>
+            </div>
+
+            <div class="section-title">2. Ticket Tiers & House Distribution</div>
+            <div class="grid-3">
+              <div><label>GA Price ($):</label><br><input type="number" value="${p.gaPrice||27.50}" onchange="updateProd(${p.id}, 'gaPrice', parseFloat(this.value))"></div>
+              <div><label>GA House %:</label><br><input type="number" value="${p.gaPct||70}" onchange="updateProd(${p.id}, 'gaPct', parseFloat(this.value))">%</div>
+              <div><label>Est. GA Seats:</label><br><strong>${metrics.gaSeats.toFixed(0)} seats</strong></div>
+
+              <div><label>PWYW Price ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" onchange="updateProd(${p.id}, 'pwywPrice', parseFloat(this.value))"></div>
+              <div><label>PWYW House %:</label><br><input type="number" value="${p.pwywPct||20}" onchange="updateProd(${p.id}, 'pwywPct', parseFloat(this.value))">%</div>
+              <div><label>Est. PWYW Seats:</label><br><strong>${metrics.pwywSeats.toFixed(0)} seats</strong></div>
+
+              <div><label>Comps ($0):</label><br><input type="number" value="0" disabled></div>
+              <div><label>Comp House %:</label><br><input type="number" value="${p.compPct||10}" onchange="updateProd(${p.id}, 'compPct', parseFloat(this.value))">%</div>
+              <div><label>Est. Comp Seats:</label><br><strong>${metrics.compSeats.toFixed(0)} seats</strong></div>
+            </div>
+
+            <div class="section-title">3. Non-Box Office Revenue</div>
+            <div class="grid-4">
+              <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(From Grants Hub)</span></div>
+              <div><label>Sponsorships ($):</label><br><input type="number" value="${p.sponsorships}" onchange="updateProd(${p.id}, 'sponsorships', parseFloat(this.value))"></div>
+              <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
+              <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
+            </div>
+
+            <div class="section-title">4. Account 53500 Artist & Technical Stipends</div>
+            <div class="grid-4">
+              <div><label>Actors (Qty x Rate):</label><br><input type="number" value="${p.actorsCount}" style="width:50px" onchange="updateProd(${p.id}, 'actorsCount', parseInt(this.value))"> x $<input type="number" value="${p.actorRate}" style="width:70px" onchange="updateProd(${p.id}, 'actorRate', parseFloat(this.value))"></div>
+              <div><label>Carpentry (Hrs x $/hr):</label><br><input type="number" value="${p.carpentryHours}" style="width:50px" onchange="updateProd(${p.id}, 'carpentryHours', parseInt(this.value))"> x $<input type="number" value="${p.carpentryRate}" style="width:70px" onchange="updateProd(${p.id}, 'carpentryRate', parseFloat(this.value))"></div>
+              <div><label>Director Stipend ($):</label><br><input type="number" value="${p.directorPay}" onchange="updateProd(${p.id}, 'directorPay', parseFloat(this.value))"></div>
+              <div><label>Stage Manager ($):</label><br><input type="number" value="${p.stageManagerPay}" onchange="updateProd(${p.id}, 'stageManagerPay', parseFloat(this.value))"></div>
+              <div><label>Fight Choreographer ($):</label><br><input type="number" value="${p.fightChoreographerPay||0}" onchange="updateProd(${p.id}, 'fightChoreographerPay', parseFloat(this.value))"></div>
+              <div><label>Designers Total ($):</label><br><input type="number" value="${p.designersPay}" onchange="updateProd(${p.id}, 'designersPay', parseFloat(this.value))"></div>
+            </div>
+
+            <div class="section-title">5. Production Expenses & Apportioned Admin</div>
+            <div class="grid-4">
+              <div><label>Script Rights Acquisition ($):</label><br><input type="number" value="${p.scriptRights}" onchange="updateProd(${p.id}, 'scriptRights', parseFloat(this.value))"></div>
+              <div><label>Sets, Costumes, Props, Mktg ($):</label><br><input type="number" value="${p.otherProdExpenses}" onchange="updateProd(${p.id}, 'otherProdExpenses', parseFloat(this.value))"></div>
+              <div><label>Apportioned Admin/Insurance:</label><br><strong>$${apportionedAdmin.toFixed(2)}</strong></div>
+            </div>
+          </div>`;
+      });
+    }
+
+    function updateProd(id, field, val) {
+      const item = state.productions.find(p => p.id === id);
+      if (item) { item[field] = val; saveState(); }
+    }
+    function deleteProd(id) {
+      state.productions = state.productions.filter(p => p.id !== id);
+      // Clean up grant allocations for deleted show
+      state.grants.forEach(g => {
+        if (g.targetShowIds) g.targetShowIds = g.targetShowIds.filter(sId => sId !== id);
+      });
+      saveState();
+    }
+
+    function renderOverheadTable() {
+      const tbody = document.querySelector('#overhead-table tbody');
+      tbody.innerHTML = '';
+      state.overhead.forEach(item => {
+        tbody.innerHTML += `
+          <tr>
+            <td><input type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
+            <td>$<input type="number" value="${item.annual}" onchange="updateOverhead(${item.id}, 'annual', parseFloat(this.value))"></td>
+            <td><input type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
+            <td><button class="btn-danger" onclick="deleteOverhead(${item.id})">Delete</button></td>
+          </tr>`;
+      });
+    }
+
+    function updateOverhead(id, field, val) {
+      const item = state.overhead.find(o => o.id === id);
+      if (item) { item[field] = val; saveState(); }
+    }
+    function addOverhead() {
+      state.overhead.push({ id: Date.now(), name: "New Operating Expense", annual: 1000, apportion: false });
+      saveState();
+    }
+    function deleteOverhead(id) {
+      state.overhead = state.overhead.filter(o => o.id !== id);
+      saveState();
+    }
+
+    function renderChart(tixRev, nonBoxRev, prodExp, overheadExp) {
+      const ctx = document.getElementById('financialChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Season Budget Overview'],
+          datasets: [
+            { label: 'Ticket Revenue', data: [tixRev], backgroundColor: '#4f46e5' },
+            { label: 'Grants, Sponsorships & Concessions', data: [nonBoxRev], backgroundColor: '#818cf8' },
+            { label: 'Production Costs & Stipends', data: [prodExp], backgroundColor: '#ef4444' },
+            { label: 'General Operating Overhead', data: [overheadExp], backgroundColor: '#f87171' }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `whim_budget_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        state = JSON.parse(evt.target.result);
+        saveState();
+      };
+      reader.readAsText(file);
+    }
+
+    function printReport() {
+      window.print();
+    }
+
+    renderApp();
+  </script>
+</body>
+</html>
