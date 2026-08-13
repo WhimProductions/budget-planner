@@ -20,7 +20,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; max-width: 1280px; margin: 0 auto; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; max-width: 1350px; margin: 0 auto; }
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--border); }
     h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-main); }
@@ -38,7 +38,7 @@
     .kpi-value.positive { color: var(--success); }
     .kpi-value.negative { color: var(--danger); }
 
-    .scenario-picker { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; background: var(--accent-bg); padding: 14px 20px; border-radius: 8px; border: 1px solid #c7d2fe; }
+    .scenario-picker { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; background: var(--accent-bg); padding: 14px 20px; border-radius: 8px; border: 1px solid #c7d2fe; flex-wrap: wrap; }
     .scenario-picker label { font-weight: 700; color: #3730a3; }
     
     select, input, button { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; }
@@ -60,10 +60,11 @@
     
     .show-card { border: 1px solid var(--border); padding: 18px; border-radius: 8px; margin-bottom: 16px; background: #ffffff; }
     .show-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-    .section-title { font-weight: 700; font-size: 0.95rem; margin: 14px 0 8px 0; color: var(--primary); border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+    .section-title { font-weight: 700; font-size: 0.95rem; margin: 16px 0 8px 0; color: var(--primary); border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+    .sub-section-title { font-weight: 700; font-size: 0.85rem; margin: 10px 0 6px 0; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
 
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
@@ -73,7 +74,7 @@
     .badge-awarded { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
     .badge-anticipated { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
 
-    .grant-card { border: 1px solid var(--border); padding: 16px; border-radius: 8px; margin-bottom: 14px; background: #ffffff; }
+    .hub-card { border: 1px solid var(--border); padding: 16px; border-radius: 8px; margin-bottom: 14px; background: #ffffff; }
     .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
     .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; background: #f1f5f9; padding: 4px 10px; border-radius: 4px; }
 
@@ -81,7 +82,7 @@
       body { background: #ffffff; padding: 0; margin: 0; max-width: 100%; }
       header div:last-child, .nav-tabs, button, input[type="file"], .btn-danger { display: none !important; }
       .tab-content { display: block !important; }
-      .card, .kpi-card, .show-card, .grant-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; page-break-inside: avoid; }
+      .card, .kpi-card, .show-card, .hub-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; page-break-inside: avoid; }
       input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; font-weight: bold; padding: 0 !important; }
       .scenario-picker { border: 1px solid #a5b4fc !important; background: #f5f3ff !important; }
     }
@@ -92,7 +93,7 @@
   <header>
     <div>
       <h1>Whim Productions - Budget & Scenario Hub</h1>
-      <div class="subtitle">Consolidated Financial Planning, Production Budgets & Grant Allocations</div>
+      <div class="subtitle">Consolidated Financial Planning, Production Budgets & Funding Allocations</div>
     </div>
     <div>
       <button class="btn-secondary" onclick="printReport()">🖨️ Print / Save PDF</button>
@@ -106,13 +107,23 @@
     <button class="tab-btn active" onclick="switchTab('dashboard')">Consolidated P&L</button>
     <button class="tab-btn" onclick="switchTab('builder')">✨ New Show Builder</button>
     <button class="tab-btn" onclick="switchTab('productions')">Productions & Events</button>
-    <button class="tab-btn" onclick="switchTab('grants')">Grants & Sponsorship Hub</button>
+    <button class="tab-btn" onclick="switchTab('grants')">Grants Hub</button>
+    <button class="tab-btn" onclick="switchTab('sponsorships')">Sponsorships Hub</button>
     <button class="tab-btn" onclick="switchTab('overhead')">Operating Overhead</button>
   </div>
 
   <!-- DASHBOARD TAB -->
   <div id="dashboard" class="tab-content active">
     <div class="scenario-picker">
+      <div>
+        <label>Season Filter:</label>
+        <select id="seasonFilter" onchange="renderApp()">
+          <option value="all" selected>All Seasons (Combined)</option>
+          <option value="2025-2026">2025–2026 Season</option>
+          <option value="2026-2027">2026–2027 Season</option>
+          <option value="2027-2028">2027–2028 Season</option>
+        </select>
+      </div>
       <div>
         <label>Capacity Mode:</label>
         <select id="capacityMode" onchange="renderApp()">
@@ -157,13 +168,26 @@
     <div class="grid-2">
       <div class="card">
         <h3>Show Modeling Form</h3>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Model a new production with multi-tier ticket pricing before adding it to your season budget.</p>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Model a new production with multi-tier ticket pricing and comprehensive stipends before adding it to your season budget.</p>
         
         <div class="section-title">1. Show Parameters</div>
-        <div class="form-group"><label>Show Title</label><input type="text" id="f_name" value="New Mainstage Proposal" oninput="calculateBuilder()"></div>
-        <div class="grid-3">
+        <div class="grid-2">
+          <div class="form-group"><label>Show Title</label><input type="text" id="f_name" value="New Mainstage Proposal" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Season</label>
+            <select id="f_season" onchange="calculateBuilder()">
+              <option value="2025-2026">2025–2026</option>
+              <option value="2026-2027" selected>2026–2027</option>
+              <option value="2027-2028">2027–2028</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="form-group"><label>Rehearsal Weeks</label><input type="number" id="f_rehearsalWeeks" value="4" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Performance Weeks</label><input type="number" id="f_performanceWeeks" value="3" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Performances</label><input type="number" id="f_performances" value="8" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>House Capacity</label><input type="number" id="f_capacity" value="62" oninput="calculateBuilder()"></div>
+        </div>
+        <div class="grid-4">
           <div class="form-group"><label>Expected Cap %</label><input type="number" id="f_expectedAttendancePct" value="55" oninput="calculateBuilder()"></div>
         </div>
 
@@ -181,29 +205,53 @@
 
         <div class="section-title">3. Non-Box Office Revenue</div>
         <div class="grid-3">
-          <div class="form-group"><label>Sponsorships ($)</label><input type="number" id="f_sponsorships" value="250" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Concessions ($)</label><input type="number" id="f_concessions" value="800" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Merch ($)</label><input type="number" id="f_merch" value="50" oninput="calculateBuilder()"></div>
         </div>
 
-        <div class="section-title">4. Account 53500 Artist & Tech Stipends</div>
+        <div class="section-title">4. Account 53500 Artist & Technical Stipends</div>
         <div class="grid-4">
           <div class="form-group"><label>Actor Count</label><input type="number" id="f_actorsCount" value="6" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Actor Rate ($)</label><input type="number" id="f_actorRate" value="400" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Carpentry Hours</label><input type="number" id="f_carpentryHours" value="40" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Carpentry Rate ($)</label><input type="number" id="f_carpentryRate" value="20" oninput="calculateBuilder()"></div>
-        </div>
-        <div class="grid-4">
           <div class="form-group"><label>Director ($)</label><input type="number" id="f_directorPay" value="700" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Stage Manager ($)</label><input type="number" id="f_stageManagerPay" value="800" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Fight Choreographer ($)</label><input type="number" id="f_fightChoreographerPay" value="350" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Designers Total ($)</label><input type="number" id="f_designersPay" value="2500" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Stage Management ($)</label><input type="number" id="f_stageManagerPay" value="800" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Art/Graphic Design ($)</label><input type="number" id="f_graphicDesignPay" value="300" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Costume Design ($)</label><input type="number" id="f_costumeDesignPay" value="500" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Lighting Design ($)</label><input type="number" id="f_lightingDesignPay" value="500" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Prop Design ($)</label><input type="number" id="f_propDesignPay" value="400" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Set Design ($)</label><input type="number" id="f_setDesignPay" value="600" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Sound Design ($)</label><input type="number" id="f_soundDesignPay" value="500" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Board Operator ($)</label><input type="number" id="f_boardOpPay" value="300" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Music Director ($)</label><input type="number" id="f_musicDirectorPay" value="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Intimacy Choreography ($)</label><input type="number" id="f_intimacyPay" value="300" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Fight Choreography ($)</label><input type="number" id="f_fightPay" value="350" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Dance Choreography ($)</label><input type="number" id="f_dancePay" value="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Musicians ($)</label><input type="number" id="f_musiciansPay" value="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Technical Director ($)</label><input type="number" id="f_techDirectorPay" value="600" oninput="calculateBuilder()"></div>
         </div>
 
         <div class="section-title">5. Production Expenses</div>
         <div class="grid-4">
-          <div class="form-group"><label>Script Rights ($)</label><input type="number" id="f_scriptRights" value="800" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Sets, Costumes, Mktg ($)</label><input type="number" id="f_otherProdExpenses" value="2500" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Rental - Facility - Month ($)</label><input type="number" id="f_rentFacility" value="1000" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Rental - Equipment ($)</label><input type="number" id="f_rentEquipment" value="200" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Rental - Props ($)</label><input type="number" id="f_rentProps" value="100" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Rental - Costumes ($)</label><input type="number" id="f_rentCostumes" value="150" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Rental - Set Piece ($)</label><input type="number" id="f_rentSetPiece" value="100" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Rental - Automobile ($)</label><input type="number" id="f_rentAuto" value="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Fuel ($)</label><input type="number" id="f_fuel" value="50" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Costumes ($)</label><input type="number" id="f_expCostumes" value="400" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Props ($)</label><input type="number" id="f_expProps" value="300" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Scenic Materials ($)</label><input type="number" id="f_scenicMaterials" value="800" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Scripts - Print/Rent/Buy ($)</label><input type="number" id="f_scripts" value="600" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Supplies ($)</label><input type="number" id="f_supplies" value="200" oninput="calculateBuilder()"></div>
+        </div>
+
+        <div class="sub-section-title">Recording & Broadcasting</div>
+        <div class="grid-4">
+          <div class="form-group"><label>Photography ($)</label><input type="number" id="f_photography" value="300" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Videography ($)</label><input type="number" id="f_videography" value="400" oninput="calculateBuilder()"></div>
         </div>
       </div>
 
@@ -253,13 +301,27 @@
   <div id="grants" class="tab-content">
     <div class="card">
       <div class="flex-between">
-        <h3>Grants & Sponsorship Hub (Account 40000)</h3>
-        <button class="btn-primary" onclick="addGrant()">+ Add New Grant/Sponsor</button>
+        <h3>Grants Hub (Account 40000)</h3>
+        <button class="btn-primary" onclick="addGrant()">+ Add New Grant</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
         Assign grants to specific productions using the checkboxes below. Grant funds are automatically apportioned across selected shows.
       </p>
       <div id="grants-container"></div>
+    </div>
+  </div>
+
+  <!-- SPONSORSHIPS TAB -->
+  <div id="sponsorships" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h3>Sponsorships Hub (Account 40000)</h3>
+        <button class="btn-primary" onclick="addSponsorship()">+ Add New Sponsor</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+        Assign corporate or individual sponsorships to specific productions. Sponsorship funds automatically apportion across selected shows.
+      </p>
+      <div id="sponsorships-container"></div>
     </div>
   </div>
 
@@ -297,28 +359,39 @@
         { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1, 2] },
         { id: 102, name: "Kids Christmas Grant", amount: 8875, status: "Anticipated", targetShowIds: [] }
       ],
+      sponsorships: [
+        { id: 201, name: "Local Business Title Sponsor", amount: 2500, status: "Awarded", targetShowIds: [1] }
+      ],
       productions: [
         {
           id: 1,
           name: "Lipstick",
+          season: "2026-2027",
+          rehearsalWeeks: 4, performanceWeeks: 3,
           performances: 8, capacity: 62, expectedAttendancePct: 55,
-          gaPrice: 30.00, gaPct: 70,
-          pwywPrice: 15.00, pwywPct: 20,
-          compPct: 10,
-          sponsorships: 250, concessions: 1000, merch: 30,
-          scriptRights: 900, actorsCount: 7, actorRate: 400, directorPay: 700,
-          stageManagerPay: 800, fightChoreographerPay: 350, carpentryHours: 95, carpentryRate: 20, designersPay: 2750, otherProdExpenses: 3000
+          gaPrice: 30.00, gaPct: 70, pwywPrice: 15.00, pwywPct: 20, compPct: 10,
+          concessions: 1000, merch: 30,
+          actorsCount: 7, actorRate: 400, carpentryHours: 95, carpentryRate: 20,
+          directorPay: 700, stageManagerPay: 800, graphicDesignPay: 300, costumeDesignPay: 500,
+          lightingDesignPay: 500, propDesignPay: 400, setDesignPay: 600, soundDesignPay: 500,
+          boardOpPay: 300, musicDirectorPay: 0, intimacyPay: 300, fightPay: 350, dancePay: 0, musiciansPay: 0, techDirectorPay: 600,
+          rentFacility: 1000, rentEquipment: 200, rentProps: 100, rentCostumes: 150, rentSetPiece: 100, rentAuto: 0, fuel: 50,
+          expCostumes: 400, expProps: 300, scenicMaterials: 800, scripts: 600, supplies: 200, photography: 300, videography: 400
         },
         {
           id: 2,
           name: "Alphabet Soup 2026",
+          season: "2026-2027",
+          rehearsalWeeks: 3, performanceWeeks: 2,
           performances: 8, capacity: 62, expectedAttendancePct: 60,
-          gaPrice: 27.50, gaPct: 75,
-          pwywPrice: 15.00, pwywPct: 15,
-          compPct: 10,
-          sponsorships: 1500, concessions: 1000, merch: 30,
-          scriptRights: 1200, actorsCount: 40, actorRate: 100, directorPay: 700,
-          stageManagerPay: 800, fightChoreographerPay: 0, carpentryHours: 50, carpentryRate: 20, designersPay: 2850, otherProdExpenses: 3100
+          gaPrice: 27.50, gaPct: 75, pwywPrice: 15.00, pwywPct: 15, compPct: 10,
+          concessions: 1000, merch: 30,
+          actorsCount: 40, actorRate: 100, carpentryHours: 50, carpentryRate: 20,
+          directorPay: 700, stageManagerPay: 800, graphicDesignPay: 300, costumeDesignPay: 500,
+          lightingDesignPay: 500, propDesignPay: 400, setDesignPay: 600, soundDesignPay: 500,
+          boardOpPay: 300, musicDirectorPay: 0, intimacyPay: 0, fightPay: 0, dancePay: 0, musiciansPay: 0, techDirectorPay: 600,
+          rentFacility: 1000, rentEquipment: 200, rentProps: 100, rentCostumes: 150, rentSetPiece: 100, rentAuto: 0, fuel: 50,
+          expCostumes: 500, expProps: 300, scenicMaterials: 800, scripts: 600, supplies: 200, photography: 300, videography: 400
         }
       ]
     };
@@ -341,7 +414,6 @@
       if (tabId === 'builder') calculateBuilder();
     }
 
-    // HELPER: CALCULATE TICKET METRICS FOR A SHOW
     function getShowTicketMetrics(p, isFullCap) {
       let attPct = isFullCap ? 1.0 : ((p.expectedAttendancePct || 55) / 100);
       let totalAttendedSeats = p.capacity * p.performances * attPct;
@@ -359,7 +431,6 @@
       return { totalAttendedSeats, gaSeats, pwywSeats, compSeats, totalTixRev, weightedAvgTicket };
     }
 
-    // HELPER: CALCULATE APPORTIONED GRANTS FOR A SPECIFIC SHOW
     function getShowAllocatedGrants(showId) {
       let total = 0;
       state.grants.forEach(g => {
@@ -367,6 +438,18 @@
           total += (g.amount / g.targetShowIds.length);
         }
       });
+      return total;
+    }
+
+    function getShowAllocatedSponsorships(showId) {
+      let total = 0;
+      if (state.sponsorships) {
+        state.sponsorships.forEach(s => {
+          if (s.targetShowIds && s.targetShowIds.includes(showId)) {
+            total += (s.amount / s.targetShowIds.length);
+          }
+        });
+      }
       return total;
     }
 
@@ -380,21 +463,48 @@
       const pwywPrice = parseFloat(document.getElementById('f_pwywPrice').value) || 0;
       const pwywPct = (parseFloat(document.getElementById('f_pwywPct').value) || 0) / 100;
 
-      const spon = parseFloat(document.getElementById('f_sponsorships').value) || 0;
       const conc = parseFloat(document.getElementById('f_concessions').value) || 0;
       const merch = parseFloat(document.getElementById('f_merch').value) || 0;
 
+      // Stipends
       const actQty = parseFloat(document.getElementById('f_actorsCount').value) || 0;
       const actRate = parseFloat(document.getElementById('f_actorRate').value) || 0;
       const carpHrs = parseFloat(document.getElementById('f_carpentryHours').value) || 0;
       const carpRate = parseFloat(document.getElementById('f_carpentryRate').value) || 0;
+
       const dir = parseFloat(document.getElementById('f_directorPay').value) || 0;
       const sm = parseFloat(document.getElementById('f_stageManagerPay').value) || 0;
-      const fight = parseFloat(document.getElementById('f_fightChoreographerPay').value) || 0;
-      const des = parseFloat(document.getElementById('f_designersPay').value) || 0;
+      const graphic = parseFloat(document.getElementById('f_graphicDesignPay').value) || 0;
+      const costumeDes = parseFloat(document.getElementById('f_costumeDesignPay').value) || 0;
+      const lightDes = parseFloat(document.getElementById('f_lightingDesignPay').value) || 0;
+      const propDes = parseFloat(document.getElementById('f_propDesignPay').value) || 0;
+      const setDes = parseFloat(document.getElementById('f_setDesignPay').value) || 0;
+      const soundDes = parseFloat(document.getElementById('f_soundDesignPay').value) || 0;
+      const board = parseFloat(document.getElementById('f_boardOpPay').value) || 0;
+      const musicDir = parseFloat(document.getElementById('f_musicDirectorPay').value) || 0;
+      const intimacy = parseFloat(document.getElementById('f_intimacyPay').value) || 0;
+      const fight = parseFloat(document.getElementById('f_fightPay').value) || 0;
+      const dance = parseFloat(document.getElementById('f_dancePay').value) || 0;
+      const musicians = parseFloat(document.getElementById('f_musiciansPay').value) || 0;
+      const techDir = parseFloat(document.getElementById('f_techDirectorPay').value) || 0;
 
-      const rights = parseFloat(document.getElementById('f_scriptRights').value) || 0;
-      const other = parseFloat(document.getElementById('f_otherProdExpenses').value) || 0;
+      const stipends = (actQty * actRate) + (carpHrs * carpRate) + dir + sm + graphic + costumeDes + lightDes + propDes + setDes + soundDes + board + musicDir + intimacy + fight + dance + musicians + techDir;
+
+      // Expenses
+      const expSum = (parseFloat(document.getElementById('f_rentFacility').value)||0) +
+                     (parseFloat(document.getElementById('f_rentEquipment').value)||0) +
+                     (parseFloat(document.getElementById('f_rentProps').value)||0) +
+                     (parseFloat(document.getElementById('f_rentCostumes').value)||0) +
+                     (parseFloat(document.getElementById('f_rentSetPiece').value)||0) +
+                     (parseFloat(document.getElementById('f_rentAuto').value)||0) +
+                     (parseFloat(document.getElementById('f_fuel').value)||0) +
+                     (parseFloat(document.getElementById('f_expCostumes').value)||0) +
+                     (parseFloat(document.getElementById('f_expProps').value)||0) +
+                     (parseFloat(document.getElementById('f_scenicMaterials').value)||0) +
+                     (parseFloat(document.getElementById('f_scripts').value)||0) +
+                     (parseFloat(document.getElementById('f_supplies').value)||0) +
+                     (parseFloat(document.getElementById('f_photography').value)||0) +
+                     (parseFloat(document.getElementById('f_videography').value)||0);
 
       const apportionedItems = state.overhead.filter(o => o.apportion);
       const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
@@ -404,14 +514,13 @@
       const tixRev = (seatsSold * gaPct * gaPrice) + (seatsSold * pwywPct * pwywPrice);
       const avgTix = seatsSold > 0 ? (tixRev / seatsSold) : 0;
 
-      const stipends = (actQty * actRate) + (carpHrs * carpRate) + dir + sm + fight + des;
-      const exp = stipends + rights + other + perShowAdmin;
-      const netMargin = (tixRev + spon + conc + merch) - exp;
+      const totalExp = stipends + expSum + perShowAdmin;
+      const netMargin = (tixRev + conc + merch) - totalExp;
 
       document.getElementById('prev-tix').innerText = '$' + tixRev.toLocaleString(undefined, {maximumFractionDigits:0});
       document.getElementById('prev-tix-sub').innerText = `${seatsSold.toFixed(0)} seats projected`;
       document.getElementById('prev-avg-tix').innerText = '$' + avgTix.toFixed(2);
-      document.getElementById('prev-exp').innerText = '$' + exp.toLocaleString(undefined, {maximumFractionDigits:0});
+      document.getElementById('prev-exp').innerText = '$' + totalExp.toLocaleString(undefined, {maximumFractionDigits:0});
       
       const marginEl = document.getElementById('prev-margin');
       marginEl.innerText = '$' + netMargin.toLocaleString(undefined, {maximumFractionDigits:0});
@@ -422,6 +531,9 @@
       const newShow = {
         id: Date.now(),
         name: document.getElementById('f_name').value || "New Show",
+        season: document.getElementById('f_season').value || "2026-2027",
+        rehearsalWeeks: parseInt(document.getElementById('f_rehearsalWeeks').value) || 0,
+        performanceWeeks: parseInt(document.getElementById('f_performanceWeeks').value) || 0,
         performances: parseInt(document.getElementById('f_performances').value) || 0,
         capacity: parseInt(document.getElementById('f_capacity').value) || 0,
         expectedAttendancePct: parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0,
@@ -430,7 +542,6 @@
         pwywPrice: parseFloat(document.getElementById('f_pwywPrice').value) || 0,
         pwywPct: parseFloat(document.getElementById('f_pwywPct').value) || 0,
         compPct: parseFloat(document.getElementById('f_compPct').value) || 0,
-        sponsorships: parseFloat(document.getElementById('f_sponsorships').value) || 0,
         concessions: parseFloat(document.getElementById('f_concessions').value) || 0,
         merch: parseFloat(document.getElementById('f_merch').value) || 0,
         actorsCount: parseInt(document.getElementById('f_actorsCount').value) || 0,
@@ -439,10 +550,33 @@
         carpentryRate: parseFloat(document.getElementById('f_carpentryRate').value) || 0,
         directorPay: parseFloat(document.getElementById('f_directorPay').value) || 0,
         stageManagerPay: parseFloat(document.getElementById('f_stageManagerPay').value) || 0,
-        fightChoreographerPay: parseFloat(document.getElementById('f_fightChoreographerPay').value) || 0,
-        designersPay: parseFloat(document.getElementById('f_designersPay').value) || 0,
-        scriptRights: parseFloat(document.getElementById('f_scriptRights').value) || 0,
-        otherProdExpenses: parseFloat(document.getElementById('f_otherProdExpenses').value) || 0
+        graphicDesignPay: parseFloat(document.getElementById('f_graphicDesignPay').value) || 0,
+        costumeDesignPay: parseFloat(document.getElementById('f_costumeDesignPay').value) || 0,
+        lightingDesignPay: parseFloat(document.getElementById('f_lightingDesignPay').value) || 0,
+        propDesignPay: parseFloat(document.getElementById('f_propDesignPay').value) || 0,
+        setDesignPay: parseFloat(document.getElementById('f_setDesignPay').value) || 0,
+        soundDesignPay: parseFloat(document.getElementById('f_soundDesignPay').value) || 0,
+        boardOpPay: parseFloat(document.getElementById('f_boardOpPay').value) || 0,
+        musicDirectorPay: parseFloat(document.getElementById('f_musicDirectorPay').value) || 0,
+        intimacyPay: parseFloat(document.getElementById('f_intimacyPay').value) || 0,
+        fightPay: parseFloat(document.getElementById('f_fightPay').value) || 0,
+        dancePay: parseFloat(document.getElementById('f_dancePay').value) || 0,
+        musiciansPay: parseFloat(document.getElementById('f_musiciansPay').value) || 0,
+        techDirectorPay: parseFloat(document.getElementById('f_techDirectorPay').value) || 0,
+        rentFacility: parseFloat(document.getElementById('f_rentFacility').value) || 0,
+        rentEquipment: parseFloat(document.getElementById('f_rentEquipment').value) || 0,
+        rentProps: parseFloat(document.getElementById('f_rentProps').value) || 0,
+        rentCostumes: parseFloat(document.getElementById('f_rentCostumes').value) || 0,
+        rentSetPiece: parseFloat(document.getElementById('f_rentSetPiece').value) || 0,
+        rentAuto: parseFloat(document.getElementById('f_rentAuto').value) || 0,
+        fuel: parseFloat(document.getElementById('f_fuel').value) || 0,
+        expCostumes: parseFloat(document.getElementById('f_expCostumes').value) || 0,
+        expProps: parseFloat(document.getElementById('f_expProps').value) || 0,
+        scenicMaterials: parseFloat(document.getElementById('f_scenicMaterials').value) || 0,
+        scripts: parseFloat(document.getElementById('f_scripts').value) || 0,
+        supplies: parseFloat(document.getElementById('f_supplies').value) || 0,
+        photography: parseFloat(document.getElementById('f_photography').value) || 0,
+        videography: parseFloat(document.getElementById('f_videography').value) || 0
       };
 
       state.productions.push(newShow);
@@ -452,29 +586,41 @@
     }
 
     function renderApp() {
+      const selectedSeason = document.getElementById('seasonFilter').value;
       const isFullCap = document.getElementById('capacityMode').value === 'full';
+      
       const totalOverhead = state.overhead.reduce((sum, item) => sum + item.annual, 0);
-      const totalGrants = state.grants.reduce((sum, item) => sum + item.amount, 0);
 
       const apportionedItems = state.overhead.filter(o => o.apportion);
       const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
       const perShowApportionedAdmin = (annualApportionedPool / 12);
+
+      let filteredShows = state.productions.filter(p => selectedSeason === 'all' || p.season === selectedSeason);
 
       let totalTicketRevenue = 0;
       let totalNonBoxRevenue = 0;
       let totalProductionExpenses = 0;
       let totalStipendsPool = 0;
 
-      state.productions.forEach(p => {
+      filteredShows.forEach(p => {
         let metrics = getShowTicketMetrics(p, isFullCap);
         let showGrantAlloc = getShowAllocatedGrants(p.id);
-        let showNonBoxRev = showGrantAlloc + p.sponsorships + p.concessions + p.merch;
+        let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
+
+        let showNonBoxRev = showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0);
         
-        let actorStipends = p.actorsCount * p.actorRate;
-        let carpentryStipends = p.carpentryHours * p.carpentryRate;
-        let fightPay = p.fightChoreographerPay || 0;
-        let showStipends = actorStipends + carpentryStipends + p.directorPay + p.stageManagerPay + fightPay + p.designersPay;
-        let showExpenses = showStipends + p.scriptRights + p.otherProdExpenses + perShowApportionedAdmin;
+        let actorStipends = (p.actorsCount||0) * (p.actorRate||0);
+        let carpentryStipends = (p.carpentryHours||0) * (p.carpentryRate||0);
+        let showStipends = actorStipends + carpentryStipends + (p.directorPay||0) + (p.stageManagerPay||0) + 
+                           (p.graphicDesignPay||0) + (p.costumeDesignPay||0) + (p.lightingDesignPay||0) + (p.propDesignPay||0) +
+                           (p.setDesignPay||0) + (p.soundDesignPay||0) + (p.boardOpPay||0) + (p.musicDirectorPay||0) +
+                           (p.intimacyPay||0) + (p.fightPay||0) + (p.dancePay||0) + (p.musiciansPay||0) + (p.techDirectorPay||0);
+
+        let expSum = (p.rentFacility||0) + (p.rentEquipment||0) + (p.rentProps||0) + (p.rentCostumes||0) + (p.rentSetPiece||0) +
+                     (p.rentAuto||0) + (p.fuel||0) + (p.expCostumes||0) + (p.expProps||0) + (p.scenicMaterials||0) +
+                     (p.scripts||0) + (p.supplies||0) + (p.photography||0) + (p.videography||0);
+
+        let showExpenses = showStipends + expSum + perShowApportionedAdmin;
 
         totalTicketRevenue += metrics.totalTixRev;
         totalNonBoxRevenue += showNonBoxRev;
@@ -482,10 +628,11 @@
         totalStipendsPool += showStipends;
       });
 
-      // Avoid double counting grants allocated to shows vs general pool
       let unallocatedGrants = state.grants.filter(g => !g.targetShowIds || g.targetShowIds.length === 0).reduce((s, g) => s + g.amount, 0);
-      const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + unallocatedGrants;
-      const totalExpenses = totalOverhead + (totalProductionExpenses - (state.productions.length * perShowApportionedAdmin));
+      let unallocatedSponsors = (state.sponsorships||[]).filter(s => !s.targetShowIds || s.targetShowIds.length === 0).reduce((s, sp) => s + sp.amount, 0);
+
+      const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + unallocatedGrants + unallocatedSponsors;
+      const totalExpenses = totalOverhead + (totalProductionExpenses - (filteredShows.length * perShowApportionedAdmin));
       const netIncome = totalRevenue - totalExpenses;
 
       document.getElementById('kpi-rev').innerText = '$' + totalRevenue.toLocaleString(undefined, {maximumFractionDigits:0});
@@ -499,7 +646,8 @@
 
       renderOverheadTable();
       renderGrantsHub();
-      renderProductions(isFullCap, perShowApportionedAdmin);
+      renderSponsorshipsHub();
+      renderProductions(filteredShows, isFullCap, perShowApportionedAdmin);
       renderChart(totalTicketRevenue, totalNonBoxRevenue, totalProductionExpenses, totalOverhead);
     }
 
@@ -513,7 +661,7 @@
           return `
             <label class="checkbox-item">
               <input type="checkbox" ${isChecked} onchange="toggleGrantShow(${g.id}, ${p.id}, this.checked)">
-              ${p.name}
+              ${p.name} (${p.season||'2026-2027'})
             </label>`;
         }).join('');
 
@@ -521,7 +669,7 @@
         let perShowAmt = allocCount > 0 ? (g.amount / allocCount) : 0;
 
         container.innerHTML += `
-          <div class="grant-card">
+          <div class="hub-card">
             <div class="flex-between" style="margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:12px;">
                 <input type="text" value="${g.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateGrant(${g.id}, 'name', this.value)">
@@ -550,9 +698,7 @@
 
             <div>
               <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold; text-transform:uppercase;">Apportion Funds To Shows/Events:</label>
-              <div class="checkbox-group">
-                ${showCheckboxes || '<span style="font-size:0.85rem; color:var(--text-muted);">No shows created yet.</span>'}
-              </div>
+              <div class="checkbox-group">${showCheckboxes}</div>
             </div>
           </div>`;
       });
@@ -584,19 +730,108 @@
       saveState();
     }
 
-    function renderProductions(isFullCap, apportionedAdmin) {
+    function renderSponsorshipsHub() {
+      const container = document.getElementById('sponsorships-container');
+      container.innerHTML = '';
+      if (!state.sponsorships) state.sponsorships = [];
+
+      state.sponsorships.forEach(s => {
+        let showCheckboxes = state.productions.map(p => {
+          let isChecked = s.targetShowIds && s.targetShowIds.includes(p.id) ? 'checked' : '';
+          return `
+            <label class="checkbox-item">
+              <input type="checkbox" ${isChecked} onchange="toggleSponsorShow(${s.id}, ${p.id}, this.checked)">
+              ${p.name} (${p.season||'2026-2027'})
+            </label>`;
+        }).join('');
+
+        let allocCount = s.targetShowIds ? s.targetShowIds.length : 0;
+        let perShowAmt = allocCount > 0 ? (s.amount / allocCount) : 0;
+
+        container.innerHTML += `
+          <div class="hub-card">
+            <div class="flex-between" style="margin-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <input type="text" value="${s.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateSponsor(${s.id}, 'name', this.value)">
+                <span class="badge ${s.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${s.status}</span>
+              </div>
+              <button class="btn-danger" onclick="deleteSponsor(${s.id})">Delete Sponsor</button>
+            </div>
+            
+            <div class="grid-3" style="margin-bottom:12px;">
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">SPONSORSHIP AMOUNT ($)</label><br>
+                $<input type="number" value="${s.amount}" style="font-weight:bold;" onchange="updateSponsor(${s.id}, 'amount', parseFloat(this.value))">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
+                <select onchange="updateSponsor(${s.id}, 'status', this.value)">
+                  <option value="Awarded" ${s.status==='Awarded'?'selected':''}>Awarded / Confirmed</option>
+                  <option value="Anticipated" ${s.status==='Anticipated'?'selected':''}>Anticipated / Pledged</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW</label><br>
+                <strong style="color:var(--primary); font-size:1.1rem;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold; text-transform:uppercase;">Apportion Funds To Shows/Events:</label>
+              <div class="checkbox-group">${showCheckboxes}</div>
+            </div>
+          </div>`;
+      });
+    }
+
+    function toggleSponsorShow(sponsorId, showId, isChecked) {
+      const sp = state.sponsorships.find(s => s.id === sponsorId);
+      if (sp) {
+        if (!sp.targetShowIds) sp.targetShowIds = [];
+        if (isChecked && !sp.targetShowIds.includes(showId)) {
+          sp.targetShowIds.push(showId);
+        } else if (!isChecked) {
+          sp.targetShowIds = sp.targetShowIds.filter(id => id !== showId);
+        }
+        saveState();
+      }
+    }
+
+    function updateSponsor(id, field, val) {
+      const item = state.sponsorships.find(s => s.id === id);
+      if (item) { item[field] = val; saveState(); }
+    }
+    function addSponsorship() {
+      if (!state.sponsorships) state.sponsorships = [];
+      state.sponsorships.push({ id: Date.now(), name: "New Sponsor Partner", amount: 1500, status: "Anticipated", targetShowIds: [] });
+      saveState();
+    }
+    function deleteSponsor(id) {
+      state.sponsorships = state.sponsorships.filter(s => s.id !== id);
+      saveState();
+    }
+
+    function renderProductions(filteredShows, isFullCap, apportionedAdmin) {
       const container = document.getElementById('productions-container');
       container.innerHTML = '';
-      state.productions.forEach(p => {
+      filteredShows.forEach(p => {
         let metrics = getShowTicketMetrics(p, isFullCap);
         let showGrantAlloc = getShowAllocatedGrants(p.id);
+        let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
 
-        let actorPay = p.actorsCount * p.actorRate;
-        let carpPay = p.carpentryHours * p.carpentryRate;
-        let fightPay = p.fightChoreographerPay || 0;
-        let totalStipends = actorPay + carpPay + p.directorPay + p.stageManagerPay + fightPay + p.designersPay;
-        let totalShowExpenses = totalStipends + p.scriptRights + p.otherProdExpenses + apportionedAdmin;
-        let totalShowRev = metrics.totalTixRev + showGrantAlloc + p.sponsorships + p.concessions + p.merch;
+        let actorPay = (p.actorsCount||0) * (p.actorRate||0);
+        let carpPay = (p.carpentryHours||0) * (p.carpentryRate||0);
+        let showStipends = actorPay + carpPay + (p.directorPay||0) + (p.stageManagerPay||0) + 
+                           (p.graphicDesignPay||0) + (p.costumeDesignPay||0) + (p.lightingDesignPay||0) + (p.propDesignPay||0) +
+                           (p.setDesignPay||0) + (p.soundDesignPay||0) + (p.boardOpPay||0) + (p.musicDirectorPay||0) +
+                           (p.intimacyPay||0) + (p.fightPay||0) + (p.dancePay||0) + (p.musiciansPay||0) + (p.techDirectorPay||0);
+
+        let expSum = (p.rentFacility||0) + (p.rentEquipment||0) + (p.rentProps||0) + (p.rentCostumes||0) + (p.rentSetPiece||0) +
+                     (p.rentAuto||0) + (p.fuel||0) + (p.expCostumes||0) + (p.expProps||0) + (p.scenicMaterials||0) +
+                     (p.scripts||0) + (p.supplies||0) + (p.photography||0) + (p.videography||0);
+
+        let totalShowExpenses = showStipends + expSum + apportionedAdmin;
+        let totalShowRev = metrics.totalTixRev + showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0);
         let showGross = totalShowRev - totalShowExpenses;
 
         container.innerHTML += `
@@ -604,16 +839,22 @@
             <div class="show-header">
               <div>
                 <input type="text" value="${p.name}" style="font-weight:bold; font-size:1.15rem; width:260px;" onchange="updateProd(${p.id}, 'name', this.value)">
+                <select style="font-weight:bold; width:130px; margin-left:8px;" onchange="updateProd(${p.id}, 'season', this.value)">
+                  <option value="2025-2026" ${p.season==='2025-2026'?'selected':''}>2025–2026</option>
+                  <option value="2026-2027" ${p.season==='2026-2027'?'selected':''}>2026–2027</option>
+                  <option value="2027-2028" ${p.season==='2027-2028'?'selected':''}>2027–2028</option>
+                </select>
                 <span style="font-size:0.85rem; color:var(--text-muted); margin-left:12px;">Net Margin: <strong style="color:${showGross>=0?'var(--success)':'var(--danger)'}">$${showGross.toLocaleString(undefined,{maximumFractionDigits:0})}</strong></span>
               </div>
               <button class="btn-danger" onclick="deleteProd(${p.id})">Delete Show</button>
             </div>
 
             <div class="section-title">1. Performance & Capacity Parameters</div>
-            <div class="grid-3">
+            <div class="grid-4">
+              <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" onchange="updateProd(${p.id}, 'rehearsalWeeks', parseInt(this.value))"></div>
+              <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" onchange="updateProd(${p.id}, 'performanceWeeks', parseInt(this.value))"></div>
               <div><label>Performances:</label><br><input type="number" value="${p.performances}" onchange="updateProd(${p.id}, 'performances', parseInt(this.value))"></div>
               <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" onchange="updateProd(${p.id}, 'capacity', parseInt(this.value))"></div>
-              <div><label>Expected Capacity %:</label><br><input type="number" value="${p.expectedAttendancePct}" onchange="updateProd(${p.id}, 'expectedAttendancePct', parseFloat(this.value))">%</div>
             </div>
 
             <div class="section-title">2. Ticket Tiers & House Distribution</div>
@@ -633,8 +874,8 @@
 
             <div class="section-title">3. Non-Box Office Revenue</div>
             <div class="grid-4">
-              <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(From Grants Hub)</span></div>
-              <div><label>Sponsorships ($):</label><br><input type="number" value="${p.sponsorships}" onchange="updateProd(${p.id}, 'sponsorships', parseFloat(this.value))"></div>
+              <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
+              <div><label>Allocated Sponsorships ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
               <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
               <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
             </div>
@@ -642,17 +883,44 @@
             <div class="section-title">4. Account 53500 Artist & Technical Stipends</div>
             <div class="grid-4">
               <div><label>Actors (Qty x Rate):</label><br><input type="number" value="${p.actorsCount}" style="width:50px" onchange="updateProd(${p.id}, 'actorsCount', parseInt(this.value))"> x $<input type="number" value="${p.actorRate}" style="width:70px" onchange="updateProd(${p.id}, 'actorRate', parseFloat(this.value))"></div>
-              <div><label>Carpentry (Hrs x $/hr):</label><br><input type="number" value="${p.carpentryHours}" style="width:50px" onchange="updateProd(${p.id}, 'carpentryHours', parseInt(this.value))"> x $<input type="number" value="${p.carpentryRate}" style="width:70px" onchange="updateProd(${p.id}, 'carpentryRate', parseFloat(this.value))"></div>
-              <div><label>Director Stipend ($):</label><br><input type="number" value="${p.directorPay}" onchange="updateProd(${p.id}, 'directorPay', parseFloat(this.value))"></div>
-              <div><label>Stage Manager ($):</label><br><input type="number" value="${p.stageManagerPay}" onchange="updateProd(${p.id}, 'stageManagerPay', parseFloat(this.value))"></div>
-              <div><label>Fight Choreographer ($):</label><br><input type="number" value="${p.fightChoreographerPay||0}" onchange="updateProd(${p.id}, 'fightChoreographerPay', parseFloat(this.value))"></div>
-              <div><label>Designers Total ($):</label><br><input type="number" value="${p.designersPay}" onchange="updateProd(${p.id}, 'designersPay', parseFloat(this.value))"></div>
+              <div><label>Carpentry (Hrs x Rate):</label><br><input type="number" value="${p.carpentryHours}" style="width:50px" onchange="updateProd(${p.id}, 'carpentryHours', parseInt(this.value))"> x $<input type="number" value="${p.carpentryRate}" style="width:70px" onchange="updateProd(${p.id}, 'carpentryRate', parseFloat(this.value))"></div>
+              <div><label>Director ($):</label><br><input type="number" value="${p.directorPay||0}" onchange="updateProd(${p.id}, 'directorPay', parseFloat(this.value))"></div>
+              <div><label>Stage Management ($):</label><br><input type="number" value="${p.stageManagerPay||0}" onchange="updateProd(${p.id}, 'stageManagerPay', parseFloat(this.value))"></div>
+              <div><label>Art/Graphic Design ($):</label><br><input type="number" value="${p.graphicDesignPay||0}" onchange="updateProd(${p.id}, 'graphicDesignPay', parseFloat(this.value))"></div>
+              <div><label>Costume Design ($):</label><br><input type="number" value="${p.costumeDesignPay||0}" onchange="updateProd(${p.id}, 'costumeDesignPay', parseFloat(this.value))"></div>
+              <div><label>Lighting Design ($):</label><br><input type="number" value="${p.lightingDesignPay||0}" onchange="updateProd(${p.id}, 'lightingDesignPay', parseFloat(this.value))"></div>
+              <div><label>Prop Design ($):</label><br><input type="number" value="${p.propDesignPay||0}" onchange="updateProd(${p.id}, 'propDesignPay', parseFloat(this.value))"></div>
+              <div><label>Set Design ($):</label><br><input type="number" value="${p.setDesignPay||0}" onchange="updateProd(${p.id}, 'setDesignPay', parseFloat(this.value))"></div>
+              <div><label>Sound Design ($):</label><br><input type="number" value="${p.soundDesignPay||0}" onchange="updateProd(${p.id}, 'soundDesignPay', parseFloat(this.value))"></div>
+              <div><label>Board Operator ($):</label><br><input type="number" value="${p.boardOpPay||0}" onchange="updateProd(${p.id}, 'boardOpPay', parseFloat(this.value))"></div>
+              <div><label>Music Director ($):</label><br><input type="number" value="${p.musicDirectorPay||0}" onchange="updateProd(${p.id}, 'musicDirectorPay', parseFloat(this.value))"></div>
+              <div><label>Intimacy Choreography ($):</label><br><input type="number" value="${p.intimacyPay||0}" onchange="updateProd(${p.id}, 'intimacyPay', parseFloat(this.value))"></div>
+              <div><label>Fight Choreography ($):</label><br><input type="number" value="${p.fightPay||0}" onchange="updateProd(${p.id}, 'fightPay', parseFloat(this.value))"></div>
+              <div><label>Dance Choreography ($):</label><br><input type="number" value="${p.dancePay||0}" onchange="updateProd(${p.id}, 'dancePay', parseFloat(this.value))"></div>
+              <div><label>Musicians ($):</label><br><input type="number" value="${p.musiciansPay||0}" onchange="updateProd(${p.id}, 'musiciansPay', parseFloat(this.value))"></div>
+              <div><label>Technical Director ($):</label><br><input type="number" value="${p.techDirectorPay||0}" onchange="updateProd(${p.id}, 'techDirectorPay', parseFloat(this.value))"></div>
             </div>
 
             <div class="section-title">5. Production Expenses & Apportioned Admin</div>
             <div class="grid-4">
-              <div><label>Script Rights Acquisition ($):</label><br><input type="number" value="${p.scriptRights}" onchange="updateProd(${p.id}, 'scriptRights', parseFloat(this.value))"></div>
-              <div><label>Sets, Costumes, Props, Mktg ($):</label><br><input type="number" value="${p.otherProdExpenses}" onchange="updateProd(${p.id}, 'otherProdExpenses', parseFloat(this.value))"></div>
+              <div><label>Rental - Facility - Month ($):</label><br><input type="number" value="${p.rentFacility||0}" onchange="updateProd(${p.id}, 'rentFacility', parseFloat(this.value))"></div>
+              <div><label>Rental - Equipment ($):</label><br><input type="number" value="${p.rentEquipment||0}" onchange="updateProd(${p.id}, 'rentEquipment', parseFloat(this.value))"></div>
+              <div><label>Rental - Props ($):</label><br><input type="number" value="${p.rentProps||0}" onchange="updateProd(${p.id}, 'rentProps', parseFloat(this.value))"></div>
+              <div><label>Rental - Costumes ($):</label><br><input type="number" value="${p.rentCostumes||0}" onchange="updateProd(${p.id}, 'rentCostumes', parseFloat(this.value))"></div>
+              <div><label>Rental - Set Piece ($):</label><br><input type="number" value="${p.rentSetPiece||0}" onchange="updateProd(${p.id}, 'rentSetPiece', parseFloat(this.value))"></div>
+              <div><label>Rental - Automobile ($):</label><br><input type="number" value="${p.rentAuto||0}" onchange="updateProd(${p.id}, 'rentAuto', parseFloat(this.value))"></div>
+              <div><label>Fuel ($):</label><br><input type="number" value="${p.fuel||0}" onchange="updateProd(${p.id}, 'fuel', parseFloat(this.value))"></div>
+              <div><label>Costumes ($):</label><br><input type="number" value="${p.expCostumes||0}" onchange="updateProd(${p.id}, 'expCostumes', parseFloat(this.value))"></div>
+              <div><label>Props ($):</label><br><input type="number" value="${p.expProps||0}" onchange="updateProd(${p.id}, 'expProps', parseFloat(this.value))"></div>
+              <div><label>Scenic Materials ($):</label><br><input type="number" value="${p.scenicMaterials||0}" onchange="updateProd(${p.id}, 'scenicMaterials', parseFloat(this.value))"></div>
+              <div><label>Scripts - Print/Buy/Rent ($):</label><br><input type="number" value="${p.scripts||0}" onchange="updateProd(${p.id}, 'scripts', parseFloat(this.value))"></div>
+              <div><label>Supplies ($):</label><br><input type="number" value="${p.supplies||0}" onchange="updateProd(${p.id}, 'supplies', parseFloat(this.value))"></div>
+            </div>
+
+            <div class="sub-section-title">Recording & Broadcasting</div>
+            <div class="grid-4">
+              <div><label>Photography ($):</label><br><input type="number" value="${p.photography||0}" onchange="updateProd(${p.id}, 'photography', parseFloat(this.value))"></div>
+              <div><label>Videography ($):</label><br><input type="number" value="${p.videography||0}" onchange="updateProd(${p.id}, 'videography', parseFloat(this.value))"></div>
               <div><label>Apportioned Admin/Insurance:</label><br><strong>$${apportionedAdmin.toFixed(2)}</strong></div>
             </div>
           </div>`;
@@ -665,10 +933,8 @@
     }
     function deleteProd(id) {
       state.productions = state.productions.filter(p => p.id !== id);
-      // Clean up grant allocations for deleted show
-      state.grants.forEach(g => {
-        if (g.targetShowIds) g.targetShowIds = g.targetShowIds.filter(sId => sId !== id);
-      });
+      state.grants.forEach(g => { if (g.targetShowIds) g.targetShowIds = g.targetShowIds.filter(sId => sId !== id); });
+      if (state.sponsorships) state.sponsorships.forEach(s => { if (s.targetShowIds) s.targetShowIds = s.targetShowIds.filter(sId => sId !== id); });
       saveState();
     }
 
