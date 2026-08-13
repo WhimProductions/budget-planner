@@ -172,7 +172,10 @@
   <div id="builder" class="tab-content">
     <div class="grid-2">
       <div class="card">
-        <h3>Show Modeling Form</h3>
+        <div class="flex-between" style="margin-bottom:10px;">
+          <h3>Show Modeling Form</h3>
+          <button class="btn-secondary" style="font-size:0.85rem;" onclick="saveBuilderDraft()">💾 Save Draft</button>
+        </div>
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Model a new production with specific ticketing rules and quantity/unit rates.</p>
         
         <div class="section-title">1. Show Parameters</div>
@@ -197,24 +200,41 @@
         </div>
 
         <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
-        <div class="grid-3">
-          <div class="form-group"><label>General Admin Price ($)</label><input type="number" id="f_gaPrice" value="30.00" oninput="calculateBuilder()"></div>
+        <div class="form-group">
+          <label>General Admission Price ($)</label>
+          <input type="number" id="f_gaPrice" value="30.00" oninput="calculateBuilder()">
+        </div>
+        
+        <!-- Pay It Forward Fields Together -->
+        <div class="grid-2">
           <div class="form-group"><label>Pay It Forward Seats (Run)</label><input type="number" id="f_pifSeats" value="10" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Pay It Forward Price ($)</label><input type="number" id="f_pifPrice" value="50.00" oninput="calculateBuilder()"></div>
-          
-          <div class="form-group"><label>ArtsKC "The Drop" Seats (Run)</label><input type="number" id="f_dropSeats" value="15" oninput="calculateBuilder()"></div>
+        </div>
+
+        <!-- ArtsKC The Drop on Its Own Line -->
+        <div class="form-group">
+          <label>ArtsKC "The Drop" Seats (Run)</label>
+          <input type="number" id="f_dropSeats" value="15" oninput="calculateBuilder()">
+        </div>
+
+        <div class="grid-3">
           <div class="form-group"><label>PWYW Nights Offered</label><input type="number" id="f_pwywNights" value="2" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>PWYW Cap / Night</label><input type="number" id="f_pwywCapPerNight" value="15" oninput="calculateBuilder()"></div>
-          
           <div class="form-group"><label>PWYW Price Floor ($)</label><input type="number" id="f_pwywPrice" value="15.00" oninput="calculateBuilder()"></div>
+        </div>
+
+        <!-- Comps Together on the Same Line -->
+        <div class="grid-2">
           <div class="form-group"><label>Company Comps (Run)</label><input type="number" id="f_companyComps" value="10" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Production Comps</label><input type="text" id="f_autoProdComps" value="Auto (2x Staff)" disabled style="background:#f1f5f9; font-weight:bold;"></div>
         </div>
 
         <div class="section-title">3. Non-Box Office Revenue</div>
-        <div class="grid-3">
+        <div class="grid-4">
           <div class="form-group"><label>Concessions ($)</label><input type="number" id="f_concessions" value="800" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Merch ($)</label><input type="number" id="f_merch" value="50" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Show Donations ($)</label><input type="number" id="f_showDonations" value="500" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Show Sponsorship ($)</label><input type="number" id="f_showSponsorship" value="0" oninput="calculateBuilder()"></div>
         </div>
 
         <div class="section-title">4. Production Budget Line Items</div>
@@ -352,10 +372,16 @@
 
         <div class="sub-section-title">E. Rentals & Operations</div>
         <div class="line-item-row">
-          <label>Facility Rental (Months)</label>
-          <input type="number" id="f_rentFacility_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_rentFacility_rate" value="1000" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_rentFacility_tot">$0</span>
+          <label>Facility Rental - Rehearsal Weeks</label>
+          <input type="number" id="f_rentFacilityRehearsal_qty" value="4" disabled style="background:#f1f5f9;">
+          <input type="number" id="f_rentFacilityRehearsal_rate" value="400" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentFacilityRehearsal_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Facility Rental - Performance Weeks</label>
+          <input type="number" id="f_rentFacilityPerformance_qty" value="3" disabled style="background:#f1f5f9;">
+          <input type="number" id="f_rentFacilityPerformance_rate" value="700" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentFacilityPerformance_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Equipment Rental</label>
@@ -418,7 +444,9 @@
       <div>
         <div class="card" style="background: #faf5ff; border-color: #d8b4fe;">
           <h3 style="color: #6b21a8;">Anticipated Outcome Preview</h3>
-          <p style="font-size:0.85rem; color:#7e22ce; margin-bottom:16px;">Dynamic ticket tier calculation & stipend summary.</p>
+          <p style="font-size:0.85rem; color:#7e22ce; margin-bottom:16px;">
+            Dynamic ticket tier calculation & stipend summary. These numbers do not account for any grant allocation.
+          </p>
 
           <div class="kpi-grid">
             <div class="kpi-card">
@@ -440,7 +468,10 @@
             </div>
           </div>
 
-          <button class="btn-primary" style="width:100%; padding:14px; font-size:1.05rem;" onclick="commitBuilderShow()">+ Add This Show to Master Season Budget</button>
+          <div style="display:flex; gap:10px; flex-direction:column;">
+            <button class="btn-primary" style="width:100%; padding:14px; font-size:1.05rem;" onclick="commitBuilderShow()">+ Add This Show to Master Season Budget</button>
+            <button class="btn-secondary" style="width:100%; padding:10px;" onclick="saveBuilderDraft()">💾 Save Draft</button>
+          </div>
         </div>
       </div>
     </div>
@@ -525,7 +556,7 @@
       'actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes',
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance',
       'carpentry', 'boardop', 'scenicMaterials', 'expProps', 'expCostumes',
-      'rentFacility', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece',
+      'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece',
       'scripts', 'supplies', 'fuel', 'photography', 'videography'
     ];
 
@@ -562,7 +593,7 @@
           performances: 8, capacity: 62, expectedAttendancePct: 55,
           gaPrice: 30.00, pifSeats: 10, pifPrice: 50.00, dropSeats: 15,
           pwywNights: 2, pwywCapPerNight: 15, pwywPrice: 15.00, companyComps: 10,
-          concessions: 1000, merch: 30,
+          concessions: 1000, merch: 30, showDonations: 500, showSponsorship: 0,
           items: {
             actors: { qty: 7, rate: 400 }, musicians: { qty: 0, rate: 0 },
             dir: { qty: 1, rate: 700 }, sm: { qty: 1, rate: 800 }, td: { qty: 1, rate: 600 },
@@ -571,7 +602,8 @@
             musicdir: { qty: 0, rate: 0 }, intimacy: { qty: 1, rate: 300 }, fight: { qty: 1, rate: 350 }, dance: { qty: 0, rate: 0 },
             carpentry: { qty: 95, rate: 20 }, boardop: { qty: 1, rate: 300 },
             scenicMaterials: { qty: 1, rate: 800 }, expProps: { qty: 1, rate: 300 }, expCostumes: { qty: 1, rate: 400 },
-            rentFacility: { qty: 1, rate: 1000 }, rentEquipment: { qty: 1, rate: 200 }, rentProps: { qty: 1, rate: 100 },
+            rentFacilityRehearsal: { qty: 4, rate: 400 }, rentFacilityPerformance: { qty: 3, rate: 700 },
+            rentEquipment: { qty: 1, rate: 200 }, rentProps: { qty: 1, rate: 100 },
             rentCostumes: { qty: 1, rate: 150 }, rentSetPiece: { qty: 1, rate: 100 },
             scripts: { qty: 1, rate: 600 }, supplies: { qty: 1, rate: 200 }, fuel: { qty: 1, rate: 50 },
             photography: { qty: 1, rate: 300 }, videography: { qty: 1, rate: 400 }
@@ -595,7 +627,10 @@
       if (targetBtn) targetBtn.classList.add('active');
       
       document.getElementById(tabId).classList.add('active');
-      if (tabId === 'builder') calculateBuilder();
+      if (tabId === 'builder') {
+        loadBuilderDraft();
+        calculateBuilder();
+      }
     }
 
     function getItemTotal(items, key) {
@@ -610,7 +645,6 @@
       const totalCapacitySeats = per * cap;
       const totalAttendedSeats = totalCapacitySeats * attPct;
 
-      // 1. Calculate Personnel & Automatic Production Comps (2 per personnel)
       let personnelCount = 0;
       if (p.items) {
         PERSONNEL_KEYS.forEach(k => {
@@ -621,23 +655,18 @@
       const companyComps = p.companyComps || 0;
       const totalComps = autoProdComps + companyComps;
 
-      // 2. Ticket Tiers Bucket Waterfall
       const gaPrice = p.gaPrice || 30.00;
       
-      // Pay It Forward
       const pifSeats = Math.min(totalAttendedSeats, p.pifSeats || 0);
       const pifRev = pifSeats * (p.pifPrice || 50.00);
 
-      // ArtsKC The Drop
       const dropSeats = Math.min(Math.max(0, totalAttendedSeats - pifSeats), p.dropSeats || 0);
-      const dropRev = dropSeats * gaPrice; // Fully reimbursed at GA value
+      const dropRev = dropSeats * gaPrice;
 
-      // PWYW
       const maxPwywCapacity = (p.pwywNights || 0) * (p.pwywCapPerNight || 0);
       const pwywSeats = Math.min(Math.max(0, totalAttendedSeats - pifSeats - dropSeats), maxPwywCapacity);
       const pwywRev = pwywSeats * (p.pwywPrice || 15.00);
 
-      // General Admission (Remaining seats after Comps & Special Tiers)
       const nonGaSpecialSeats = pifSeats + dropSeats + pwywSeats + totalComps;
       const gaSeats = Math.max(0, totalAttendedSeats - nonGaSpecialSeats);
       const gaRev = gaSeats * gaPrice;
@@ -653,6 +682,15 @@
     }
 
     function calculateBuilder() {
+      const rehWeeks = parseFloat(document.getElementById('f_rehearsalWeeks').value) || 0;
+      const perfWeeks = parseFloat(document.getElementById('f_performanceWeeks').value) || 0;
+
+      // Sync Facility Rental Quantities to Weeks Entered
+      const rehQtyEl = document.getElementById('f_rentFacilityRehearsal_qty');
+      const perfQtyEl = document.getElementById('f_rentFacilityPerformance_qty');
+      if (rehQtyEl) rehQtyEl.value = rehWeeks;
+      if (perfQtyEl) perfQtyEl.value = perfWeeks;
+
       const per = parseFloat(document.getElementById('f_performances').value) || 0;
       const cap = parseFloat(document.getElementById('f_capacity').value) || 0;
       const attPct = (parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0) / 100;
@@ -669,6 +707,8 @@
 
       const conc = parseFloat(document.getElementById('f_concessions').value) || 0;
       const merch = parseFloat(document.getElementById('f_merch').value) || 0;
+      const showDonations = parseFloat(document.getElementById('f_showDonations').value) || 0;
+      const showSponsorship = parseFloat(document.getElementById('f_showSponsorship').value) || 0;
 
       let stipendsSum = 0;
       let expSum = 0;
@@ -714,7 +754,7 @@
       const perShowAdmin = (annualApportionedPool / 12);
 
       const totalExp = stipendsSum + expSum + perShowAdmin;
-      const netMargin = (metrics.totalTixRev + conc + merch) - totalExp;
+      const netMargin = (metrics.totalTixRev + conc + merch + showDonations + showSponsorship) - totalExp;
 
       document.getElementById('prev-tix').innerText = '$' + metrics.totalTixRev.toLocaleString(undefined, {maximumFractionDigits:0});
       document.getElementById('prev-tix-sub').innerText = `${metrics.totalAttendedSeats.toFixed(0)} seats projected`;
@@ -724,6 +764,54 @@
       const marginEl = document.getElementById('prev-margin');
       marginEl.innerText = '$' + netMargin.toLocaleString(undefined, {maximumFractionDigits:0});
       marginEl.className = 'kpi-value ' + (netMargin >= 0 ? 'positive' : 'negative');
+    }
+
+    function saveBuilderDraft() {
+      const draft = {};
+      const fields = [
+        'f_name', 'f_season', 'f_rehearsalWeeks', 'f_performanceWeeks', 'f_performances', 'f_capacity', 'f_expectedAttendancePct',
+        'f_gaPrice', 'f_pifSeats', 'f_pifPrice', 'f_dropSeats', 'f_pwywNights', 'f_pwywCapPerNight', 'f_pwywPrice', 'f_companyComps',
+        'f_concessions', 'f_merch', 'f_showDonations', 'f_showSponsorship'
+      ];
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) draft[id] = el.value;
+      });
+
+      draft.items = {};
+      LINE_ITEM_KEYS.forEach(k => {
+        draft.items[k] = {
+          qty: document.getElementById(`f_${k}_qty`)?.value || 0,
+          rate: document.getElementById(`f_${k}_rate`)?.value || 0
+        };
+      });
+
+      localStorage.setItem('whim_builder_draft', JSON.stringify(draft));
+      alert("Draft saved! Your progress will be retained.");
+    }
+
+    function loadBuilderDraft() {
+      const saved = localStorage.getItem('whim_builder_draft');
+      if (!saved) return;
+      try {
+        const draft = JSON.parse(saved);
+        Object.keys(draft).forEach(id => {
+          if (id !== 'items') {
+            const el = document.getElementById(id);
+            if (el) el.value = draft[id];
+          }
+        });
+        if (draft.items) {
+          LINE_ITEM_KEYS.forEach(k => {
+            if (draft.items[k]) {
+              const qtyEl = document.getElementById(`f_${k}_qty`);
+              const rateEl = document.getElementById(`f_${k}_rate`);
+              if (qtyEl) qtyEl.value = draft.items[k].qty;
+              if (rateEl) rateEl.value = draft.items[k].rate;
+            }
+          });
+        }
+      } catch(e) { console.error("Error loading builder draft", e); }
     }
 
     function commitBuilderShow() {
@@ -754,10 +842,13 @@
         companyComps: parseFloat(document.getElementById('f_companyComps').value) || 0,
         concessions: parseFloat(document.getElementById('f_concessions').value) || 0,
         merch: parseFloat(document.getElementById('f_merch').value) || 0,
+        showDonations: parseFloat(document.getElementById('f_showDonations').value) || 0,
+        showSponsorship: parseFloat(document.getElementById('f_showSponsorship').value) || 0,
         items: itemsObj
       };
 
       state.productions.push(newShow);
+      localStorage.removeItem('whim_builder_draft'); // Clear draft after commitment
       saveState();
       alert(`"${newShow.name}" has been added to your Season Budget!`);
       switchTab('productions');
@@ -809,7 +900,7 @@
         let showGrantAlloc = getShowAllocatedGrants(p.id);
         let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
 
-        let showNonBoxRev = showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0);
+        let showNonBoxRev = showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0) + (p.showDonations||0) + (p.showSponsorship||0);
         
         let showStipends = 0;
         let expSum = 0;
@@ -1093,16 +1184,21 @@
         }
 
         let totalShowExpenses = showStipends + expSum + apportionedAdmin;
-        let totalShowRev = metrics.totalTixRev + showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0);
+        let totalShowRev = metrics.totalTixRev + showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0) + (p.showDonations||0) + (p.showSponsorship||0);
         let showGross = totalShowRev - totalShowExpenses;
 
-        function renderItemInput(key, label) {
+        function renderItemInput(key, label, isQtyDisabled = false) {
           const item = (p.items && p.items[key]) ? p.items[key] : { qty: 0, rate: 0 };
+          
+          // Auto sync facility rental weeks to show inputs
+          if (key === 'rentFacilityRehearsal') item.qty = p.rehearsalWeeks || 0;
+          if (key === 'rentFacilityPerformance') item.qty = p.performanceWeeks || 0;
+
           const tot = (item.qty || 0) * (item.rate || 0);
           return `
             <div class="line-item-row">
               <label>${label}</label>
-              <input type="number" value="${item.qty}" onchange="updateProdItem(${p.id}, '${key}', 'qty', parseFloat(this.value))">
+              <input type="number" value="${item.qty}" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', parseFloat(this.value))">
               <input type="number" value="${item.rate}" onchange="updateProdItem(${p.id}, '${key}', 'rate', parseFloat(this.value))">
               <span class="line-item-total">$${tot.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
             </div>`;
@@ -1132,26 +1228,40 @@
             </div>
 
             <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
-            <div class="grid-3">
-              <div><label>GA Price ($):</label><br><input type="number" value="${p.gaPrice||30.00}" onchange="updateProd(${p.id}, 'gaPrice', parseFloat(this.value))"></div>
+            <div class="form-group">
+              <label>GA Price ($):</label>
+              <input type="number" value="${p.gaPrice||30.00}" onchange="updateProd(${p.id}, 'gaPrice', parseFloat(this.value))">
+            </div>
+
+            <div class="grid-2">
               <div><label>Pay It Forward Seats:</label><br><input type="number" value="${p.pifSeats||10}" onchange="updateProd(${p.id}, 'pifSeats', parseFloat(this.value))"></div>
               <div><label>Pay It Forward Price ($):</label><br><input type="number" value="${p.pifPrice||50.00}" onchange="updateProd(${p.id}, 'pifPrice', parseFloat(this.value))"></div>
+            </div>
 
-              <div><label>ArtsKC "The Drop" Seats:</label><br><input type="number" value="${p.dropSeats||15}" onchange="updateProd(${p.id}, 'dropSeats', parseFloat(this.value))"></div>
+            <div class="form-group" style="margin-top:10px;">
+              <label>ArtsKC "The Drop" Seats:</label>
+              <input type="number" value="${p.dropSeats||15}" onchange="updateProd(${p.id}, 'dropSeats', parseFloat(this.value))">
+            </div>
+
+            <div class="grid-3" style="margin-top:10px;">
               <div><label>PWYW Nights Offered:</label><br><input type="number" value="${p.pwywNights||2}" onchange="updateProd(${p.id}, 'pwywNights', parseFloat(this.value))"></div>
               <div><label>PWYW Cap / Night:</label><br><input type="number" value="${p.pwywCapPerNight||15}" onchange="updateProd(${p.id}, 'pwywCapPerNight', parseFloat(this.value))"></div>
-
               <div><label>PWYW Price Floor ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" onchange="updateProd(${p.id}, 'pwywPrice', parseFloat(this.value))"></div>
+            </div>
+
+            <div class="grid-2" style="margin-top:10px;">
               <div><label>Company Comps:</label><br><input type="number" value="${p.companyComps||10}" onchange="updateProd(${p.id}, 'companyComps', parseFloat(this.value))"></div>
               <div><label>Production Comps:</label><br><strong style="color:var(--primary);">${metrics.autoProdComps} seats (2x Staff)</strong></div>
             </div>
 
             <div class="section-title">3. Non-Box Office Revenue</div>
-            <div class="grid-4">
+            <div class="grid-3">
               <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
-              <div><label>Allocated Sponsorships ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
+              <div><label>Allocated Sponsorships Hub ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
+              <div><label>Show Sponsorship ($):</label><br><input type="number" value="${p.showSponsorship||0}" onchange="updateProd(${p.id}, 'showSponsorship', parseFloat(this.value))"></div>
               <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
               <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
+              <div><label>Show Donations ($):</label><br><input type="number" value="${p.showDonations||0}" onchange="updateProd(${p.id}, 'showDonations', parseFloat(this.value))"></div>
             </div>
 
             <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
@@ -1188,7 +1298,8 @@
             ${renderItemInput('expCostumes', 'Costume Purchases')}
 
             <div class="sub-section-title">E. Rentals & Operations</div>
-            ${renderItemInput('rentFacility', 'Facility Rental (Months)')}
+            ${renderItemInput('rentFacilityRehearsal', 'Facility Rental - Rehearsal Weeks', true)}
+            ${renderItemInput('rentFacilityPerformance', 'Facility Rental - Performance Weeks', true)}
             ${renderItemInput('rentEquipment', 'Equipment Rental')}
             ${renderItemInput('rentProps', 'Props Rental')}
             ${renderItemInput('rentCostumes', 'Costume Rental')}
