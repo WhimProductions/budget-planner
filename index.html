@@ -70,6 +70,10 @@
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
     .form-group input, .form-group select { width: 100%; }
 
+    .line-item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .line-item-row label { font-size: 0.85rem; font-weight: 600; }
+    .line-item-total { font-weight: 700; font-size: 0.9rem; text-align: right; padding-right: 6px; }
+
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
     .badge-awarded { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
     .badge-anticipated { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
@@ -109,6 +113,7 @@
     <button class="tab-btn" onclick="switchTab('productions')">Productions & Events</button>
     <button class="tab-btn" onclick="switchTab('grants')">Grants Hub</button>
     <button class="tab-btn" onclick="switchTab('sponsorships')">Sponsorships Hub</button>
+    <button class="tab-btn" onclick="switchTab('donations')">Donations Hub</button>
     <button class="tab-btn" onclick="switchTab('overhead')">Operating Overhead</button>
   </div>
 
@@ -168,7 +173,7 @@
     <div class="grid-2">
       <div class="card">
         <h3>Show Modeling Form</h3>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Model a new production with multi-tier ticket pricing and comprehensive stipends before adding it to your season budget.</p>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Model a new production with quantity/unit rates matching the 2026–2027 Season Production Budget format.</p>
         
         <div class="section-title">1. Show Parameters</div>
         <div class="grid-2">
@@ -209,49 +214,202 @@
           <div class="form-group"><label>Merch ($)</label><input type="number" id="f_merch" value="50" oninput="calculateBuilder()"></div>
         </div>
 
-        <div class="section-title">4. Account 53500 Artist & Technical Stipends</div>
-        <div class="grid-4">
-          <div class="form-group"><label>Actor Count</label><input type="number" id="f_actorsCount" value="6" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Actor Rate ($)</label><input type="number" id="f_actorRate" value="400" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Carpentry Hours</label><input type="number" id="f_carpentryHours" value="40" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Carpentry Rate ($)</label><input type="number" id="f_carpentryRate" value="20" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Director ($)</label><input type="number" id="f_directorPay" value="700" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Stage Management ($)</label><input type="number" id="f_stageManagerPay" value="800" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Art/Graphic Design ($)</label><input type="number" id="f_graphicDesignPay" value="300" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Costume Design ($)</label><input type="number" id="f_costumeDesignPay" value="500" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Lighting Design ($)</label><input type="number" id="f_lightingDesignPay" value="500" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Prop Design ($)</label><input type="number" id="f_propDesignPay" value="400" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Set Design ($)</label><input type="number" id="f_setDesignPay" value="600" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Sound Design ($)</label><input type="number" id="f_soundDesignPay" value="500" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Board Operator ($)</label><input type="number" id="f_boardOpPay" value="300" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Music Director ($)</label><input type="number" id="f_musicDirectorPay" value="0" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Intimacy Choreography ($)</label><input type="number" id="f_intimacyPay" value="300" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Fight Choreography ($)</label><input type="number" id="f_fightPay" value="350" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Dance Choreography ($)</label><input type="number" id="f_dancePay" value="0" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Musicians ($)</label><input type="number" id="f_musiciansPay" value="0" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Technical Director ($)</label><input type="number" id="f_techDirectorPay" value="600" oninput="calculateBuilder()"></div>
+        <!-- RESTRUCTURED PRODUCTION BUDGET CATEGORIES -->
+        <div class="section-title">4. Production Budget Line Items</div>
+
+        <div class="sub-section-title">A. Performers & Musicians (Account 53500)</div>
+        <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
+          <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
+        </div>
+        <div class="line-item-row">
+          <label>Actors</label>
+          <input type="number" id="f_actors_qty" value="6" oninput="calculateBuilder()">
+          <input type="number" id="f_actors_rate" value="400" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_actors_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Musicians</label>
+          <input type="number" id="f_musicians_qty" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_musicians_rate" value="150" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_musicians_tot">$0</span>
         </div>
 
-        <div class="section-title">5. Production Expenses</div>
-        <div class="grid-4">
-          <div class="form-group"><label>Rental - Facility - Month ($)</label><input type="number" id="f_rentFacility" value="1000" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Rental - Equipment ($)</label><input type="number" id="f_rentEquipment" value="200" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Rental - Props ($)</label><input type="number" id="f_rentProps" value="100" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Rental - Costumes ($)</label><input type="number" id="f_rentCostumes" value="150" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Rental - Set Piece ($)</label><input type="number" id="f_rentSetPiece" value="100" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Rental - Automobile ($)</label><input type="number" id="f_rentAuto" value="0" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Fuel ($)</label><input type="number" id="f_fuel" value="50" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Costumes ($)</label><input type="number" id="f_expCostumes" value="400" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Props ($)</label><input type="number" id="f_expProps" value="300" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Scenic Materials ($)</label><input type="number" id="f_scenicMaterials" value="800" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Scripts - Print/Rent/Buy ($)</label><input type="number" id="f_scripts" value="600" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Supplies ($)</label><input type="number" id="f_supplies" value="200" oninput="calculateBuilder()"></div>
+        <div class="sub-section-title">B. Production Team & Creative Staff (Account 53500)</div>
+        <div class="line-item-row">
+          <label>Director</label>
+          <input type="number" id="f_dir_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_dir_rate" value="700" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_dir_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Stage Manager</label>
+          <input type="number" id="f_sm_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_sm_rate" value="800" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_sm_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Technical Director</label>
+          <input type="number" id="f_td_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_td_rate" value="600" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_td_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Set Designer</label>
+          <input type="number" id="f_setdes_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_setdes_rate" value="600" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_setdes_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Lighting Designer</label>
+          <input type="number" id="f_lightdes_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_lightdes_rate" value="500" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_lightdes_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Sound Designer</label>
+          <input type="number" id="f_sounddes_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_sounddes_rate" value="500" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_sounddes_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Costume Designer</label>
+          <input type="number" id="f_costumedes_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_costumedes_rate" value="500" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_costumedes_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Props Designer</label>
+          <input type="number" id="f_propdes_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_propdes_rate" value="400" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_propdes_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Graphic / Art Designer</label>
+          <input type="number" id="f_graphic_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_graphic_rate" value="300" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_graphic_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Music Director</label>
+          <input type="number" id="f_musicdir_qty" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_musicdir_rate" value="0" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_musicdir_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Intimacy Choreographer</label>
+          <input type="number" id="f_intimacy_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_intimacy_rate" value="300" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_intimacy_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Fight Choreographer</label>
+          <input type="number" id="f_fight_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_fight_rate" value="350" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_fight_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Dance Choreographer</label>
+          <input type="number" id="f_dance_qty" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_dance_rate" value="0" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_dance_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Carpentry / Set Construction (Hrs)</label>
+          <input type="number" id="f_carpentry_qty" value="40" oninput="calculateBuilder()">
+          <input type="number" id="f_carpentry_rate" value="20" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_carpentry_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Board Operator</label>
+          <input type="number" id="f_boardop_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_boardop_rate" value="300" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_boardop_tot">$0</span>
         </div>
 
-        <div class="sub-section-title">Recording & Broadcasting</div>
-        <div class="grid-4">
-          <div class="form-group"><label>Photography ($)</label><input type="number" id="f_photography" value="300" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Videography ($)</label><input type="number" id="f_videography" value="400" oninput="calculateBuilder()"></div>
+        <div class="sub-section-title">C. Scenic, Materials & Props</div>
+        <div class="line-item-row">
+          <label>Scenic Materials</label>
+          <input type="number" id="f_scenicMaterials_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_scenicMaterials_rate" value="800" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_scenicMaterials_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Props Purchases</label>
+          <input type="number" id="f_expProps_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_expProps_rate" value="300" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_expProps_tot">$0</span>
+        </div>
+
+        <div class="sub-section-title">D. Costumes & Wardrobe</div>
+        <div class="line-item-row">
+          <label>Costume Purchases</label>
+          <input type="number" id="f_expCostumes_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_expCostumes_rate" value="400" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_expCostumes_tot">$0</span>
+        </div>
+
+        <div class="sub-section-title">E. Rentals & Operations</div>
+        <div class="line-item-row">
+          <label>Facility Rental (Months)</label>
+          <input type="number" id="f_rentFacility_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_rentFacility_rate" value="1000" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentFacility_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Equipment Rental</label>
+          <input type="number" id="f_rentEquipment_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_rentEquipment_rate" value="200" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentEquipment_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Props Rental</label>
+          <input type="number" id="f_rentProps_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_rentProps_rate" value="100" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentProps_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Costume Rental</label>
+          <input type="number" id="f_rentCostumes_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_rentCostumes_rate" value="150" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentCostumes_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Set Piece Rental</label>
+          <input type="number" id="f_rentSetPiece_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_rentSetPiece_rate" value="100" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentSetPiece_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Scripts - Rights & Royalties</label>
+          <input type="number" id="f_scripts_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_scripts_rate" value="600" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_scripts_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Production Supplies</label>
+          <input type="number" id="f_supplies_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_supplies_rate" value="200" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_supplies_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Automobile & Fuel</label>
+          <input type="number" id="f_fuel_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_fuel_rate" value="50" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_fuel_tot">$0</span>
+        </div>
+
+        <div class="sub-section-title">F. Media & Marketing Documentation</div>
+        <div class="line-item-row">
+          <label>Photography</label>
+          <input type="number" id="f_photography_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_photography_rate" value="300" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_photography_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Videography</label>
+          <input type="number" id="f_videography_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_videography_rate" value="400" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_videography_tot">$0</span>
         </div>
       </div>
 
@@ -325,6 +483,20 @@
     </div>
   </div>
 
+  <!-- DONATIONS HUB TAB (NEW) -->
+  <div id="donations" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h3>Donations Hub (Account 40300 Individual & Corporate Contributions)</h3>
+        <button class="btn-primary" onclick="addDonation()">+ Add New Donation Campaign</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+        Track projected general donations and fundraising contributions. These funds feed directly into the Consolidated P&L as general organizational revenue and are not apportioned to individual show budgets.
+      </p>
+      <div id="donations-container"></div>
+    </div>
+  </div>
+
   <!-- OVERHEAD TAB -->
   <div id="overhead" class="tab-content">
     <div class="card">
@@ -347,6 +519,15 @@
   </div>
 
   <script>
+    // Standard keys to handle Quantity x Rate calculations safely
+    const LINE_ITEM_KEYS = [
+      'actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes',
+      'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance',
+      'carpentry', 'boardop', 'scenicMaterials', 'expProps', 'expCostumes',
+      'rentFacility', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece',
+      'scripts', 'supplies', 'fuel', 'photography', 'videography'
+    ];
+
     let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
       overhead: [
         { id: 1, name: "53300 Fees for Accounting / Bookkeeping", annual: 6038, apportion: true },
@@ -362,6 +543,10 @@
       sponsorships: [
         { id: 201, name: "Local Business Title Sponsor", amount: 2500, status: "Awarded", targetShowIds: [1] }
       ],
+      donations: [
+        { id: 301, name: "Annual Individual Giving Campaign", amount: 12000, status: "Anticipated", season: "2026-2027" },
+        { id: 302, name: "Board Member Contributions", amount: 3500, status: "Awarded", season: "2026-2027" }
+      ],
       productions: [
         {
           id: 1,
@@ -371,27 +556,20 @@
           performances: 8, capacity: 62, expectedAttendancePct: 55,
           gaPrice: 30.00, gaPct: 70, pwywPrice: 15.00, pwywPct: 20, compPct: 10,
           concessions: 1000, merch: 30,
-          actorsCount: 7, actorRate: 400, carpentryHours: 95, carpentryRate: 20,
-          directorPay: 700, stageManagerPay: 800, graphicDesignPay: 300, costumeDesignPay: 500,
-          lightingDesignPay: 500, propDesignPay: 400, setDesignPay: 600, soundDesignPay: 500,
-          boardOpPay: 300, musicDirectorPay: 0, intimacyPay: 300, fightPay: 350, dancePay: 0, musiciansPay: 0, techDirectorPay: 600,
-          rentFacility: 1000, rentEquipment: 200, rentProps: 100, rentCostumes: 150, rentSetPiece: 100, rentAuto: 0, fuel: 50,
-          expCostumes: 400, expProps: 300, scenicMaterials: 800, scripts: 600, supplies: 200, photography: 300, videography: 400
-        },
-        {
-          id: 2,
-          name: "Alphabet Soup 2026",
-          season: "2026-2027",
-          rehearsalWeeks: 3, performanceWeeks: 2,
-          performances: 8, capacity: 62, expectedAttendancePct: 60,
-          gaPrice: 27.50, gaPct: 75, pwywPrice: 15.00, pwywPct: 15, compPct: 10,
-          concessions: 1000, merch: 30,
-          actorsCount: 40, actorRate: 100, carpentryHours: 50, carpentryRate: 20,
-          directorPay: 700, stageManagerPay: 800, graphicDesignPay: 300, costumeDesignPay: 500,
-          lightingDesignPay: 500, propDesignPay: 400, setDesignPay: 600, soundDesignPay: 500,
-          boardOpPay: 300, musicDirectorPay: 0, intimacyPay: 0, fightPay: 0, dancePay: 0, musiciansPay: 0, techDirectorPay: 600,
-          rentFacility: 1000, rentEquipment: 200, rentProps: 100, rentCostumes: 150, rentSetPiece: 100, rentAuto: 0, fuel: 50,
-          expCostumes: 500, expProps: 300, scenicMaterials: 800, scripts: 600, supplies: 200, photography: 300, videography: 400
+          items: {
+            actors: { qty: 7, rate: 400 },
+            musicians: { qty: 0, rate: 0 },
+            dir: { qty: 1, rate: 700 }, sm: { qty: 1, rate: 800 }, td: { qty: 1, rate: 600 },
+            setdes: { qty: 1, rate: 600 }, lightdes: { qty: 1, rate: 500 }, sounddes: { qty: 1, rate: 500 },
+            costumedes: { qty: 1, rate: 500 }, propdes: { qty: 1, rate: 400 }, graphic: { qty: 1, rate: 300 },
+            musicdir: { qty: 0, rate: 0 }, intimacy: { qty: 1, rate: 300 }, fight: { qty: 1, rate: 350 }, dance: { qty: 0, rate: 0 },
+            carpentry: { qty: 95, rate: 20 }, boardop: { qty: 1, rate: 300 },
+            scenicMaterials: { qty: 1, rate: 800 }, expProps: { qty: 1, rate: 300 }, expCostumes: { qty: 1, rate: 400 },
+            rentFacility: { qty: 1, rate: 1000 }, rentEquipment: { qty: 1, rate: 200 }, rentProps: { qty: 1, rate: 100 },
+            rentCostumes: { qty: 1, rate: 150 }, rentSetPiece: { qty: 1, rate: 100 },
+            scripts: { qty: 1, rate: 600 }, supplies: { qty: 1, rate: 200 }, fuel: { qty: 1, rate: 50 },
+            photography: { qty: 1, rate: 300 }, videography: { qty: 1, rate: 400 }
+          }
         }
       ]
     };
@@ -453,6 +631,12 @@
       return total;
     }
 
+    // Calculation helper for item line totals
+    function getItemTotal(items, key) {
+      if (!items || !items[key]) return 0;
+      return (items[key].qty || 0) * (items[key].rate || 0);
+    }
+
     function calculateBuilder() {
       const per = parseFloat(document.getElementById('f_performances').value) || 0;
       const cap = parseFloat(document.getElementById('f_capacity').value) || 0;
@@ -466,45 +650,25 @@
       const conc = parseFloat(document.getElementById('f_concessions').value) || 0;
       const merch = parseFloat(document.getElementById('f_merch').value) || 0;
 
-      // Stipends
-      const actQty = parseFloat(document.getElementById('f_actorsCount').value) || 0;
-      const actRate = parseFloat(document.getElementById('f_actorRate').value) || 0;
-      const carpHrs = parseFloat(document.getElementById('f_carpentryHours').value) || 0;
-      const carpRate = parseFloat(document.getElementById('f_carpentryRate').value) || 0;
+      let stipendsSum = 0;
+      let expSum = 0;
 
-      const dir = parseFloat(document.getElementById('f_directorPay').value) || 0;
-      const sm = parseFloat(document.getElementById('f_stageManagerPay').value) || 0;
-      const graphic = parseFloat(document.getElementById('f_graphicDesignPay').value) || 0;
-      const costumeDes = parseFloat(document.getElementById('f_costumeDesignPay').value) || 0;
-      const lightDes = parseFloat(document.getElementById('f_lightingDesignPay').value) || 0;
-      const propDes = parseFloat(document.getElementById('f_propDesignPay').value) || 0;
-      const setDes = parseFloat(document.getElementById('f_setDesignPay').value) || 0;
-      const soundDes = parseFloat(document.getElementById('f_soundDesignPay').value) || 0;
-      const board = parseFloat(document.getElementById('f_boardOpPay').value) || 0;
-      const musicDir = parseFloat(document.getElementById('f_musicDirectorPay').value) || 0;
-      const intimacy = parseFloat(document.getElementById('f_intimacyPay').value) || 0;
-      const fight = parseFloat(document.getElementById('f_fightPay').value) || 0;
-      const dance = parseFloat(document.getElementById('f_dancePay').value) || 0;
-      const musicians = parseFloat(document.getElementById('f_musiciansPay').value) || 0;
-      const techDir = parseFloat(document.getElementById('f_techDirectorPay').value) || 0;
+      const stipendKeys = ['actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes', 'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'];
 
-      const stipends = (actQty * actRate) + (carpHrs * carpRate) + dir + sm + graphic + costumeDes + lightDes + propDes + setDes + soundDes + board + musicDir + intimacy + fight + dance + musicians + techDir;
+      LINE_ITEM_KEYS.forEach(key => {
+        const qty = parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0;
+        const rate = parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0;
+        const tot = qty * rate;
 
-      // Expenses
-      const expSum = (parseFloat(document.getElementById('f_rentFacility').value)||0) +
-                     (parseFloat(document.getElementById('f_rentEquipment').value)||0) +
-                     (parseFloat(document.getElementById('f_rentProps').value)||0) +
-                     (parseFloat(document.getElementById('f_rentCostumes').value)||0) +
-                     (parseFloat(document.getElementById('f_rentSetPiece').value)||0) +
-                     (parseFloat(document.getElementById('f_rentAuto').value)||0) +
-                     (parseFloat(document.getElementById('f_fuel').value)||0) +
-                     (parseFloat(document.getElementById('f_expCostumes').value)||0) +
-                     (parseFloat(document.getElementById('f_expProps').value)||0) +
-                     (parseFloat(document.getElementById('f_scenicMaterials').value)||0) +
-                     (parseFloat(document.getElementById('f_scripts').value)||0) +
-                     (parseFloat(document.getElementById('f_supplies').value)||0) +
-                     (parseFloat(document.getElementById('f_photography').value)||0) +
-                     (parseFloat(document.getElementById('f_videography').value)||0);
+        const totEl = document.getElementById(`f_${key}_tot`);
+        if (totEl) totEl.innerText = '$' + tot.toLocaleString(undefined, {maximumFractionDigits: 0});
+
+        if (stipendKeys.includes(key)) {
+          stipendsSum += tot;
+        } else {
+          expSum += tot;
+        }
+      });
 
       const apportionedItems = state.overhead.filter(o => o.apportion);
       const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
@@ -514,7 +678,7 @@
       const tixRev = (seatsSold * gaPct * gaPrice) + (seatsSold * pwywPct * pwywPrice);
       const avgTix = seatsSold > 0 ? (tixRev / seatsSold) : 0;
 
-      const totalExp = stipends + expSum + perShowAdmin;
+      const totalExp = stipendsSum + expSum + perShowAdmin;
       const netMargin = (tixRev + conc + merch) - totalExp;
 
       document.getElementById('prev-tix').innerText = '$' + tixRev.toLocaleString(undefined, {maximumFractionDigits:0});
@@ -528,6 +692,14 @@
     }
 
     function commitBuilderShow() {
+      const itemsObj = {};
+      LINE_ITEM_KEYS.forEach(key => {
+        itemsObj[key] = {
+          qty: parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0,
+          rate: parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0
+        };
+      });
+
       const newShow = {
         id: Date.now(),
         name: document.getElementById('f_name').value || "New Show",
@@ -544,39 +716,7 @@
         compPct: parseFloat(document.getElementById('f_compPct').value) || 0,
         concessions: parseFloat(document.getElementById('f_concessions').value) || 0,
         merch: parseFloat(document.getElementById('f_merch').value) || 0,
-        actorsCount: parseInt(document.getElementById('f_actorsCount').value) || 0,
-        actorRate: parseFloat(document.getElementById('f_actorRate').value) || 0,
-        carpentryHours: parseInt(document.getElementById('f_carpentryHours').value) || 0,
-        carpentryRate: parseFloat(document.getElementById('f_carpentryRate').value) || 0,
-        directorPay: parseFloat(document.getElementById('f_directorPay').value) || 0,
-        stageManagerPay: parseFloat(document.getElementById('f_stageManagerPay').value) || 0,
-        graphicDesignPay: parseFloat(document.getElementById('f_graphicDesignPay').value) || 0,
-        costumeDesignPay: parseFloat(document.getElementById('f_costumeDesignPay').value) || 0,
-        lightingDesignPay: parseFloat(document.getElementById('f_lightingDesignPay').value) || 0,
-        propDesignPay: parseFloat(document.getElementById('f_propDesignPay').value) || 0,
-        setDesignPay: parseFloat(document.getElementById('f_setDesignPay').value) || 0,
-        soundDesignPay: parseFloat(document.getElementById('f_soundDesignPay').value) || 0,
-        boardOpPay: parseFloat(document.getElementById('f_boardOpPay').value) || 0,
-        musicDirectorPay: parseFloat(document.getElementById('f_musicDirectorPay').value) || 0,
-        intimacyPay: parseFloat(document.getElementById('f_intimacyPay').value) || 0,
-        fightPay: parseFloat(document.getElementById('f_fightPay').value) || 0,
-        dancePay: parseFloat(document.getElementById('f_dancePay').value) || 0,
-        musiciansPay: parseFloat(document.getElementById('f_musiciansPay').value) || 0,
-        techDirectorPay: parseFloat(document.getElementById('f_techDirectorPay').value) || 0,
-        rentFacility: parseFloat(document.getElementById('f_rentFacility').value) || 0,
-        rentEquipment: parseFloat(document.getElementById('f_rentEquipment').value) || 0,
-        rentProps: parseFloat(document.getElementById('f_rentProps').value) || 0,
-        rentCostumes: parseFloat(document.getElementById('f_rentCostumes').value) || 0,
-        rentSetPiece: parseFloat(document.getElementById('f_rentSetPiece').value) || 0,
-        rentAuto: parseFloat(document.getElementById('f_rentAuto').value) || 0,
-        fuel: parseFloat(document.getElementById('f_fuel').value) || 0,
-        expCostumes: parseFloat(document.getElementById('f_expCostumes').value) || 0,
-        expProps: parseFloat(document.getElementById('f_expProps').value) || 0,
-        scenicMaterials: parseFloat(document.getElementById('f_scenicMaterials').value) || 0,
-        scripts: parseFloat(document.getElementById('f_scripts').value) || 0,
-        supplies: parseFloat(document.getElementById('f_supplies').value) || 0,
-        photography: parseFloat(document.getElementById('f_photography').value) || 0,
-        videography: parseFloat(document.getElementById('f_videography').value) || 0
+        items: itemsObj
       };
 
       state.productions.push(newShow);
@@ -602,6 +742,8 @@
       let totalProductionExpenses = 0;
       let totalStipendsPool = 0;
 
+      const stipendKeys = ['actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes', 'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'];
+
       filteredShows.forEach(p => {
         let metrics = getShowTicketMetrics(p, isFullCap);
         let showGrantAlloc = getShowAllocatedGrants(p.id);
@@ -609,16 +751,16 @@
 
         let showNonBoxRev = showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0);
         
-        let actorStipends = (p.actorsCount||0) * (p.actorRate||0);
-        let carpentryStipends = (p.carpentryHours||0) * (p.carpentryRate||0);
-        let showStipends = actorStipends + carpentryStipends + (p.directorPay||0) + (p.stageManagerPay||0) + 
-                           (p.graphicDesignPay||0) + (p.costumeDesignPay||0) + (p.lightingDesignPay||0) + (p.propDesignPay||0) +
-                           (p.setDesignPay||0) + (p.soundDesignPay||0) + (p.boardOpPay||0) + (p.musicDirectorPay||0) +
-                           (p.intimacyPay||0) + (p.fightPay||0) + (p.dancePay||0) + (p.musiciansPay||0) + (p.techDirectorPay||0);
+        let showStipends = 0;
+        let expSum = 0;
 
-        let expSum = (p.rentFacility||0) + (p.rentEquipment||0) + (p.rentProps||0) + (p.rentCostumes||0) + (p.rentSetPiece||0) +
-                     (p.rentAuto||0) + (p.fuel||0) + (p.expCostumes||0) + (p.expProps||0) + (p.scenicMaterials||0) +
-                     (p.scripts||0) + (p.supplies||0) + (p.photography||0) + (p.videography||0);
+        if (p.items) {
+          LINE_ITEM_KEYS.forEach(k => {
+            let tot = getItemTotal(p.items, k);
+            if (stipendKeys.includes(k)) showStipends += tot;
+            else expSum += tot;
+          });
+        }
 
         let showExpenses = showStipends + expSum + perShowApportionedAdmin;
 
@@ -630,8 +772,9 @@
 
       let unallocatedGrants = state.grants.filter(g => !g.targetShowIds || g.targetShowIds.length === 0).reduce((s, g) => s + g.amount, 0);
       let unallocatedSponsors = (state.sponsorships||[]).filter(s => !s.targetShowIds || s.targetShowIds.length === 0).reduce((s, sp) => s + sp.amount, 0);
+      let totalDonations = (state.donations||[]).filter(d => selectedSeason === 'all' || d.season === selectedSeason).reduce((s, d) => s + d.amount, 0);
 
-      const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + unallocatedGrants + unallocatedSponsors;
+      const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + unallocatedGrants + unallocatedSponsors + totalDonations;
       const totalExpenses = totalOverhead + (totalProductionExpenses - (filteredShows.length * perShowApportionedAdmin));
       const netIncome = totalRevenue - totalExpenses;
 
@@ -647,8 +790,9 @@
       renderOverheadTable();
       renderGrantsHub();
       renderSponsorshipsHub();
+      renderDonationsHub();
       renderProductions(filteredShows, isFullCap, perShowApportionedAdmin);
-      renderChart(totalTicketRevenue, totalNonBoxRevenue, totalProductionExpenses, totalOverhead);
+      renderChart(totalTicketRevenue, totalNonBoxRevenue + totalDonations, totalProductionExpenses, totalOverhead);
     }
 
     function renderGrantsHub() {
@@ -811,28 +955,100 @@
       saveState();
     }
 
+    // DONATIONS HUB LOGIC
+    function renderDonationsHub() {
+      const container = document.getElementById('donations-container');
+      container.innerHTML = '';
+      if (!state.donations) state.donations = [];
+
+      state.donations.forEach(d => {
+        container.innerHTML += `
+          <div class="hub-card">
+            <div class="flex-between" style="margin-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <input type="text" value="${d.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateDonation(${d.id}, 'name', this.value)">
+                <span class="badge ${d.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${d.status}</span>
+              </div>
+              <button class="btn-danger" onclick="deleteDonation(${d.id})">Delete Campaign</button>
+            </div>
+            
+            <div class="grid-3">
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED AMOUNT ($)</label><br>
+                $<input type="number" value="${d.amount}" style="font-weight:bold;" onchange="updateDonation(${d.id}, 'amount', parseFloat(this.value))">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
+                <select onchange="updateDonation(${d.id}, 'status', this.value)">
+                  <option value="Awarded" ${d.status==='Awarded'?'selected':''}>Received / Confirmed</option>
+                  <option value="Anticipated" ${d.status==='Anticipated'?'selected':''}>Anticipated / Goal</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+                <select onchange="updateDonation(${d.id}, 'season', this.value)">
+                  <option value="2025-2026" ${d.season==='2025-2026'?'selected':''}>2025–2026</option>
+                  <option value="2026-2027" ${d.season==='2026-2027'?'selected':''}>2026–2027</option>
+                  <option value="2027-2028" ${d.season==='2027-2028'?'selected':''}>2027–2028</option>
+                </select>
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+
+    function updateDonation(id, field, val) {
+      const item = state.donations.find(d => d.id === id);
+      if (item) { item[field] = val; saveState(); }
+    }
+    function addDonation() {
+      if (!state.donations) state.donations = [];
+      state.donations.push({ id: Date.now(), name: "New Donation Drive", amount: 2000, status: "Anticipated", season: "2026-2027" });
+      saveState();
+    }
+    function deleteDonation(id) {
+      state.donations = state.donations.filter(d => d.id !== id);
+      saveState();
+    }
+
     function renderProductions(filteredShows, isFullCap, apportionedAdmin) {
       const container = document.getElementById('productions-container');
       container.innerHTML = '';
+      
+      const stipendKeys = ['actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes', 'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'];
+
       filteredShows.forEach(p => {
         let metrics = getShowTicketMetrics(p, isFullCap);
         let showGrantAlloc = getShowAllocatedGrants(p.id);
         let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
 
-        let actorPay = (p.actorsCount||0) * (p.actorRate||0);
-        let carpPay = (p.carpentryHours||0) * (p.carpentryRate||0);
-        let showStipends = actorPay + carpPay + (p.directorPay||0) + (p.stageManagerPay||0) + 
-                           (p.graphicDesignPay||0) + (p.costumeDesignPay||0) + (p.lightingDesignPay||0) + (p.propDesignPay||0) +
-                           (p.setDesignPay||0) + (p.soundDesignPay||0) + (p.boardOpPay||0) + (p.musicDirectorPay||0) +
-                           (p.intimacyPay||0) + (p.fightPay||0) + (p.dancePay||0) + (p.musiciansPay||0) + (p.techDirectorPay||0);
+        let showStipends = 0;
+        let expSum = 0;
 
-        let expSum = (p.rentFacility||0) + (p.rentEquipment||0) + (p.rentProps||0) + (p.rentCostumes||0) + (p.rentSetPiece||0) +
-                     (p.rentAuto||0) + (p.fuel||0) + (p.expCostumes||0) + (p.expProps||0) + (p.scenicMaterials||0) +
-                     (p.scripts||0) + (p.supplies||0) + (p.photography||0) + (p.videography||0);
+        if (p.items) {
+          LINE_ITEM_KEYS.forEach(k => {
+            let tot = getItemTotal(p.items, k);
+            if (stipendKeys.includes(k)) showStipends += tot;
+            else expSum += tot;
+          });
+        }
 
         let totalShowExpenses = showStipends + expSum + apportionedAdmin;
         let totalShowRev = metrics.totalTixRev + showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0);
         let showGross = totalShowRev - totalShowExpenses;
+
+        // Render line item input markup for production card
+        function renderItemInput(key, label) {
+          const item = (p.items && p.items[key]) ? p.items[key] : { qty: 0, rate: 0 };
+          const tot = (item.qty || 0) * (item.rate || 0);
+          return `
+            <div class="line-item-row">
+              <label>${label}</label>
+              <input type="number" value="${item.qty}" onchange="updateProdItem(${p.id}, '${key}', 'qty', parseFloat(this.value))">
+              <input type="number" value="${item.rate}" onchange="updateProdItem(${p.id}, '${key}', 'rate', parseFloat(this.value))">
+              <span class="line-item-total">$${tot.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+            </div>`;
+        }
 
         container.innerHTML += `
           <div class="show-card">
@@ -876,52 +1092,59 @@
             <div class="grid-4">
               <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
               <div><label>Allocated Sponsorships ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
-              <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
-              <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
+              <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
+              <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
             </div>
 
-            <div class="section-title">4. Account 53500 Artist & Technical Stipends</div>
-            <div class="grid-4">
-              <div><label>Actors (Qty x Rate):</label><br><input type="number" value="${p.actorsCount}" style="width:50px" onchange="updateProd(${p.id}, 'actorsCount', parseInt(this.value))"> x $<input type="number" value="${p.actorRate}" style="width:70px" onchange="updateProd(${p.id}, 'actorRate', parseFloat(this.value))"></div>
-              <div><label>Carpentry (Hrs x Rate):</label><br><input type="number" value="${p.carpentryHours}" style="width:50px" onchange="updateProd(${p.id}, 'carpentryHours', parseInt(this.value))"> x $<input type="number" value="${p.carpentryRate}" style="width:70px" onchange="updateProd(${p.id}, 'carpentryRate', parseFloat(this.value))"></div>
-              <div><label>Director ($):</label><br><input type="number" value="${p.directorPay||0}" onchange="updateProd(${p.id}, 'directorPay', parseFloat(this.value))"></div>
-              <div><label>Stage Management ($):</label><br><input type="number" value="${p.stageManagerPay||0}" onchange="updateProd(${p.id}, 'stageManagerPay', parseFloat(this.value))"></div>
-              <div><label>Art/Graphic Design ($):</label><br><input type="number" value="${p.graphicDesignPay||0}" onchange="updateProd(${p.id}, 'graphicDesignPay', parseFloat(this.value))"></div>
-              <div><label>Costume Design ($):</label><br><input type="number" value="${p.costumeDesignPay||0}" onchange="updateProd(${p.id}, 'costumeDesignPay', parseFloat(this.value))"></div>
-              <div><label>Lighting Design ($):</label><br><input type="number" value="${p.lightingDesignPay||0}" onchange="updateProd(${p.id}, 'lightingDesignPay', parseFloat(this.value))"></div>
-              <div><label>Prop Design ($):</label><br><input type="number" value="${p.propDesignPay||0}" onchange="updateProd(${p.id}, 'propDesignPay', parseFloat(this.value))"></div>
-              <div><label>Set Design ($):</label><br><input type="number" value="${p.setDesignPay||0}" onchange="updateProd(${p.id}, 'setDesignPay', parseFloat(this.value))"></div>
-              <div><label>Sound Design ($):</label><br><input type="number" value="${p.soundDesignPay||0}" onchange="updateProd(${p.id}, 'soundDesignPay', parseFloat(this.value))"></div>
-              <div><label>Board Operator ($):</label><br><input type="number" value="${p.boardOpPay||0}" onchange="updateProd(${p.id}, 'boardOpPay', parseFloat(this.value))"></div>
-              <div><label>Music Director ($):</label><br><input type="number" value="${p.musicDirectorPay||0}" onchange="updateProd(${p.id}, 'musicDirectorPay', parseFloat(this.value))"></div>
-              <div><label>Intimacy Choreography ($):</label><br><input type="number" value="${p.intimacyPay||0}" onchange="updateProd(${p.id}, 'intimacyPay', parseFloat(this.value))"></div>
-              <div><label>Fight Choreography ($):</label><br><input type="number" value="${p.fightPay||0}" onchange="updateProd(${p.id}, 'fightPay', parseFloat(this.value))"></div>
-              <div><label>Dance Choreography ($):</label><br><input type="number" value="${p.dancePay||0}" onchange="updateProd(${p.id}, 'dancePay', parseFloat(this.value))"></div>
-              <div><label>Musicians ($):</label><br><input type="number" value="${p.musiciansPay||0}" onchange="updateProd(${p.id}, 'musiciansPay', parseFloat(this.value))"></div>
-              <div><label>Technical Director ($):</label><br><input type="number" value="${p.techDirectorPay||0}" onchange="updateProd(${p.id}, 'techDirectorPay', parseFloat(this.value))"></div>
+            <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
+            
+            <div class="sub-section-title">A. Performers & Musicians (Account 53500)</div>
+            <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
+              <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
             </div>
+            ${renderItemInput('actors', 'Actors')}
+            ${renderItemInput('musicians', 'Musicians')}
 
-            <div class="section-title">5. Production Expenses & Apportioned Admin</div>
-            <div class="grid-4">
-              <div><label>Rental - Facility - Month ($):</label><br><input type="number" value="${p.rentFacility||0}" onchange="updateProd(${p.id}, 'rentFacility', parseFloat(this.value))"></div>
-              <div><label>Rental - Equipment ($):</label><br><input type="number" value="${p.rentEquipment||0}" onchange="updateProd(${p.id}, 'rentEquipment', parseFloat(this.value))"></div>
-              <div><label>Rental - Props ($):</label><br><input type="number" value="${p.rentProps||0}" onchange="updateProd(${p.id}, 'rentProps', parseFloat(this.value))"></div>
-              <div><label>Rental - Costumes ($):</label><br><input type="number" value="${p.rentCostumes||0}" onchange="updateProd(${p.id}, 'rentCostumes', parseFloat(this.value))"></div>
-              <div><label>Rental - Set Piece ($):</label><br><input type="number" value="${p.rentSetPiece||0}" onchange="updateProd(${p.id}, 'rentSetPiece', parseFloat(this.value))"></div>
-              <div><label>Rental - Automobile ($):</label><br><input type="number" value="${p.rentAuto||0}" onchange="updateProd(${p.id}, 'rentAuto', parseFloat(this.value))"></div>
-              <div><label>Fuel ($):</label><br><input type="number" value="${p.fuel||0}" onchange="updateProd(${p.id}, 'fuel', parseFloat(this.value))"></div>
-              <div><label>Costumes ($):</label><br><input type="number" value="${p.expCostumes||0}" onchange="updateProd(${p.id}, 'expCostumes', parseFloat(this.value))"></div>
-              <div><label>Props ($):</label><br><input type="number" value="${p.expProps||0}" onchange="updateProd(${p.id}, 'expProps', parseFloat(this.value))"></div>
-              <div><label>Scenic Materials ($):</label><br><input type="number" value="${p.scenicMaterials||0}" onchange="updateProd(${p.id}, 'scenicMaterials', parseFloat(this.value))"></div>
-              <div><label>Scripts - Print/Buy/Rent ($):</label><br><input type="number" value="${p.scripts||0}" onchange="updateProd(${p.id}, 'scripts', parseFloat(this.value))"></div>
-              <div><label>Supplies ($):</label><br><input type="number" value="${p.supplies||0}" onchange="updateProd(${p.id}, 'supplies', parseFloat(this.value))"></div>
-            </div>
+            <div class="sub-section-title">B. Production Team & Creative Staff (Account 53500)</div>
+            ${renderItemInput('dir', 'Director')}
+            ${renderItemInput('sm', 'Stage Manager')}
+            ${renderItemInput('td', 'Technical Director')}
+            ${renderItemInput('setdes', 'Set Designer')}
+            ${renderItemInput('lightdes', 'Lighting Designer')}
+            ${renderItemInput('sounddes', 'Sound Designer')}
+            ${renderItemInput('costumedes', 'Costume Designer')}
+            ${renderItemInput('propdes', 'Props Designer')}
+            ${renderItemInput('graphic', 'Graphic / Art Designer')}
+            ${renderItemInput('musicdir', 'Music Director')}
+            ${renderItemInput('intimacy', 'Intimacy Choreographer')}
+            ${renderItemInput('fight', 'Fight Choreographer')}
+            ${renderItemInput('dance', 'Dance Choreographer')}
+            ${renderItemInput('carpentry', 'Carpentry / Set Construction (Hrs)')}
+            ${renderItemInput('boardop', 'Board Operator')}
 
-            <div class="sub-section-title">Recording & Broadcasting</div>
-            <div class="grid-4">
-              <div><label>Photography ($):</label><br><input type="number" value="${p.photography||0}" onchange="updateProd(${p.id}, 'photography', parseFloat(this.value))"></div>
-              <div><label>Videography ($):</label><br><input type="number" value="${p.videography||0}" onchange="updateProd(${p.id}, 'videography', parseFloat(this.value))"></div>
-              <div><label>Apportioned Admin/Insurance:</label><br><strong>$${apportionedAdmin.toFixed(2)}</strong></div>
+            <div class="sub-section-title">C. Scenic, Materials & Props</div>
+            ${renderItemInput('scenicMaterials', 'Scenic Materials')}
+            ${renderItemInput('expProps', 'Props Purchases')}
+
+            <div class="sub-section-title">D. Costumes & Wardrobe</div>
+            ${renderItemInput('expCostumes', 'Costume Purchases')}
+
+            <div class="sub-section-title">E. Rentals & Operations</div>
+            ${renderItemInput('rentFacility', 'Facility Rental (Months)')}
+            ${renderItemInput('rentEquipment', 'Equipment Rental')}
+            ${renderItemInput('rentProps', 'Props Rental')}
+            ${renderItemInput('rentCostumes', 'Costume Rental')}
+            ${renderItemInput('rentSetPiece', 'Set Piece Rental')}
+            ${renderItemInput('scripts', 'Scripts - Rights & Royalties')}
+            ${renderItemInput('supplies', 'Production Supplies')}
+            ${renderItemInput('fuel', 'Automobile & Fuel')}
+
+            <div class="sub-section-title">F. Media & Marketing Documentation</div>
+            ${renderItemInput('photography', 'Photography')}
+            ${renderItemInput('videography', 'Videography')}
+
+            <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+              Apportioned Admin/Insurance Share: <strong>$${apportionedAdmin.toFixed(2)}</strong>
             </div>
           </div>`;
       });
@@ -931,6 +1154,17 @@
       const item = state.productions.find(p => p.id === id);
       if (item) { item[field] = val; saveState(); }
     }
+
+    function updateProdItem(showId, itemKey, prop, val) {
+      const show = state.productions.find(p => p.id === showId);
+      if (show) {
+        if (!show.items) show.items = {};
+        if (!show.items[itemKey]) show.items[itemKey] = { qty: 0, rate: 0 };
+        show.items[itemKey][prop] = isNaN(val) ? 0 : val;
+        saveState();
+      }
+    }
+
     function deleteProd(id) {
       state.productions = state.productions.filter(p => p.id !== id);
       state.grants.forEach(g => { if (g.targetShowIds) g.targetShowIds = g.targetShowIds.filter(sId => sId !== id); });
@@ -974,7 +1208,7 @@
           labels: ['Season Budget Overview'],
           datasets: [
             { label: 'Ticket Revenue', data: [tixRev], backgroundColor: '#4f46e5' },
-            { label: 'Grants, Sponsorships & Concessions', data: [nonBoxRev], backgroundColor: '#818cf8' },
+            { label: 'Grants, Sponsorships, Donations & Concessions', data: [nonBoxRev], backgroundColor: '#818cf8' },
             { label: 'Production Costs & Stipends', data: [prodExp], backgroundColor: '#ef4444' },
             { label: 'General Operating Overhead', data: [overheadExp], backgroundColor: '#f87171' }
           ]
