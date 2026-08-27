@@ -65,8 +65,18 @@
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
     .chart-container { height: 320px; margin-top: 16px; }
     
-    .show-card { border: 1px solid var(--border); padding: 18px; border-radius: 8px; margin-bottom: 16px; background: #ffffff; }
-    .show-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
+    /* Accordion & Card Styles */
+    .season-group { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background: #ffffff; }
+    .season-header { background: #f1f5f9; padding: 12px 18px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-weight: 700; }
+    .season-header:hover { background: #e2e8f0; }
+    .season-title { font-size: 1.1rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+    .season-content { padding: 14px; background: #fafafa; }
+    
+    .show-card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: #ffffff; overflow: hidden; }
+    .show-header { padding: 12px 16px; background: #ffffff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+    .show-header:hover { background: #f8fafc; }
+    .show-body { padding: 18px; border-top: 1px solid var(--border); }
+
     .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
     .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
     .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
@@ -93,7 +103,7 @@
       body { background: #ffffff; padding: 0; margin: 0; max-width: 100%; }
       header div:last-child, .nav-tabs, button, input[type="file"], .btn-danger { display: none !important; }
       .tab-content { display: block !important; }
-      .card, .kpi-card, .show-card, .hub-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; page-break-inside: avoid; }
+      .card, .kpi-card, .show-card, .hub-card, .season-group { border: 1px solid #cbd5e1 !important; box-shadow: none !important; page-break-inside: avoid; }
       input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; font-weight: bold; padding: 0 !important; }
       .scenario-picker { border: 1px solid #a5b4fc !important; background: #f5f3ff !important; }
     }
@@ -538,21 +548,32 @@
     <div class="card">
       <div class="flex-between">
         <h3>Season Productions & Events</h3>
-        <button class="btn-primary" onclick="switchTab('builder')">+ Open Show Builder Form</button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllShowAccordions(true)">Expand All</button>
+          <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllShowAccordions(false)">Collapse All</button>
+          <button class="btn-primary" onclick="switchTab('builder')">+ Open Show Builder Form</button>
+        </div>
       </div>
-      <div id="productions-container" style="margin-top: 16px;"></div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+        Collapsible season and show rollups. Click any Season or Show header to expand/collapse.
+      </p>
+      <div id="productions-container"></div>
     </div>
   </div>
 
-  <!-- RENTALS & EVENTS HUB TAB (NEW) -->
+  <!-- RENTALS & EVENTS HUB TAB -->
   <div id="rentals" class="tab-content">
     <div class="card">
       <div class="flex-between">
         <h3>Outside Rentals & Hosted Events Hub</h3>
-        <button class="btn-primary" onclick="addRentalBooking()">+ Add New Rental / Event Booking</button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllRentalAccordions(true)">Expand All</button>
+          <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllRentalAccordions(false)">Collapse All</button>
+          <button class="btn-primary" onclick="addRentalBooking()">+ Add New Rental / Event Booking</button>
+        </div>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
-        Track projected rental income and bar/concession yields from outside bookings across Whim's core rental categories.
+        Collapsible season rollups for projected rental income and concessions yield.
       </p>
       <div id="rentals-container"></div>
     </div>
@@ -1083,7 +1104,6 @@
       let totalHubGrants = state.grants.reduce((s, g) => s + g.amount, 0);
       let totalHubSponsorships = (state.sponsorships || []).reduce((s, sp) => s + sp.amount, 0);
 
-      // Donations Breakdown from Hub
       let hubIndivDonations = (state.donations||[]).filter(d => d.type === 'Individual Donations' || !d.type).reduce((s, d) => s + d.amount, 0);
       let hubBoardDonations = (state.donations||[]).filter(d => d.type === 'Board Member Donations').reduce((s, d) => s + d.amount, 0);
       let hubSpecialEvents = (state.donations||[]).filter(d => d.type === 'Special Events Revenue').reduce((s, d) => s + d.amount, 0);
@@ -1189,14 +1209,47 @@
       document.body.removeChild(fileDownload);
     }
 
-    // RENTALS HUB LOGIC
+    // ACCORDION TOGGLE HELPERS
+    function toggleAccordion(contentId, iconId) {
+      const el = document.getElementById(contentId);
+      const icon = document.getElementById(iconId);
+      if (!el) return;
+      if (el.style.display === 'none') {
+        el.style.display = 'block';
+        if (icon) icon.innerText = '▼';
+      } else {
+        el.style.display = 'none';
+        if (icon) icon.innerText = '▶';
+      }
+    }
+
+    function toggleAllShowAccordions(expand) {
+      document.querySelectorAll('.season-content').forEach(el => el.style.display = expand ? 'block' : 'none');
+      document.querySelectorAll('.show-body').forEach(el => el.style.display = expand ? 'block' : 'none');
+      document.querySelectorAll('.acc-icon').forEach(el => el.innerText = expand ? '▼' : '▶');
+    }
+
+    function toggleAllRentalAccordions(expand) {
+      document.querySelectorAll('.rental-season-content').forEach(el => el.style.display = expand ? 'block' : 'none');
+      document.querySelectorAll('.rental-acc-icon').forEach(el => el.innerText = expand ? '▼' : '▶');
+    }
+
+    // RENTALS HUB LOGIC WITH SEASON ACCORDIONS
     function renderRentalsHub() {
       const container = document.getElementById('rentals-container');
       container.innerHTML = '';
       if (!state.rentals) state.rentals = [];
 
-      state.rentals.forEach(r => {
-        container.innerHTML += `
+      const seasons = ["2025-2026", "2026-2027", "2027-2028"];
+      
+      seasons.forEach((seasonKey, sIdx) => {
+        const seasonRentals = state.rentals.filter(r => r.season === seasonKey);
+        if (seasonRentals.length === 0) return;
+
+        const totalFees = seasonRentals.reduce((s, r) => s + (r.rentalFee || 0), 0);
+        const totalConc = seasonRentals.reduce((s, r) => s + (r.concessionsRev || 0), 0);
+
+        let bookingsHTML = seasonRentals.map(r => `
           <div class="hub-card">
             <div class="flex-between" style="margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:12px;">
@@ -1229,6 +1282,22 @@
                   <option value="2027-2028" ${r.season==='2027-2028'?'selected':''}>2027–2028</option>
                 </select>
               </div>
+            </div>
+          </div>`).join('');
+
+        container.innerHTML += `
+          <div class="season-group">
+            <div class="season-header" onclick="toggleAccordion('rent-season-content-${sIdx}', 'rent-season-icon-${sIdx}')">
+              <div class="season-title">
+                <span id="rent-season-icon-${sIdx}" class="rental-acc-icon">▼</span>
+                📅 ${seasonKey} Season Rentals (${seasonRentals.length} Bookings)
+              </div>
+              <div style="font-size:0.9rem;">
+                Rentals Income: <strong style="color:var(--success);">$${totalFees.toLocaleString()}</strong> | Concessions Yield: <strong>$${totalConc.toLocaleString()}</strong>
+              </div>
+            </div>
+            <div id="rent-season-content-${sIdx}" class="season-content rental-season-content">
+              ${bookingsHTML}
             </div>
           </div>`;
       });
@@ -1473,161 +1542,196 @@
       saveState();
     }
 
+    // PRODUCTIONS & EVENTS WITH ACCORDION ROLLUPS
     function renderProductions(filteredShows, isFullCap, apportionedAdmin) {
       const container = document.getElementById('productions-container');
       container.innerHTML = '';
 
-      filteredShows.forEach(p => {
-        let metrics = calculateShowBoxOffice(p, isFullCap);
-        let showGrantAlloc = getShowAllocatedGrants(p.id);
-        let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
+      const seasons = ["2025-2026", "2026-2027", "2027-2028"];
 
-        let showStipends = 0;
-        let expSum = 0;
+      seasons.forEach((seasonKey, sIdx) => {
+        const seasonShows = filteredShows.filter(p => p.season === seasonKey);
+        if (seasonShows.length === 0) return;
 
-        if (p.items) {
-          LINE_ITEM_KEYS.forEach(k => {
-            let tot = getItemTotal(p.items, k);
-            if (STIPEND_KEYS.includes(k)) showStipends += tot;
-            else expSum += tot;
-          });
-        }
+        let seasonRev = 0;
+        let seasonExp = 0;
 
-        let totalShowExpenses = showStipends + expSum + apportionedAdmin;
-        let totalShowRev = metrics.totalTixRev + showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0) + (p.showDonations||0) + (p.showSponsorship||0);
-        let showGross = totalShowRev - totalShowExpenses;
+        let showsHTML = seasonShows.map((p, pIdx) => {
+          let metrics = calculateShowBoxOffice(p, isFullCap);
+          let showGrantAlloc = getShowAllocatedGrants(p.id);
+          let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
 
-        function renderItemInput(key, label, isQtyDisabled = false) {
-          const item = (p.items && p.items[key]) ? p.items[key] : { qty: 0, rate: 0 };
-          
-          if (key === 'rentFacilityRehearsal') item.qty = p.rehearsalWeeks || 0;
-          if (key === 'rentFacilityPerformance') item.qty = p.performanceWeeks || 0;
+          let showStipends = 0;
+          let expSum = 0;
 
-          const tot = (item.qty || 0) * (item.rate || 0);
+          if (p.items) {
+            LINE_ITEM_KEYS.forEach(k => {
+              let tot = getItemTotal(p.items, k);
+              if (STIPEND_KEYS.includes(k)) showStipends += tot;
+              else expSum += tot;
+            });
+          }
+
+          let totalShowExpenses = showStipends + expSum + apportionedAdmin;
+          let totalShowRev = metrics.totalTixRev + showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0) + (p.showDonations||0) + (p.showSponsorship||0);
+          let showGross = totalShowRev - totalShowExpenses;
+
+          seasonRev += totalShowRev;
+          seasonExp += totalShowExpenses;
+
+          function renderItemInput(key, label, isQtyDisabled = false) {
+            const item = (p.items && p.items[key]) ? p.items[key] : { qty: 0, rate: 0 };
+            
+            if (key === 'rentFacilityRehearsal') item.qty = p.rehearsalWeeks || 0;
+            if (key === 'rentFacilityPerformance') item.qty = p.performanceWeeks || 0;
+
+            const tot = (item.qty || 0) * (item.rate || 0);
+            return `
+              <div class="line-item-row">
+                <label>${label}</label>
+                <input type="number" value="${item.qty}" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', parseFloat(this.value))">
+                <input type="number" value="${item.rate}" onchange="updateProdItem(${p.id}, '${key}', 'rate', parseFloat(this.value))">
+                <span class="line-item-total">$${tot.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+              </div>`;
+          }
+
           return `
-            <div class="line-item-row">
-              <label>${label}</label>
-              <input type="number" value="${item.qty}" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', parseFloat(this.value))">
-              <input type="number" value="${item.rate}" onchange="updateProdItem(${p.id}, '${key}', 'rate', parseFloat(this.value))">
-              <span class="line-item-total">$${tot.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+            <div class="show-card">
+              <div class="show-header" onclick="toggleAccordion('show-body-${sIdx}-${pIdx}', 'show-icon-${sIdx}-${pIdx}')">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span id="show-icon-${sIdx}-${pIdx}" class="acc-icon">▶</span>
+                  <strong style="font-size:1.05rem;">${p.name}</strong>
+                </div>
+                <div style="display:flex; align-items:center; gap:16px;" onclick="event.stopPropagation();">
+                  <span style="font-size:0.85rem; color:var(--text-muted);">Net Margin: <strong style="color:${showGross>=0?'var(--success)':'var(--danger)'}">$${showGross.toLocaleString(undefined,{maximumFractionDigits:0})}</strong></span>
+                  <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteProd(${p.id})">Delete Show</button>
+                </div>
+              </div>
+
+              <div id="show-body-${sIdx}-${pIdx}" class="show-body" style="display:none;">
+                <div class="section-title">1. Performance & Capacity Parameters</div>
+                <div class="grid-4">
+                  <div><label>Show Name:</label><br><input type="text" value="${p.name}" onchange="updateProd(${p.id}, 'name', this.value)"></div>
+                  <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" onchange="updateProd(${p.id}, 'rehearsalWeeks', parseInt(this.value))"></div>
+                  <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" onchange="updateProd(${p.id}, 'performanceWeeks', parseInt(this.value))"></div>
+                  <div><label>Performances:</label><br><input type="number" value="${p.performances}" onchange="updateProd(${p.id}, 'performances', parseInt(this.value))"></div>
+                  <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" onchange="updateProd(${p.id}, 'capacity', parseInt(this.value))"></div>
+                </div>
+
+                <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
+                <div class="form-group">
+                  <label>GA Price ($):</label>
+                  <input type="number" value="${p.gaPrice||30.00}" onchange="updateProd(${p.id}, 'gaPrice', parseFloat(this.value))">
+                </div>
+
+                <div class="grid-2">
+                  <div><label>Pay It Forward Seats:</label><br><input type="number" value="${p.pifSeats||10}" onchange="updateProd(${p.id}, 'pifSeats', parseFloat(this.value))"></div>
+                  <div><label>Pay It Forward Price ($):</label><br><input type="number" value="${p.pifPrice||50.00}" onchange="updateProd(${p.id}, 'pifPrice', parseFloat(this.value))"></div>
+                </div>
+
+                <div class="form-group" style="margin-top:10px;">
+                  <label>ArtsKC "The Drop" Seats:</label>
+                  <input type="number" value="${p.dropSeats||15}" onchange="updateProd(${p.id}, 'dropSeats', parseFloat(this.value))">
+                </div>
+
+                <div class="grid-3" style="margin-top:10px;">
+                  <div><label>PWYW Nights Offered:</label><br><input type="number" value="${p.pwywNights||2}" onchange="updateProd(${p.id}, 'pwywNights', parseFloat(this.value))"></div>
+                  <div><label>PWYW Cap / Night:</label><br><input type="number" value="${p.pwywCapPerNight||15}" onchange="updateProd(${p.id}, 'pwywCapPerNight', parseFloat(this.value))"></div>
+                  <div><label>PWYW Price Floor ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" onchange="updateProd(${p.id}, 'pwywPrice', parseFloat(this.value))"></div>
+                </div>
+
+                <div class="grid-2" style="margin-top:10px;">
+                  <div><label>Company Comps:</label><br><input type="number" value="${p.companyComps||10}" onchange="updateProd(${p.id}, 'companyComps', parseFloat(this.value))"></div>
+                  <div><label>Production Comps:</label><br><strong style="color:var(--primary);">${metrics.autoProdComps} seats (2x Staff)</strong></div>
+                </div>
+
+                <div class="section-title">3. Non-Box Office Revenue</div>
+                <div class="grid-3">
+                  <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
+                  <div><label>Allocated Sponsorships Hub ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
+                  <div><label>Show Sponsorship ($):</label><br><input type="number" value="${p.showSponsorship||0}" onchange="updateProd(${p.id}, 'showSponsorship', parseFloat(this.value))"></div>
+                  <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
+                  <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
+                  <div><label>Show Donations ($):</label><br><input type="number" value="${p.showDonations||0}" onchange="updateProd(${p.id}, 'showDonations', parseFloat(this.value))"></div>
+                </div>
+
+                <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
+                
+                <div class="sub-section-title">A. Artist Stipends</div>
+                <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
+                  <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
+                </div>
+                ${renderItemInput('actors', 'Actors')}
+                ${renderItemInput('musicians', 'Musicians')}
+                ${renderItemInput('dir', 'Director')}
+                ${renderItemInput('sm', 'Stage Manager')}
+                ${renderItemInput('asm', 'Assistant Stage Manager')}
+                ${renderItemInput('td', 'Technical Director')}
+                ${renderItemInput('setdes', 'Set Designer')}
+                ${renderItemInput('lightdes', 'Lighting Designer')}
+                ${renderItemInput('sounddes', 'Sound Designer')}
+                ${renderItemInput('costumedes', 'Costume Designer')}
+                ${renderItemInput('propdes', 'Props Designer')}
+                ${renderItemInput('graphic', 'Graphic / Art Designer')}
+                ${renderItemInput('musicdir', 'Music Director')}
+                ${renderItemInput('intimacy', 'Intimacy Choreographer')}
+                ${renderItemInput('fight', 'Fight Choreographer')}
+                ${renderItemInput('dance', 'Dance Choreographer')}
+                ${renderItemInput('carpentry', 'Carpentry / Set Construction (Hrs)')}
+                ${renderItemInput('boardop', 'Board Operator')}
+                ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent')}
+
+                <div class="sub-section-title">B. Scenic, Materials & Props</div>
+                ${renderItemInput('scenicMaterials', 'Scenic Materials')}
+                ${renderItemInput('expProps', 'Props Purchases')}
+
+                <div class="sub-section-title">C. Costumes & Wardrobe</div>
+                ${renderItemInput('expCostumes', 'Costume Purchases')}
+
+                <div class="sub-section-title">D. Rentals & Operations</div>
+                ${renderItemInput('rentFacilityRehearsal', 'Facility Rental - Rehearsal Weeks', true)}
+                ${renderItemInput('rentFacilityPerformance', 'Facility Rental - Performance Weeks', true)}
+                ${renderItemInput('rentEquipment', 'Equipment Rental')}
+                ${renderItemInput('rentProps', 'Props Rental')}
+                ${renderItemInput('rentCostumes', 'Costume Rental')}
+                ${renderItemInput('rentSetPiece', 'Set Piece Rental')}
+                ${renderItemInput('rentAuto', 'Rental - Automobile')}
+                ${renderItemInput('fuel', 'Fuel')}
+                ${renderItemInput('supplies', 'Production Supplies')}
+
+                <div class="sub-section-title">E. Media & Marketing Documentation</div>
+                ${renderItemInput('photography', 'Photography')}
+                ${renderItemInput('videography', 'Videography')}
+
+                <div class="sub-section-title">F. Marketing & Promotion</div>
+                ${renderItemInput('printAds', 'Print Ads')}
+                ${renderItemInput('digitalAds', 'Digital Ads')}
+                ${renderItemInput('printedMaterials', 'Printed Materials (Posters, Flyers)')}
+
+                <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+                  Apportioned Admin/Insurance Share: <strong>$${apportionedAdmin.toFixed(2)}</strong>
+                </div>
+              </div>
             </div>`;
-        }
+        }).join('');
+
+        let seasonNet = seasonRev - seasonExp;
 
         container.innerHTML += `
-          <div class="show-card">
-            <div class="show-header">
-              <div>
-                <input type="text" value="${p.name}" style="font-weight:bold; font-size:1.15rem; width:260px;" onchange="updateProd(${p.id}, 'name', this.value)">
-                <select style="font-weight:bold; width:130px; margin-left:8px;" onchange="updateProd(${p.id}, 'season', this.value)">
-                  <option value="2025-2026" ${p.season==='2025-2026'?'selected':''}>2025–2026</option>
-                  <option value="2026-2027" ${p.season==='2026-2027'?'selected':''}>2026–2027</option>
-                  <option value="2027-2028" ${p.season==='2027-2028'?'selected':''}>2027–2028</option>
-                </select>
-                <span style="font-size:0.85rem; color:var(--text-muted); margin-left:12px;">Net Margin: <strong style="color:${showGross>=0?'var(--success)':'var(--danger)'}">$${showGross.toLocaleString(undefined,{maximumFractionDigits:0})}</strong></span>
+          <div class="season-group">
+            <div class="season-header" onclick="toggleAccordion('show-season-content-${sIdx}', 'show-season-icon-${sIdx}')">
+              <div class="season-title">
+                <span id="show-season-icon-${sIdx}" class="acc-icon">▼</span>
+                🎭 ${seasonKey} Season (${seasonShows.length} Productions)
               </div>
-              <button class="btn-danger" onclick="deleteProd(${p.id})">Delete Show</button>
+              <div style="font-size:0.85rem;">
+                Rev: <strong style="color:var(--success);">$${seasonRev.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> | 
+                Exp: <strong style="color:var(--danger);">$${seasonExp.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> | 
+                Net: <strong style="color:${seasonNet>=0?'var(--success)':'var(--danger)'};">$${seasonNet.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+              </div>
             </div>
-
-            <div class="section-title">1. Performance & Capacity Parameters</div>
-            <div class="grid-4">
-              <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" onchange="updateProd(${p.id}, 'rehearsalWeeks', parseInt(this.value))"></div>
-              <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" onchange="updateProd(${p.id}, 'performanceWeeks', parseInt(this.value))"></div>
-              <div><label>Performances:</label><br><input type="number" value="${p.performances}" onchange="updateProd(${p.id}, 'performances', parseInt(this.value))"></div>
-              <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" onchange="updateProd(${p.id}, 'capacity', parseInt(this.value))"></div>
-            </div>
-
-            <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
-            <div class="form-group">
-              <label>GA Price ($):</label>
-              <input type="number" value="${p.gaPrice||30.00}" onchange="updateProd(${p.id}, 'gaPrice', parseFloat(this.value))">
-            </div>
-
-            <div class="grid-2">
-              <div><label>Pay It Forward Seats:</label><br><input type="number" value="${p.pifSeats||10}" onchange="updateProd(${p.id}, 'pifSeats', parseFloat(this.value))"></div>
-              <div><label>Pay It Forward Price ($):</label><br><input type="number" value="${p.pifPrice||50.00}" onchange="updateProd(${p.id}, 'pifPrice', parseFloat(this.value))"></div>
-            </div>
-
-            <div class="form-group" style="margin-top:10px;">
-              <label>ArtsKC "The Drop" Seats:</label>
-              <input type="number" value="${p.dropSeats||15}" onchange="updateProd(${p.id}, 'dropSeats', parseFloat(this.value))">
-            </div>
-
-            <div class="grid-3" style="margin-top:10px;">
-              <div><label>PWYW Nights Offered:</label><br><input type="number" value="${p.pwywNights||2}" onchange="updateProd(${p.id}, 'pwywNights', parseFloat(this.value))"></div>
-              <div><label>PWYW Cap / Night:</label><br><input type="number" value="${p.pwywCapPerNight||15}" onchange="updateProd(${p.id}, 'pwywCapPerNight', parseFloat(this.value))"></div>
-              <div><label>PWYW Price Floor ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" onchange="updateProd(${p.id}, 'pwywPrice', parseFloat(this.value))"></div>
-            </div>
-
-            <div class="grid-2" style="margin-top:10px;">
-              <div><label>Company Comps:</label><br><input type="number" value="${p.companyComps||10}" onchange="updateProd(${p.id}, 'companyComps', parseFloat(this.value))"></div>
-              <div><label>Production Comps:</label><br><strong style="color:var(--primary);">${metrics.autoProdComps} seats (2x Staff)</strong></div>
-            </div>
-
-            <div class="section-title">3. Non-Box Office Revenue</div>
-            <div class="grid-3">
-              <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
-              <div><label>Allocated Sponsorships Hub ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
-              <div><label>Show Sponsorship ($):</label><br><input type="number" value="${p.showSponsorship||0}" onchange="updateProd(${p.id}, 'showSponsorship', parseFloat(this.value))"></div>
-              <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
-              <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
-              <div><label>Show Donations ($):</label><br><input type="number" value="${p.showDonations||0}" onchange="updateProd(${p.id}, 'showDonations', parseFloat(this.value))"></div>
-            </div>
-
-            <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
-            
-            <div class="sub-section-title">A. Artist Stipends</div>
-            <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
-              <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
-            </div>
-            ${renderItemInput('actors', 'Actors')}
-            ${renderItemInput('musicians', 'Musicians')}
-            ${renderItemInput('dir', 'Director')}
-            ${renderItemInput('sm', 'Stage Manager')}
-            ${renderItemInput('asm', 'Assistant Stage Manager')}
-            ${renderItemInput('td', 'Technical Director')}
-            ${renderItemInput('setdes', 'Set Designer')}
-            ${renderItemInput('lightdes', 'Lighting Designer')}
-            ${renderItemInput('sounddes', 'Sound Designer')}
-            ${renderItemInput('costumedes', 'Costume Designer')}
-            ${renderItemInput('propdes', 'Props Designer')}
-            ${renderItemInput('graphic', 'Graphic / Art Designer')}
-            ${renderItemInput('musicdir', 'Music Director')}
-            ${renderItemInput('intimacy', 'Intimacy Choreographer')}
-            ${renderItemInput('fight', 'Fight Choreographer')}
-            ${renderItemInput('dance', 'Dance Choreographer')}
-            ${renderItemInput('carpentry', 'Carpentry / Set Construction (Hrs)')}
-            ${renderItemInput('boardop', 'Board Operator')}
-            ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent')}
-
-            <div class="sub-section-title">B. Scenic, Materials & Props</div>
-            ${renderItemInput('scenicMaterials', 'Scenic Materials')}
-            ${renderItemInput('expProps', 'Props Purchases')}
-
-            <div class="sub-section-title">C. Costumes & Wardrobe</div>
-            ${renderItemInput('expCostumes', 'Costume Purchases')}
-
-            <div class="sub-section-title">D. Rentals & Operations</div>
-            ${renderItemInput('rentFacilityRehearsal', 'Facility Rental - Rehearsal Weeks', true)}
-            ${renderItemInput('rentFacilityPerformance', 'Facility Rental - Performance Weeks', true)}
-            ${renderItemInput('rentEquipment', 'Equipment Rental')}
-            ${renderItemInput('rentProps', 'Props Rental')}
-            ${renderItemInput('rentCostumes', 'Costume Rental')}
-            ${renderItemInput('rentSetPiece', 'Set Piece Rental')}
-            ${renderItemInput('rentAuto', 'Rental - Automobile')}
-            ${renderItemInput('fuel', 'Fuel')}
-            ${renderItemInput('supplies', 'Production Supplies')}
-
-            <div class="sub-section-title">E. Media & Marketing Documentation</div>
-            ${renderItemInput('photography', 'Photography')}
-            ${renderItemInput('videography', 'Videography')}
-
-            <div class="sub-section-title">F. Marketing & Promotion</div>
-            ${renderItemInput('printAds', 'Print Ads')}
-            ${renderItemInput('digitalAds', 'Digital Ads')}
-            ${renderItemInput('printedMaterials', 'Printed Materials (Posters, Flyers)')}
-
-            <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
-              Apportioned Admin/Insurance Share: <strong>$${apportionedAdmin.toFixed(2)}</strong>
+            <div id="show-season-content-${sIdx}" class="season-content">
+              ${showsHTML}
             </div>
           </div>`;
       });
