@@ -33,10 +33,10 @@
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
     
     .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
-    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); padding: 16px; border-radius: 8px; }
-    .kpi-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-    .kpi-value { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); padding: 14px; border-radius: 8px; }
+    .kpi-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .kpi-value { font-size: 1.35rem; font-weight: 700; margin-top: 4px; }
     .kpi-value.positive { color: var(--success); }
     .kpi-value.negative { color: var(--danger); }
 
@@ -65,7 +65,6 @@
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
     .chart-container { height: 320px; margin-top: 16px; }
     
-    /* Accordion & Card Styles */
     .season-group { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background: #ffffff; }
     .season-header { background: #f1f5f9; padding: 12px 18px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-weight: 700; }
     .season-header:hover { background: #e2e8f0; }
@@ -219,7 +218,7 @@
         
         <div class="section-title">1. Show Parameters</div>
         <div class="grid-2">
-          <div class="form-group"><label>Show Title</label><input type="text" id="f_name" value="New Mainstage Proposal" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Show Title</label><input type="text" id="f_name" value="" placeholder="Enter Show Title..." oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Season</label>
             <select id="f_season" onchange="calculateBuilder()">
               <option value="2025-2026">2025–2026</option>
@@ -229,48 +228,48 @@
           </div>
         </div>
         <div class="grid-4">
-          <div class="form-group"><label>Rehearsal Weeks</label><input type="number" id="f_rehearsalWeeks" value="4" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Performance Weeks</label><input type="number" id="f_performanceWeeks" value="3" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Performances</label><input type="number" id="f_performances" value="8" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>House Capacity</label><input type="number" id="f_capacity" value="62" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Rehearsal Weeks</label><input type="number" id="f_rehearsalWeeks" value="4" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Performance Weeks</label><input type="number" id="f_performanceWeeks" value="3" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Performances</label><input type="number" id="f_performances" value="8" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>House Capacity</label><input type="number" id="f_capacity" value="62" min="0" oninput="calculateBuilder()"></div>
         </div>
         <div class="grid-4">
-          <div class="form-group"><label>Expected Cap %</label><input type="number" id="f_expectedAttendancePct" value="55" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Expected Cap %</label><input type="number" id="f_expectedAttendancePct" value="55" min="0" max="100" oninput="calculateBuilder()"></div>
         </div>
 
         <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
         <div class="form-group">
           <label>General Admission Price ($)</label>
-          <input type="number" id="f_gaPrice" value="30.00" oninput="calculateBuilder()">
+          <input type="number" id="f_gaPrice" value="30.00" min="0" oninput="calculateBuilder()">
         </div>
         
         <div class="grid-2">
-          <div class="form-group"><label>Pay It Forward Seats (Run)</label><input type="number" id="f_pifSeats" value="10" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Pay It Forward Price ($)</label><input type="number" id="f_pifPrice" value="50.00" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Pay It Forward Seats (Run)</label><input type="number" id="f_pifSeats" value="10" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Pay It Forward Price ($)</label><input type="number" id="f_pifPrice" value="50.00" min="0" oninput="calculateBuilder()"></div>
         </div>
 
         <div class="form-group">
           <label>ArtsKC "The Drop" Seats (Run)</label>
-          <input type="number" id="f_dropSeats" value="15" oninput="calculateBuilder()">
+          <input type="number" id="f_dropSeats" value="15" min="0" oninput="calculateBuilder()">
         </div>
 
         <div class="grid-3">
-          <div class="form-group"><label>PWYW Nights Offered</label><input type="number" id="f_pwywNights" value="2" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>PWYW Cap / Night</label><input type="number" id="f_pwywCapPerNight" value="15" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>PWYW Price Floor ($)</label><input type="number" id="f_pwywPrice" value="15.00" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>PWYW Nights Offered</label><input type="number" id="f_pwywNights" value="2" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>PWYW Cap / Night</label><input type="number" id="f_pwywCapPerNight" value="15" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>PWYW Price Floor ($)</label><input type="number" id="f_pwywPrice" value="15.00" min="0" oninput="calculateBuilder()"></div>
         </div>
 
         <div class="grid-2">
-          <div class="form-group"><label>Company Comps (Run)</label><input type="number" id="f_companyComps" value="10" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Company Comps (Run)</label><input type="number" id="f_companyComps" value="10" min="0" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Production Comps</label><input type="text" id="f_autoProdComps" value="Auto (2x Staff)" disabled style="background:#f1f5f9; font-weight:bold;"></div>
         </div>
 
         <div class="section-title">3. Non-Box Office Revenue</div>
         <div class="grid-4">
-          <div class="form-group"><label>Concessions ($)</label><input type="number" id="f_concessions" value="800" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Merch ($)</label><input type="number" id="f_merch" value="50" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Show Donations ($)</label><input type="number" id="f_showDonations" value="500" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Show Sponsorship ($)</label><input type="number" id="f_showSponsorship" value="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Concessions ($)</label><input type="number" id="f_concessions" value="800" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Merch ($)</label><input type="number" id="f_merch" value="50" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Show Donations ($)</label><input type="number" id="f_showDonations" value="500" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Show Sponsorship ($)</label><input type="number" id="f_showSponsorship" value="0" min="0" oninput="calculateBuilder()"></div>
         </div>
 
         <div class="section-title">4. Production Budget Line Items</div>
@@ -281,138 +280,138 @@
         </div>
         <div class="line-item-row">
           <label>Actors</label>
-          <input type="number" id="f_actors_qty" value="6" oninput="calculateBuilder()">
-          <input type="number" id="f_actors_rate" value="400" oninput="calculateBuilder()">
+          <input type="number" id="f_actors_qty" value="6" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_actors_rate" value="400" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_actors_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Musicians</label>
-          <input type="number" id="f_musicians_qty" value="0" oninput="calculateBuilder()">
-          <input type="number" id="f_musicians_rate" value="150" oninput="calculateBuilder()">
+          <input type="number" id="f_musicians_qty" value="0" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_musicians_rate" value="150" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_musicians_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Director</label>
-          <input type="number" id="f_dir_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_dir_rate" value="700" oninput="calculateBuilder()">
+          <input type="number" id="f_dir_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_dir_rate" value="700" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_dir_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Stage Manager</label>
-          <input type="number" id="f_sm_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_sm_rate" value="800" oninput="calculateBuilder()">
+          <input type="number" id="f_sm_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_sm_rate" value="800" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_sm_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Assistant Stage Manager</label>
-          <input type="number" id="f_asm_qty" value="0" oninput="calculateBuilder()">
-          <input type="number" id="f_asm_rate" value="400" oninput="calculateBuilder()">
+          <input type="number" id="f_asm_qty" value="0" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_asm_rate" value="400" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_asm_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Technical Director</label>
-          <input type="number" id="f_td_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_td_rate" value="600" oninput="calculateBuilder()">
+          <input type="number" id="f_td_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_td_rate" value="600" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_td_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Set Designer</label>
-          <input type="number" id="f_setdes_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_setdes_rate" value="600" oninput="calculateBuilder()">
+          <input type="number" id="f_setdes_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_setdes_rate" value="600" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_setdes_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Lighting Designer</label>
-          <input type="number" id="f_lightdes_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_lightdes_rate" value="500" oninput="calculateBuilder()">
+          <input type="number" id="f_lightdes_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_lightdes_rate" value="500" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_lightdes_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Sound Designer</label>
-          <input type="number" id="f_sounddes_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_sounddes_rate" value="500" oninput="calculateBuilder()">
+          <input type="number" id="f_sounddes_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_sounddes_rate" value="500" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_sounddes_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Costume Designer</label>
-          <input type="number" id="f_costumedes_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_costumedes_rate" value="500" oninput="calculateBuilder()">
+          <input type="number" id="f_costumedes_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_costumedes_rate" value="500" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_costumedes_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Props Designer</label>
-          <input type="number" id="f_propdes_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_propdes_rate" value="400" oninput="calculateBuilder()">
+          <input type="number" id="f_propdes_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_propdes_rate" value="400" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_propdes_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Graphic / Art Designer</label>
-          <input type="number" id="f_graphic_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_graphic_rate" value="300" oninput="calculateBuilder()">
+          <input type="number" id="f_graphic_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_graphic_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_graphic_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Music Director</label>
-          <input type="number" id="f_musicdir_qty" value="0" oninput="calculateBuilder()">
-          <input type="number" id="f_musicdir_rate" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_musicdir_qty" value="0" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_musicdir_rate" value="0" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_musicdir_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Intimacy Choreographer</label>
-          <input type="number" id="f_intimacy_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_intimacy_rate" value="300" oninput="calculateBuilder()">
+          <input type="number" id="f_intimacy_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_intimacy_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_intimacy_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Fight Choreographer</label>
-          <input type="number" id="f_fight_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_fight_rate" value="350" oninput="calculateBuilder()">
+          <input type="number" id="f_fight_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_fight_rate" value="350" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_fight_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Dance Choreographer</label>
-          <input type="number" id="f_dance_qty" value="0" oninput="calculateBuilder()">
-          <input type="number" id="f_dance_rate" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_dance_qty" value="0" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_dance_rate" value="0" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_dance_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Carpentry / Set Construction (Hrs)</label>
-          <input type="number" id="f_carpentry_qty" value="40" oninput="calculateBuilder()">
-          <input type="number" id="f_carpentry_rate" value="20" oninput="calculateBuilder()">
+          <input type="number" id="f_carpentry_qty" value="40" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_carpentry_rate" value="20" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_carpentry_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Board Operator</label>
-          <input type="number" id="f_boardop_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_boardop_rate" value="300" oninput="calculateBuilder()">
+          <input type="number" id="f_boardop_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_boardop_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_boardop_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Scripts - Printing, Purchase or Rent</label>
-          <input type="number" id="f_scripts_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_scripts_rate" value="600" oninput="calculateBuilder()">
+          <input type="number" id="f_scripts_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_scripts_rate" value="600" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_scripts_tot">$0</span>
         </div>
 
         <div class="sub-section-title">B. Scenic, Materials & Props</div>
         <div class="line-item-row">
           <label>Scenic Materials</label>
-          <input type="number" id="f_scenicMaterials_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_scenicMaterials_rate" value="800" oninput="calculateBuilder()">
+          <input type="number" id="f_scenicMaterials_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_scenicMaterials_rate" value="800" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_scenicMaterials_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Props Purchases</label>
-          <input type="number" id="f_expProps_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_expProps_rate" value="300" oninput="calculateBuilder()">
+          <input type="number" id="f_expProps_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_expProps_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_expProps_tot">$0</span>
         </div>
 
         <div class="sub-section-title">C. Costumes & Wardrobe</div>
         <div class="line-item-row">
           <label>Costume Purchases</label>
-          <input type="number" id="f_expCostumes_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_expCostumes_rate" value="400" oninput="calculateBuilder()">
+          <input type="number" id="f_expCostumes_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_expCostumes_rate" value="400" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_expCostumes_tot">$0</span>
         </div>
 
@@ -420,89 +419,89 @@
         <div class="line-item-row">
           <label>Facility Rental - Rehearsal Weeks</label>
           <input type="number" id="f_rentFacilityRehearsal_qty" value="4" disabled style="background:#f1f5f9;">
-          <input type="number" id="f_rentFacilityRehearsal_rate" value="400" oninput="calculateBuilder()">
+          <input type="number" id="f_rentFacilityRehearsal_rate" value="400" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_rentFacilityRehearsal_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Facility Rental - Performance Weeks</label>
           <input type="number" id="f_rentFacilityPerformance_qty" value="3" disabled style="background:#f1f5f9;">
-          <input type="number" id="f_rentFacilityPerformance_rate" value="700" oninput="calculateBuilder()">
+          <input type="number" id="f_rentFacilityPerformance_rate" value="700" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_rentFacilityPerformance_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Equipment Rental</label>
-          <input type="number" id="f_rentEquipment_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_rentEquipment_rate" value="200" oninput="calculateBuilder()">
+          <input type="number" id="f_rentEquipment_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_rentEquipment_rate" value="200" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_rentEquipment_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Props Rental</label>
-          <input type="number" id="f_rentProps_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_rentProps_rate" value="100" oninput="calculateBuilder()">
+          <input type="number" id="f_rentProps_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_rentProps_rate" value="100" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_rentProps_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Costume Rental</label>
-          <input type="number" id="f_rentCostumes_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_rentCostumes_rate" value="150" oninput="calculateBuilder()">
+          <input type="number" id="f_rentCostumes_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_rentCostumes_rate" value="150" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_rentCostumes_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Set Piece Rental</label>
-          <input type="number" id="f_rentSetPiece_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_rentSetPiece_rate" value="100" oninput="calculateBuilder()">
+          <input type="number" id="f_rentSetPiece_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_rentSetPiece_rate" value="100" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_rentSetPiece_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Rental - Automobile</label>
-          <input type="number" id="f_rentAuto_qty" value="0" oninput="calculateBuilder()">
-          <input type="number" id="f_rentAuto_rate" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_rentAuto_qty" value="0" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_rentAuto_rate" value="0" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_rentAuto_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Fuel</label>
-          <input type="number" id="f_fuel_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_fuel_rate" value="50" oninput="calculateBuilder()">
+          <input type="number" id="f_fuel_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_fuel_rate" value="50" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_fuel_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Production Supplies</label>
-          <input type="number" id="f_supplies_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_supplies_rate" value="200" oninput="calculateBuilder()">
+          <input type="number" id="f_supplies_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_supplies_rate" value="200" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_supplies_tot">$0</span>
         </div>
 
         <div class="sub-section-title">E. Media & Marketing Documentation</div>
         <div class="line-item-row">
           <label>Photography</label>
-          <input type="number" id="f_photography_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_photography_rate" value="300" oninput="calculateBuilder()">
+          <input type="number" id="f_photography_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_photography_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_photography_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Videography</label>
-          <input type="number" id="f_videography_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_videography_rate" value="400" oninput="calculateBuilder()">
+          <input type="number" id="f_videography_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_videography_rate" value="400" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_videography_tot">$0</span>
         </div>
 
         <div class="sub-section-title">F. Marketing & Promotion</div>
         <div class="line-item-row">
           <label>Print Ads</label>
-          <input type="number" id="f_printAds_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_printAds_rate" value="200" oninput="calculateBuilder()">
+          <input type="number" id="f_printAds_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_printAds_rate" value="200" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_printAds_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Digital Ads</label>
-          <input type="number" id="f_digitalAds_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_digitalAds_rate" value="300" oninput="calculateBuilder()">
+          <input type="number" id="f_digitalAds_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_digitalAds_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_digitalAds_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Printed Materials (Posters, Flyers)</label>
-          <input type="number" id="f_printedMaterials_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_printedMaterials_rate" value="150" oninput="calculateBuilder()">
+          <input type="number" id="f_printedMaterials_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_printedMaterials_rate" value="150" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_printedMaterials_tot">$0</span>
         </div>
       </div>
@@ -525,10 +524,16 @@
               <div class="kpi-value" id="prev-avg-tix">$0</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-label">Total Expenses + Admin</div>
-              <div class="kpi-value" id="prev-exp">$0</div>
+              <div class="kpi-label">Direct Show Expenses</div>
+              <div class="kpi-value" id="prev-direct-exp">$0</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Form entries only</div>
             </div>
             <div class="kpi-card">
+              <div class="kpi-label">Total Expenses + Admin</div>
+              <div class="kpi-value" id="prev-exp">$0</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Includes 1/12th Admin</div>
+            </div>
+            <div class="kpi-card" style="grid-column: span 2;">
               <div class="kpi-label">Net Show Contribution</div>
               <div class="kpi-value" id="prev-margin">$0</div>
             </div>
@@ -762,7 +767,9 @@
 
     function getItemTotal(items, key) {
       if (!items || !items[key]) return 0;
-      return (items[key].qty || 0) * (items[key].rate || 0);
+      let qty = items[key].qty || 0;
+      let rate = items[key].rate || 0;
+      return Math.max(0, qty) * Math.max(0, rate);
     }
 
     function calculateShowBoxOffice(p, isFullCap) {
@@ -775,7 +782,7 @@
       let personnelCount = 0;
       if (p.items) {
         PERSONNEL_KEYS.forEach(k => {
-          if (k !== 'carpentry') personnelCount += (p.items[k]?.qty || 0);
+          if (k !== 'carpentry') personnelCount += Math.max(0, p.items[k]?.qty || 0);
         });
       }
       const autoProdComps = personnelCount * 2;
@@ -809,40 +816,43 @@
     }
 
     function calculateBuilder() {
-      const rehWeeks = parseFloat(document.getElementById('f_rehearsalWeeks').value) || 0;
-      const perfWeeks = parseFloat(document.getElementById('f_performanceWeeks').value) || 0;
+      const rehWeeks = Math.max(0, parseFloat(document.getElementById('f_rehearsalWeeks').value) || 0);
+      const perfWeeks = Math.max(0, parseFloat(document.getElementById('f_performanceWeeks').value) || 0);
 
       const rehQtyEl = document.getElementById('f_rentFacilityRehearsal_qty');
       const perfQtyEl = document.getElementById('f_rentFacilityPerformance_qty');
       if (rehQtyEl) rehQtyEl.value = rehWeeks;
       if (perfQtyEl) perfQtyEl.value = perfWeeks;
 
-      const per = parseFloat(document.getElementById('f_performances').value) || 0;
-      const cap = parseFloat(document.getElementById('f_capacity').value) || 0;
-      const attPct = (parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0) / 100;
+      const per = Math.max(0, parseFloat(document.getElementById('f_performances').value) || 0);
+      const cap = Math.max(0, parseFloat(document.getElementById('f_capacity').value) || 0);
+      const attPct = Math.max(0, parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0) / 100;
 
-      const gaPrice = parseFloat(document.getElementById('f_gaPrice').value) || 0;
-      const pifSeats = parseFloat(document.getElementById('f_pifSeats').value) || 0;
-      const pifPrice = parseFloat(document.getElementById('f_pifPrice').value) || 0;
-      const dropSeats = parseFloat(document.getElementById('f_dropSeats').value) || 0;
+      const gaPrice = Math.max(0, parseFloat(document.getElementById('f_gaPrice').value) || 0);
+      const pifSeats = Math.max(0, parseFloat(document.getElementById('f_pifSeats').value) || 0);
+      const pifPrice = Math.max(0, parseFloat(document.getElementById('f_pifPrice').value) || 0);
+      const dropSeats = Math.max(0, parseFloat(document.getElementById('f_dropSeats').value) || 0);
       
-      const pwywNights = parseFloat(document.getElementById('f_pwywNights').value) || 0;
-      const pwywCapPerNight = parseFloat(document.getElementById('f_pwywCapPerNight').value) || 0;
-      const pwywPrice = parseFloat(document.getElementById('f_pwywPrice').value) || 0;
-      const companyComps = parseFloat(document.getElementById('f_companyComps').value) || 0;
+      const pwywNights = Math.max(0, parseFloat(document.getElementById('f_pwywNights').value) || 0);
+      const pwywCapPerNight = Math.max(0, parseFloat(document.getElementById('f_pwywCapPerNight').value) || 0);
+      const pwywPrice = Math.max(0, parseFloat(document.getElementById('f_pwywPrice').value) || 0);
+      const companyComps = Math.max(0, parseFloat(document.getElementById('f_companyComps').value) || 0);
 
-      const conc = parseFloat(document.getElementById('f_concessions').value) || 0;
-      const merch = parseFloat(document.getElementById('f_merch').value) || 0;
-      const showDonations = parseFloat(document.getElementById('f_showDonations').value) || 0;
-      const showSponsorship = parseFloat(document.getElementById('f_showSponsorship').value) || 0;
+      const conc = Math.max(0, parseFloat(document.getElementById('f_concessions').value) || 0);
+      const merch = Math.max(0, parseFloat(document.getElementById('f_merch').value) || 0);
+      const showDonations = Math.max(0, parseFloat(document.getElementById('f_showDonations').value) || 0);
+      const showSponsorship = Math.max(0, parseFloat(document.getElementById('f_showSponsorship').value) || 0);
 
       let stipendsSum = 0;
       let expSum = 0;
       let personnelHeadcount = 0;
 
       LINE_ITEM_KEYS.forEach(key => {
-        const qty = parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0;
-        const rate = parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0;
+        const qtyInput = parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0;
+        const rateInput = parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0;
+        
+        const qty = Math.max(0, qtyInput);
+        const rate = Math.max(0, rateInput);
         const tot = qty * rate;
 
         const totEl = document.getElementById(`f_${key}_tot`);
@@ -866,8 +876,8 @@
       
       LINE_ITEM_KEYS.forEach(k => {
         mockShow.items[k] = {
-          qty: parseFloat(document.getElementById(`f_${k}_qty`)?.value) || 0,
-          rate: parseFloat(document.getElementById(`f_${k}_rate`)?.value) || 0
+          qty: Math.max(0, parseFloat(document.getElementById(`f_${k}_qty`)?.value) || 0),
+          rate: Math.max(0, parseFloat(document.getElementById(`f_${k}_rate`)?.value) || 0)
         };
       });
 
@@ -877,13 +887,17 @@
       const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
       const perShowAdmin = (annualApportionedPool / 12);
 
-      const totalExp = stipendsSum + expSum + perShowAdmin;
-      const netMargin = (metrics.totalTixRev + conc + merch + showDonations + showSponsorship) - totalExp;
+      const directShowExpenses = stipendsSum + expSum;
+      const totalExpWithAdmin = directShowExpenses + perShowAdmin;
+      const totalRevenue = metrics.totalTixRev + conc + merch + showDonations + showSponsorship;
+      const netMargin = totalRevenue - totalExpWithAdmin;
 
       document.getElementById('prev-tix').innerText = '$' + metrics.totalTixRev.toLocaleString(undefined, {maximumFractionDigits:0});
       document.getElementById('prev-tix-sub').innerText = `${metrics.totalAttendedSeats.toFixed(0)} seats projected`;
       document.getElementById('prev-avg-tix').innerText = '$' + metrics.weightedAvgTicket.toFixed(2);
-      document.getElementById('prev-exp').innerText = '$' + totalExp.toLocaleString(undefined, {maximumFractionDigits:0});
+      
+      document.getElementById('prev-direct-exp').innerText = '$' + directShowExpenses.toLocaleString(undefined, {maximumFractionDigits:0});
+      document.getElementById('prev-exp').innerText = '$' + totalExpWithAdmin.toLocaleString(undefined, {maximumFractionDigits:0});
       
       const marginEl = document.getElementById('prev-margin');
       marginEl.innerText = '$' + netMargin.toLocaleString(undefined, {maximumFractionDigits:0});
@@ -905,8 +919,8 @@
       draft.items = {};
       LINE_ITEM_KEYS.forEach(k => {
         draft.items[k] = {
-          qty: document.getElementById(`f_${k}_qty`)?.value || 0,
-          rate: document.getElementById(`f_${k}_rate`)?.value || 0
+          qty: Math.max(0, parseFloat(document.getElementById(`f_${k}_qty`)?.value) || 0),
+          rate: Math.max(0, parseFloat(document.getElementById(`f_${k}_rate`)?.value) || 0)
         };
       });
 
@@ -930,8 +944,8 @@
             if (draft.items[k]) {
               const qtyEl = document.getElementById(`f_${k}_qty`);
               const rateEl = document.getElementById(`f_${k}_rate`);
-              if (qtyEl) qtyEl.value = draft.items[k].qty;
-              if (rateEl) rateEl.value = draft.items[k].rate;
+              if (qtyEl) qtyEl.value = Math.max(0, draft.items[k].qty);
+              if (rateEl) rateEl.value = Math.max(0, draft.items[k].rate);
             }
           });
         }
@@ -942,32 +956,32 @@
       const itemsObj = {};
       LINE_ITEM_KEYS.forEach(key => {
         itemsObj[key] = {
-          qty: parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0,
-          rate: parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0
+          qty: Math.max(0, parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0),
+          rate: Math.max(0, parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0)
         };
       });
 
       const newShow = {
         id: Date.now(),
-        name: document.getElementById('f_name').value || "New Show",
+        name: document.getElementById('f_name').value.trim() || "Untitled New Show",
         season: document.getElementById('f_season').value || "2026-2027",
-        rehearsalWeeks: parseInt(document.getElementById('f_rehearsalWeeks').value) || 0,
-        performanceWeeks: parseInt(document.getElementById('f_performanceWeeks').value) || 0,
-        performances: parseInt(document.getElementById('f_performances').value) || 0,
-        capacity: parseInt(document.getElementById('f_capacity').value) || 0,
-        expectedAttendancePct: parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0,
-        gaPrice: parseFloat(document.getElementById('f_gaPrice').value) || 0,
-        pifSeats: parseFloat(document.getElementById('f_pifSeats').value) || 0,
-        pifPrice: parseFloat(document.getElementById('f_pifPrice').value) || 0,
-        dropSeats: parseFloat(document.getElementById('f_dropSeats').value) || 0,
-        pwywNights: parseFloat(document.getElementById('f_pwywNights').value) || 0,
-        pwywCapPerNight: parseFloat(document.getElementById('f_pwywCapPerNight').value) || 0,
-        pwywPrice: parseFloat(document.getElementById('f_pwywPrice').value) || 0,
-        companyComps: parseFloat(document.getElementById('f_companyComps').value) || 0,
-        concessions: parseFloat(document.getElementById('f_concessions').value) || 0,
-        merch: parseFloat(document.getElementById('f_merch').value) || 0,
-        showDonations: parseFloat(document.getElementById('f_showDonations').value) || 0,
-        showSponsorship: parseFloat(document.getElementById('f_showSponsorship').value) || 0,
+        rehearsalWeeks: Math.max(0, parseInt(document.getElementById('f_rehearsalWeeks').value) || 0),
+        performanceWeeks: Math.max(0, parseInt(document.getElementById('f_performanceWeeks').value) || 0),
+        performances: Math.max(0, parseInt(document.getElementById('f_performances').value) || 0),
+        capacity: Math.max(0, parseInt(document.getElementById('f_capacity').value) || 0),
+        expectedAttendancePct: Math.max(0, parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0),
+        gaPrice: Math.max(0, parseFloat(document.getElementById('f_gaPrice').value) || 0),
+        pifSeats: Math.max(0, parseFloat(document.getElementById('f_pifSeats').value) || 0),
+        pifPrice: Math.max(0, parseFloat(document.getElementById('f_pifPrice').value) || 0),
+        dropSeats: Math.max(0, parseFloat(document.getElementById('f_dropSeats').value) || 0),
+        pwywNights: Math.max(0, parseFloat(document.getElementById('f_pwywNights').value) || 0),
+        pwywCapPerNight: Math.max(0, parseFloat(document.getElementById('f_pwywCapPerNight').value) || 0),
+        pwywPrice: Math.max(0, parseFloat(document.getElementById('f_pwywPrice').value) || 0),
+        companyComps: Math.max(0, parseFloat(document.getElementById('f_companyComps').value) || 0),
+        concessions: Math.max(0, parseFloat(document.getElementById('f_concessions').value) || 0),
+        merch: Math.max(0, parseFloat(document.getElementById('f_merch').value) || 0),
+        showDonations: Math.max(0, parseFloat(document.getElementById('f_showDonations').value) || 0),
+        showSponsorship: Math.max(0, parseFloat(document.getElementById('f_showSponsorship').value) || 0),
         items: itemsObj
       };
 
@@ -1209,7 +1223,6 @@
       document.body.removeChild(fileDownload);
     }
 
-    // ACCORDION TOGGLE HELPERS
     function toggleAccordion(contentId, iconId) {
       const el = document.getElementById(contentId);
       const icon = document.getElementById(iconId);
@@ -1234,7 +1247,6 @@
       document.querySelectorAll('.rental-acc-icon').forEach(el => el.innerText = expand ? '▼' : '▶');
     }
 
-    // RENTALS HUB LOGIC WITH SEASON ACCORDIONS
     function renderRentalsHub() {
       const container = document.getElementById('rentals-container');
       container.innerHTML = '';
@@ -1268,11 +1280,11 @@
             <div class="grid-3">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">RENTAL FEE INCOME ($)</label><br>
-                $<input type="number" value="${r.rentalFee||0}" style="font-weight:bold;" onchange="updateRental(${r.id}, 'rentalFee', parseFloat(this.value))">
+                $<input type="number" value="${r.rentalFee||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'rentalFee', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED CONCESSIONS REV ($)</label><br>
-                $<input type="number" value="${r.concessionsRev||0}" style="font-weight:bold;" onchange="updateRental(${r.id}, 'concessionsRev', parseFloat(this.value))">
+                $<input type="number" value="${r.concessionsRev||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'concessionsRev', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
@@ -1347,7 +1359,7 @@
             <div class="grid-3" style="margin-bottom:12px;">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">GRANT AMOUNT ($)</label><br>
-                $<input type="number" value="${g.amount}" style="font-weight:bold;" onchange="updateGrant(${g.id}, 'amount', parseFloat(this.value))">
+                $<input type="number" value="${g.amount}" min="0" style="font-weight:bold;" onchange="updateGrant(${g.id}, 'amount', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
@@ -1427,7 +1439,7 @@
             <div class="grid-3" style="margin-bottom:12px;">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">SPONSORSHIP AMOUNT ($)</label><br>
-                $<input type="number" value="${s.amount}" style="font-weight:bold;" onchange="updateSponsor(${s.id}, 'amount', parseFloat(this.value))">
+                $<input type="number" value="${s.amount}" min="0" style="font-weight:bold;" onchange="updateSponsor(${s.id}, 'amount', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
@@ -1506,7 +1518,7 @@
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED AMOUNT ($)</label><br>
-                $<input type="number" value="${d.amount}" style="font-weight:bold;" onchange="updateDonation(${d.id}, 'amount', parseFloat(this.value))">
+                $<input type="number" value="${d.amount}" min="0" style="font-weight:bold;" onchange="updateDonation(${d.id}, 'amount', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
@@ -1542,7 +1554,6 @@
       saveState();
     }
 
-    // PRODUCTIONS & EVENTS WITH ACCORDION ROLLUPS
     function renderProductions(filteredShows, isFullCap, apportionedAdmin) {
       const container = document.getElementById('productions-container');
       container.innerHTML = '';
@@ -1585,12 +1596,12 @@
             if (key === 'rentFacilityRehearsal') item.qty = p.rehearsalWeeks || 0;
             if (key === 'rentFacilityPerformance') item.qty = p.performanceWeeks || 0;
 
-            const tot = (item.qty || 0) * (item.rate || 0);
+            const tot = Math.max(0, item.qty || 0) * Math.max(0, item.rate || 0);
             return `
               <div class="line-item-row">
                 <label>${label}</label>
-                <input type="number" value="${item.qty}" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', parseFloat(this.value))">
-                <input type="number" value="${item.rate}" onchange="updateProdItem(${p.id}, '${key}', 'rate', parseFloat(this.value))">
+                <input type="number" value="${item.qty}" min="0" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', Math.max(0, parseFloat(this.value)))">
+                <input type="number" value="${item.rate}" min="0" onchange="updateProdItem(${p.id}, '${key}', 'rate', Math.max(0, parseFloat(this.value)))">
                 <span class="line-item-total">$${tot.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
               </div>`;
           }
@@ -1612,36 +1623,36 @@
                 <div class="section-title">1. Performance & Capacity Parameters</div>
                 <div class="grid-4">
                   <div><label>Show Name:</label><br><input type="text" value="${p.name}" onchange="updateProd(${p.id}, 'name', this.value)"></div>
-                  <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" onchange="updateProd(${p.id}, 'rehearsalWeeks', parseInt(this.value))"></div>
-                  <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" onchange="updateProd(${p.id}, 'performanceWeeks', parseInt(this.value))"></div>
-                  <div><label>Performances:</label><br><input type="number" value="${p.performances}" onchange="updateProd(${p.id}, 'performances', parseInt(this.value))"></div>
-                  <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" onchange="updateProd(${p.id}, 'capacity', parseInt(this.value))"></div>
+                  <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" min="0" onchange="updateProd(${p.id}, 'rehearsalWeeks', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" min="0" onchange="updateProd(${p.id}, 'performanceWeeks', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Performances:</label><br><input type="number" value="${p.performances}" min="0" onchange="updateProd(${p.id}, 'performances', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" min="0" onchange="updateProd(${p.id}, 'capacity', Math.max(0, parseInt(this.value)))"></div>
                 </div>
 
                 <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
                 <div class="form-group">
                   <label>GA Price ($):</label>
-                  <input type="number" value="${p.gaPrice||30.00}" onchange="updateProd(${p.id}, 'gaPrice', parseFloat(this.value))">
+                  <input type="number" value="${p.gaPrice||30.00}" min="0" onchange="updateProd(${p.id}, 'gaPrice', Math.max(0, parseFloat(this.value)))">
                 </div>
 
                 <div class="grid-2">
-                  <div><label>Pay It Forward Seats:</label><br><input type="number" value="${p.pifSeats||10}" onchange="updateProd(${p.id}, 'pifSeats', parseFloat(this.value))"></div>
-                  <div><label>Pay It Forward Price ($):</label><br><input type="number" value="${p.pifPrice||50.00}" onchange="updateProd(${p.id}, 'pifPrice', parseFloat(this.value))"></div>
+                  <div><label>Pay It Forward Seats:</label><br><input type="number" value="${p.pifSeats||10}" min="0" onchange="updateProd(${p.id}, 'pifSeats', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Pay It Forward Price ($):</label><br><input type="number" value="${p.pifPrice||50.00}" min="0" onchange="updateProd(${p.id}, 'pifPrice', Math.max(0, parseFloat(this.value)))"></div>
                 </div>
 
                 <div class="form-group" style="margin-top:10px;">
                   <label>ArtsKC "The Drop" Seats:</label>
-                  <input type="number" value="${p.dropSeats||15}" onchange="updateProd(${p.id}, 'dropSeats', parseFloat(this.value))">
+                  <input type="number" value="${p.dropSeats||15}" min="0" onchange="updateProd(${p.id}, 'dropSeats', Math.max(0, parseFloat(this.value)))">
                 </div>
 
                 <div class="grid-3" style="margin-top:10px;">
-                  <div><label>PWYW Nights Offered:</label><br><input type="number" value="${p.pwywNights||2}" onchange="updateProd(${p.id}, 'pwywNights', parseFloat(this.value))"></div>
-                  <div><label>PWYW Cap / Night:</label><br><input type="number" value="${p.pwywCapPerNight||15}" onchange="updateProd(${p.id}, 'pwywCapPerNight', parseFloat(this.value))"></div>
-                  <div><label>PWYW Price Floor ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" onchange="updateProd(${p.id}, 'pwywPrice', parseFloat(this.value))"></div>
+                  <div><label>PWYW Nights Offered:</label><br><input type="number" value="${p.pwywNights||2}" min="0" onchange="updateProd(${p.id}, 'pwywNights', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>PWYW Cap / Night:</label><br><input type="number" value="${p.pwywCapPerNight||15}" min="0" onchange="updateProd(${p.id}, 'pwywCapPerNight', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>PWYW Price Floor ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" min="0" onchange="updateProd(${p.id}, 'pwywPrice', Math.max(0, parseFloat(this.value)))"></div>
                 </div>
 
                 <div class="grid-2" style="margin-top:10px;">
-                  <div><label>Company Comps:</label><br><input type="number" value="${p.companyComps||10}" onchange="updateProd(${p.id}, 'companyComps', parseFloat(this.value))"></div>
+                  <div><label>Company Comps:</label><br><input type="number" value="${p.companyComps||10}" min="0" onchange="updateProd(${p.id}, 'companyComps', Math.max(0, parseFloat(this.value)))"></div>
                   <div><label>Production Comps:</label><br><strong style="color:var(--primary);">${metrics.autoProdComps} seats (2x Staff)</strong></div>
                 </div>
 
@@ -1649,10 +1660,10 @@
                 <div class="grid-3">
                   <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
                   <div><label>Allocated Sponsorships Hub ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
-                  <div><label>Show Sponsorship ($):</label><br><input type="number" value="${p.showSponsorship||0}" onchange="updateProd(${p.id}, 'showSponsorship', parseFloat(this.value))"></div>
-                  <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" onchange="updateProd(${p.id}, 'concessions', parseFloat(this.value))"></div>
-                  <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" onchange="updateProd(${p.id}, 'merch', parseFloat(this.value))"></div>
-                  <div><label>Show Donations ($):</label><br><input type="number" value="${p.showDonations||0}" onchange="updateProd(${p.id}, 'showDonations', parseFloat(this.value))"></div>
+                  <div><label>Show Sponsorship ($):</label><br><input type="number" value="${p.showSponsorship||0}" min="0" onchange="updateProd(${p.id}, 'showSponsorship', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" min="0" onchange="updateProd(${p.id}, 'concessions', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" min="0" onchange="updateProd(${p.id}, 'merch', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Show Donations ($):</label><br><input type="number" value="${p.showDonations||0}" min="0" onchange="updateProd(${p.id}, 'showDonations', Math.max(0, parseFloat(this.value)))"></div>
                 </div>
 
                 <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
@@ -1747,7 +1758,7 @@
       if (show) {
         if (!show.items) show.items = {};
         if (!show.items[itemKey]) show.items[itemKey] = { qty: 0, rate: 0 };
-        show.items[itemKey][prop] = isNaN(val) ? 0 : val;
+        show.items[itemKey][prop] = isNaN(val) ? 0 : Math.max(0, val);
         saveState();
       }
     }
@@ -1766,7 +1777,7 @@
         tbody.innerHTML += `
           <tr>
             <td><input type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
-            <td>$<input type="number" value="${item.annual}" onchange="updateOverhead(${item.id}, 'annual', parseFloat(this.value))"></td>
+            <td>$<input type="number" value="${item.annual}" min="0" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value)))"></td>
             <td><input type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
             <td><button class="btn-danger" onclick="deleteOverhead(${item.id})">Delete</button></td>
           </tr>`;
