@@ -191,16 +191,31 @@
   <!-- SEASON MASTER P&L TAB -->
   <div id="master_pnl" class="tab-content">
     <div class="card">
-      <div class="flex-between" style="margin-bottom: 12px;">
-        <h3>Season Master P&L Statement</h3>
-        <div style="display:flex; gap:8px;">
+      <div class="flex-between" style="margin-bottom: 12px; flex-wrap:wrap; gap:10px;">
+        <div>
+          <h3>Master Financial Statement</h3>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+            Comprehensive financial rollup statement mirroring Whim's budget structure. Toggle between Season or Calendar Year views.
+          </p>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div>
+            <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">View Mode:</label>
+            <select id="pnlViewMode" onchange="renderApp()">
+              <option value="season" selected>Filter by Season</option>
+              <option value="year">Filter by Calendar Year</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Select Period:</label>
+            <select id="pnlPeriodFilter" onchange="renderApp()">
+              <!-- Options populated dynamically based on View Mode -->
+            </select>
+          </div>
           <button class="btn-success" onclick="exportToExcel()">Export Excel</button>
           <button class="btn-secondary" onclick="exportToWord()">Export Word</button>
         </div>
       </div>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
-        Comprehensive financial rollup statement mirroring the proposed 2026–2027 Season Budget spreadsheet structure.
-      </p>
 
       <div id="master-pnl-table-container"></div>
     </div>
@@ -235,6 +250,14 @@
         </div>
         <div class="grid-4">
           <div class="form-group"><label>Expected Cap %</label><input type="number" id="f_expectedAttendancePct" value="55" min="0" max="100" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>Budget Year</label>
+            <select id="f_year" onchange="calculateBuilder()">
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
         </div>
 
         <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
@@ -587,13 +610,19 @@
   <!-- GRANTS TAB -->
   <div id="grants" class="tab-content">
     <div class="card">
-      <div class="flex-between">
-        <h3>Grants Hub</h3>
+      <div class="flex-between" style="margin-bottom:12px;">
+        <div>
+          <h3>Grants Hub</h3>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+            Assign grants to specific productions or season goals. Live running totals track Awarded vs. Anticipated amounts.
+          </p>
+        </div>
         <button class="btn-primary" onclick="addGrant()">+ Add New Grant</button>
       </div>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
-        Assign grants to specific productions using the checkboxes below. Grant funds are automatically apportioned across selected shows.
-      </p>
+
+      <!-- Live Grants Running Totals Summary -->
+      <div id="grants-summary-container" style="margin-bottom:16px;"></div>
+
       <div id="grants-container"></div>
     </div>
   </div>
@@ -634,12 +663,13 @@
         <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:12px;">
-        Explicit operating expense categories matching Whim's annual P&L statement.
+        Manage Operating Expense line items and designate their parent account categories for automated P&L rollup.
       </p>
       <table id="overhead-table">
         <thead>
           <tr>
-            <th>Expense Category / Line Item</th>
+            <th>Expense Category / Line Item Name</th>
+            <th>Parent Account Rollup Header</th>
             <th>Annual Amount ($)</th>
             <th>Apportion 1/12th to Shows?</th>
             <th>Action</th>
@@ -651,6 +681,17 @@
   </div>
 
   <script>
+    const OVERHEAD_PARENT_CATEGORIES = [
+      "53000 Fees for Services (NonEmployees)",
+      "54000 Advertising and Promotion",
+      "55000 Office Expenses",
+      "56000 Information Technology",
+      "58000 Occupancy",
+      "59000 Professional Development",
+      "60000 Cost of Goods Sold",
+      "62000 Banking and Financial"
+    ];
+
     const LINE_ITEM_KEYS = [
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance',
@@ -672,54 +713,55 @@
 
     let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
       overhead: [
-        { id: 1, name: "Fees for Fundraising", annual: 4730, apportion: false },
-        { id: 2, name: "Fees for Accounting / Bookkeeping", annual: 6038, apportion: true },
-        { id: 3, name: "Other Fees for Services", annual: 300, apportion: false },
-        { id: 4, name: "Advertising and Promotion (General)", annual: 3050, apportion: false },
-        { id: 5, name: "Office Supplies", annual: 750, apportion: false },
-        { id: 6, name: "Postage and Delivery", annual: 100, apportion: false },
-        { id: 7, name: "Printing (General)", annual: 150, apportion: false },
-        { id: 8, name: "Information Technology", annual: 530, apportion: false },
-        { id: 9, name: "Website Hosting / Domains", annual: 600, apportion: false },
-        { id: 10, name: "Occupancy - Facility Rental", annual: 6000, apportion: false },
-        { id: 11, name: "Occupancy - Utilities", annual: 5700, apportion: false },
-        { id: 12, name: "Occupancy - Security", annual: 384, apportion: false },
-        { id: 13, name: "Occupancy - Repairs & Maintenance", annual: 600, apportion: false },
-        { id: 14, name: "Professional Dev and Course Fees", annual: 300, apportion: false },
-        { id: 15, name: "Dues and Subscriptions", annual: 1020, apportion: false },
-        { id: 16, name: "Sundry", annual: 180, apportion: false },
-        { id: 17, name: "Concession Cost of Goods Sold (Beverages)", annual: 750, apportion: false },
-        { id: 18, name: "Concession Cost of Goods Sold (Snacks)", annual: 750, apportion: false },
-        { id: 19, name: "Merchandise Cost of Goods Sold", annual: 500, apportion: false },
-        { id: 20, name: "Filing Fees", annual: 130, apportion: false },
-        { id: 21, name: "General Liability Insurance", annual: 614, apportion: true },
-        { id: 22, name: "Credit Card Merchant Fees", annual: 600, apportion: false },
-        { id: 23, name: "PayPal / Processing Fees", annual: 50, apportion: false }
+        { id: 1, name: "Fees for Fundraising", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 4730, apportion: false },
+        { id: 2, name: "Fees for Accounting / Bookkeeping", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 6038, apportion: true },
+        { id: 3, name: "Other Fees for Services", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 300, apportion: false },
+        { id: 4, name: "Advertising and Promotion (General)", parentCategory: "54000 Advertising and Promotion", annual: 3050, apportion: false },
+        { id: 5, name: "Office Supplies", parentCategory: "55000 Office Expenses", annual: 750, apportion: false },
+        { id: 6, name: "Postage and Delivery", parentCategory: "55000 Office Expenses", annual: 100, apportion: false },
+        { id: 7, name: "Printing (General)", parentCategory: "55000 Office Expenses", annual: 150, apportion: false },
+        { id: 8, name: "Information Technology", parentCategory: "56000 Information Technology", annual: 530, apportion: false },
+        { id: 9, name: "Website Hosting / Domains", parentCategory: "56000 Information Technology", annual: 600, apportion: false },
+        { id: 10, name: "Occupancy - Facility Rental", parentCategory: "58000 Occupancy", annual: 6000, apportion: false },
+        { id: 11, name: "Occupancy - Utilities", parentCategory: "58000 Occupancy", annual: 5700, apportion: false },
+        { id: 12, name: "Occupancy - Security", parentCategory: "58000 Occupancy", annual: 384, apportion: false },
+        { id: 13, name: "Occupancy - Repairs & Maintenance", parentCategory: "58000 Occupancy", annual: 600, apportion: false },
+        { id: 14, name: "Professional Dev and Course Fees", parentCategory: "59000 Professional Development", annual: 300, apportion: false },
+        { id: 15, name: "Dues and Subscriptions", parentCategory: "59000 Professional Development", annual: 1020, apportion: false },
+        { id: 16, name: "Sundry", parentCategory: "59000 Professional Development", annual: 180, apportion: false },
+        { id: 17, name: "Concession Cost of Goods Sold (Beverages)", parentCategory: "60000 Cost of Goods Sold", annual: 750, apportion: false },
+        { id: 18, name: "Concession Cost of Goods Sold (Snacks)", parentCategory: "60000 Cost of Goods Sold", annual: 750, apportion: false },
+        { id: 19, name: "Merchandise Cost of Goods Sold", parentCategory: "60000 Cost of Goods Sold", annual: 500, apportion: false },
+        { id: 20, name: "Filing Fees", parentCategory: "62000 Banking and Financial", annual: 130, apportion: false },
+        { id: 21, name: "General Liability Insurance", parentCategory: "62000 Banking and Financial", annual: 614, apportion: true },
+        { id: 22, name: "Credit Card Merchant Fees", parentCategory: "62000 Banking and Financial", annual: 600, apportion: false },
+        { id: 23, name: "PayPal / Processing Fees", parentCategory: "62000 Banking and Financial", annual: 50, apportion: false }
       ],
       rentals: [
-        { id: 401, name: "Fringe Festival Booking", category: "KC Fringe Rental", rentalFee: 2500, concessionsRev: 600, season: "2026-2027" },
-        { id: 402, name: "Local Burlesque Showcase", category: "Burlesque Rentals", rentalFee: 1200, concessionsRev: 400, season: "2026-2027" }
+        { id: 401, name: "Fringe Festival Booking", category: "KC Fringe Rental", rentalFee: 2500, concessionsRev: 600, season: "2026-2027", year: "2026" },
+        { id: 402, name: "Local Burlesque Showcase", category: "Burlesque Rentals", rentalFee: 1200, concessionsRev: 400, season: "2026-2027", year: "2026" }
       ],
       grants: [
-        { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1] },
-        { id: 102, name: "Kids Christmas Grant", amount: 8875, status: "Anticipated", targetShowIds: [] }
+        { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1], season: "2026-2027", year: "2026" },
+        { id: 102, name: "Kids Christmas Grant", amount: 8875, status: "Anticipated", targetShowIds: [], season: "2026-2027", year: "2026" }
       ],
       sponsorships: [
-        { id: 201, name: "Local Business Title Sponsor", amount: 2500, status: "Awarded", targetShowIds: [1] }
+        { id: 201, name: "Local Business Title Sponsor", amount: 2500, status: "Awarded", targetShowIds: [1], season: "2026-2027", year: "2026" }
       ],
       donations: [
-        { id: 301, name: "Annual Individual Giving Campaign", type: "Individual Donations", amount: 6000, status: "Anticipated", season: "2026-2027" },
-        { id: 302, name: "Board Member Annual Pledges", type: "Board Member Donations", amount: 300, status: "Awarded", season: "2026-2027" },
-        { id: 303, name: "Special Events & Fundraisers Revenue", type: "Special Events Revenue", amount: 1023, status: "Anticipated", season: "2026-2027" },
-        { id: 304, name: "In-Kind Venue/Equipment Donations", type: "Donations In-Kind", amount: 500, status: "Awarded", season: "2026-2027" },
-        { id: 305, name: "Advertising Revenue (Whim Events)", type: "Advertising Revenue", amount: 250, status: "Anticipated", season: "2026-2027" },
-        { id: 306, name: "Advertising Revenue (External)", type: "Advertising Revenue", amount: 100, status: "Anticipated", season: "2026-2027" }
+        { id: 301, name: "Annual Individual Giving Campaign", type: "Individual Donations", amount: 6000, status: "Anticipated", season: "2026-2027", year: "2026" },
+        { id: 302, name: "Board Member Annual Pledges", type: "Board Member Donations", amount: 300, status: "Awarded", season: "2026-2027", year: "2026" },
+        { id: 303, name: "Special Events & Fundraisers Revenue", type: "Special Events Revenue", amount: 1023, status: "Anticipated", season: "2026-2027", year: "2026" },
+        { id: 304, name: "In-Kind Venue/Equipment Donations", type: "Donations In-Kind", amount: 500, status: "Awarded", season: "2026-2027", year: "2026" },
+        { id: 305, name: "Advertising Revenue (Whim Events)", type: "Advertising Revenue", amount: 250, status: "Anticipated", season: "2026-2027", year: "2026" },
+        { id: 306, name: "Advertising Revenue (External)", type: "Advertising Revenue", amount: 100, status: "Anticipated", season: "2026-2027", year: "2026" }
       ],
       productions: [
         {
           id: 1,
           name: "Lipstick",
           season: "2026-2027",
+          year: "2026",
           rehearsalWeeks: 4, performanceWeeks: 3,
           performances: 8, capacity: 62, expectedAttendancePct: 55,
           gaPrice: 30.00, pifSeats: 10, pifPrice: 50.00, dropSeats: 15,
@@ -907,7 +949,7 @@
     function saveBuilderDraft() {
       const draft = {};
       const fields = [
-        'f_name', 'f_season', 'f_rehearsalWeeks', 'f_performanceWeeks', 'f_performances', 'f_capacity', 'f_expectedAttendancePct',
+        'f_name', 'f_season', 'f_year', 'f_rehearsalWeeks', 'f_performanceWeeks', 'f_performances', 'f_capacity', 'f_expectedAttendancePct',
         'f_gaPrice', 'f_pifSeats', 'f_pifPrice', 'f_dropSeats', 'f_pwywNights', 'f_pwywCapPerNight', 'f_pwywPrice', 'f_companyComps',
         'f_concessions', 'f_merch', 'f_showDonations', 'f_showSponsorship'
       ];
@@ -965,6 +1007,7 @@
         id: Date.now(),
         name: document.getElementById('f_name').value.trim() || "Untitled New Show",
         season: document.getElementById('f_season').value || "2026-2027",
+        year: document.getElementById('f_year').value || "2026",
         rehearsalWeeks: Math.max(0, parseInt(document.getElementById('f_rehearsalWeeks').value) || 0),
         performanceWeeks: Math.max(0, parseInt(document.getElementById('f_performanceWeeks').value) || 0),
         performances: Math.max(0, parseInt(document.getElementById('f_performances').value) || 0),
@@ -1085,12 +1128,67 @@
       renderDonationsHub();
       renderProductions(filteredShows, isFullCap, perShowApportionedAdmin);
       renderChart(totalTicketRevenue, totalNonBoxRevenue + totalDonationsHub + rentalFeesTotal + rentalConcessionsTotal, totalProductionExpenses, totalOverhead);
-      renderMasterPNL(filteredShows, filteredRentals, isFullCap);
+      renderMasterPNL(isFullCap);
     }
 
-    function renderMasterPNL(filteredShows, filteredRentals, isFullCap) {
+    function updatePNLFilterOptions() {
+      const mode = document.getElementById('pnlViewMode').value;
+      const periodSelect = document.getElementById('pnlPeriodFilter');
+      const currentVal = periodSelect.value;
+      periodSelect.innerHTML = '';
+
+      if (mode === 'season') {
+        periodSelect.innerHTML = `
+          <option value="all">All Seasons (Combined)</option>
+          <option value="2025-2026">2025–2026 Season</option>
+          <option value="2026-2027" selected>2026–2027 Season</option>
+          <option value="2027-2028">2027–2028 Season</option>`;
+      } else {
+        periodSelect.innerHTML = `
+          <option value="all">All Years (Combined)</option>
+          <option value="2025">Calendar Year 2025</option>
+          <option value="2026" selected>Calendar Year 2026</option>
+          <option value="2027">Calendar Year 2027</option>
+          <option value="2028">Calendar Year 2028</option>`;
+      }
+      if (currentVal && periodSelect.querySelector(`option[value="${currentVal}"]`)) {
+        periodSelect.value = currentVal;
+      }
+    }
+
+    function renderMasterPNL(isFullCap) {
+      updatePNLFilterOptions();
       const container = document.getElementById('master-pnl-table-container');
       if (!container) return;
+
+      const viewMode = document.getElementById('pnlViewMode').value;
+      const periodVal = document.getElementById('pnlPeriodFilter').value;
+
+      // Filter Data according to View Mode (Season vs Calendar Year)
+      let filteredShows = state.productions.filter(p => {
+        if (periodVal === 'all') return true;
+        return viewMode === 'season' ? p.season === periodVal : (p.year || '2026') === periodVal;
+      });
+
+      let filteredRentals = (state.rentals || []).filter(r => {
+        if (periodVal === 'all') return true;
+        return viewMode === 'season' ? r.season === periodVal : (r.year || '2026') === periodVal;
+      });
+
+      let filteredGrants = state.grants.filter(g => {
+        if (periodVal === 'all') return true;
+        return viewMode === 'season' ? (g.season || '2026-2027') === periodVal : (g.year || '2026') === periodVal;
+      });
+
+      let filteredSponsorships = (state.sponsorships || []).filter(s => {
+        if (periodVal === 'all') return true;
+        return viewMode === 'season' ? (s.season || '2026-2027') === periodVal : (s.year || '2026') === periodVal;
+      });
+
+      let filteredDonations = (state.donations || []).filter(d => {
+        if (periodVal === 'all') return true;
+        return viewMode === 'season' ? (d.season || '2026-2027') === periodVal : (d.year || '2026') === periodVal;
+      });
 
       let totalTixRev = 0, totalShowConcessions = 0, totalMerch = 0, totalShowDonations = 0, totalShowSponsors = 0;
       let lineItemRollup = {};
@@ -1114,24 +1212,38 @@
       let rentalIncomeTotal = filteredRentals.reduce((s, r) => s + (r.rentalFee || 0), 0);
       let rentalConcessionsTotal = filteredRentals.reduce((s, r) => s + (r.concessionsRev || 0), 0);
       let totalConcessionsAll = totalShowConcessions + rentalConcessionsTotal;
+      let subtotalRentalsAndSales = rentalIncomeTotal + totalConcessionsAll + totalMerch;
 
-      let totalHubGrants = state.grants.reduce((s, g) => s + g.amount, 0);
-      let totalHubSponsorships = (state.sponsorships || []).reduce((s, sp) => s + sp.amount, 0);
+      let totalHubGrants = filteredGrants.reduce((s, g) => s + g.amount, 0);
+      let totalHubSponsorships = filteredSponsorships.reduce((s, sp) => s + sp.amount, 0);
 
-      let hubIndivDonations = (state.donations||[]).filter(d => d.type === 'Individual Donations' || !d.type).reduce((s, d) => s + d.amount, 0);
-      let hubBoardDonations = (state.donations||[]).filter(d => d.type === 'Board Member Donations').reduce((s, d) => s + d.amount, 0);
-      let hubSpecialEvents = (state.donations||[]).filter(d => d.type === 'Special Events Revenue').reduce((s, d) => s + d.amount, 0);
-      let hubInKind = (state.donations||[]).filter(d => d.type === 'Donations In-Kind').reduce((s, d) => s + d.amount, 0);
-      let hubAdvertising = (state.donations||[]).filter(d => d.type === 'Advertising Revenue').reduce((s, d) => s + d.amount, 0);
+      let hubIndivDonations = filteredDonations.filter(d => d.type === 'Individual Donations' || !d.type).reduce((s, d) => s + d.amount, 0);
+      let hubBoardDonations = filteredDonations.filter(d => d.type === 'Board Member Donations').reduce((s, d) => s + d.amount, 0);
+      let hubSpecialEvents = filteredDonations.filter(d => d.type === 'Special Events Revenue').reduce((s, d) => s + d.amount, 0);
+      let hubInKind = filteredDonations.filter(d => d.type === 'Donations In-Kind').reduce((s, d) => s + d.amount, 0);
+      let hubAdvertising = filteredDonations.filter(d => d.type === 'Advertising Revenue').reduce((s, d) => s + d.amount, 0);
 
       let totalContributed = totalHubGrants + (totalHubSponsorships + totalShowSponsors) + (hubIndivDonations + totalShowDonations) + hubBoardDonations + hubInKind;
       let totalProgramRev = totalTixRev + hubSpecialEvents + hubAdvertising;
-      let totalRevAll = totalContributed + totalProgramRev + rentalIncomeTotal + totalConcessionsAll + totalMerch;
+      let totalRevAll = totalContributed + totalProgramRev + subtotalRentalsAndSales;
 
       let totalArtistStipends = STIPEND_KEYS.reduce((s, k) => s + lineItemRollup[k], 0);
       let totalProdExhibition = ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
       let totalRecordingMedia = ['photography', 'videography'].reduce((s, k) => s + lineItemRollup[k], 0);
       let totalMarketingPromos = ['printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
+
+      // Render Overhead grouped dynamically by Parent Categories
+      let overheadRollupHTML = '';
+      OVERHEAD_PARENT_CATEGORIES.forEach(catName => {
+        let catItems = state.overhead.filter(o => (o.parentCategory || "53000 Fees for Services (NonEmployees)") === catName);
+        if (catItems.length > 0) {
+          let catSum = catItems.reduce((s, o) => s + o.annual, 0);
+          overheadRollupHTML += `<tr class="sub-header"><td colspan="2">${catName} (Subtotal: $${catSum.toLocaleString()})</td></tr>`;
+          catItems.forEach(o => {
+            overheadRollupHTML += `<tr><td style="padding-left:24px;">${o.name}</td><td style="text-align:right;">$${o.annual.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>`;
+          });
+        }
+      });
 
       let totalOverhead = state.overhead.reduce((s, o) => s + o.annual, 0);
       let totalExpensesAll = totalArtistStipends + totalProdExhibition + totalRecordingMedia + totalMarketingPromos + totalOverhead;
@@ -1141,7 +1253,7 @@
         <table id="master-pnl-table">
           <thead>
             <tr>
-              <th>Account Line Item / Financial Category</th>
+              <th>Account Line Item / Financial Category (${viewMode.toUpperCase()}: ${periodVal})</th>
               <th style="text-align:right;">Projected Amount ($)</th>
             </tr>
           </thead>
@@ -1164,6 +1276,10 @@
             <tr><td style="padding-left:16px;">44000 Rental Income (Outside Venue Bookings)</td><td style="text-align:right;">$${rentalIncomeTotal.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr><td style="padding-left:16px;">48100 Concessions (Shows & Hosted Events)</td><td style="text-align:right;">$${totalConcessionsAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr><td style="padding-left:16px;">48500 Merchandise Revenue</td><td style="text-align:right;">$${totalMerch.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="sub-header" style="background:#eef2ff; color:#3730a3;">
+              <td>SUBTOTAL 44000 RENTAL INCOME & SALES</td>
+              <td style="text-align:right;">$${subtotalRentalsAndSales.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+            </tr>
 
             <tr class="total-row"><td>TOTAL PROJECTED INCOME / REVENUE</td><td style="text-align:right; color:var(--success); font-size:1.1rem;">$${totalRevAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
@@ -1180,8 +1296,8 @@
             <tr class="sub-header"><td colspan="2">54000 Advertising and Promotion (Show Marketing)</td></tr>
             <tr><td style="padding-left:24px;">Print Ads, Digital Ads & Printed Marketing Materials</td><td style="text-align:right;">$${totalMarketingPromos.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
-            <tr class="sub-header"><td colspan="2">General Annual Operating Expenses (Overhead & Administration)</td></tr>
-            ${state.overhead.map(o => `<tr><td style="padding-left:24px;">${o.name}</td><td style="text-align:right;">$${o.annual.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>`).join('')}
+            <tr class="section-header"><td colspan="2">GENERAL ANNUAL OPERATING EXPENSES (OVERHEAD & ADMINISTRATION)</td></tr>
+            ${overheadRollupHTML}
 
             <tr class="total-row"><td>TOTAL PROJECTED EXPENSES</td><td style="text-align:right; color:var(--danger); font-size:1.1rem;">$${totalExpensesAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr class="total-row" style="background:#eef2ff;">
@@ -1277,7 +1393,7 @@
               <button class="btn-danger" onclick="deleteRental(${r.id})">Delete Booking</button>
             </div>
             
-            <div class="grid-3">
+            <div class="grid-4">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">RENTAL FEE INCOME ($)</label><br>
                 $<input type="number" value="${r.rentalFee||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'rentalFee', Math.max(0, parseFloat(this.value)))">
@@ -1292,6 +1408,15 @@
                   <option value="2025-2026" ${r.season==='2025-2026'?'selected':''}>2025–2026</option>
                   <option value="2026-2027" ${r.season==='2026-2027'?'selected':''}>2026–2027</option>
                   <option value="2027-2028" ${r.season==='2027-2028'?'selected':''}>2027–2028</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
+                <select onchange="updateRental(${r.id}, 'year', this.value)">
+                  <option value="2025" ${r.year==='2025'?'selected':''}>2025</option>
+                  <option value="2026" ${r.year==='2026'?'selected':''}>2026</option>
+                  <option value="2027" ${r.year==='2027'?'selected':''}>2027</option>
+                  <option value="2028" ${r.year==='2028'?'selected':''}>2028</option>
                 </select>
               </div>
             </div>
@@ -1321,7 +1446,7 @@
     }
     function addRentalBooking() {
       if (!state.rentals) state.rentals = [];
-      state.rentals.push({ id: Date.now(), name: "New Event Rental", category: "Theater Production Rental", rentalFee: 1500, concessionsRev: 300, season: "2026-2027" });
+      state.rentals.push({ id: Date.now(), name: "New Event Rental", category: "Theater Production Rental", rentalFee: 1500, concessionsRev: 300, season: "2026-2027", year: "2026" });
       saveState();
     }
     function deleteRental(id) {
@@ -1329,9 +1454,31 @@
       saveState();
     }
 
+    // GRANTS HUB LOGIC WITH LIVE RUNNING TOTALS & SEASON/YEAR FIELDS
     function renderGrantsHub() {
       const container = document.getElementById('grants-container');
+      const summaryContainer = document.getElementById('grants-summary-container');
       container.innerHTML = '';
+
+      let totalAwarded = state.grants.filter(g => g.status === 'Awarded').reduce((s, g) => s + g.amount, 0);
+      let totalAnticipated = state.grants.filter(g => g.status === 'Anticipated').reduce((s, g) => s + g.amount, 0);
+      let totalGrantsAll = totalAwarded + totalAnticipated;
+
+      summaryContainer.innerHTML = `
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Awarded / Secured Grants</div>
+            <div class="kpi-value positive">$${totalAwarded.toLocaleString()}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Anticipated / Applied Grants</div>
+            <div class="kpi-value" style="color:#a16207;">$${totalAnticipated.toLocaleString()}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Grant Pool</div>
+            <div class="kpi-value" style="color:var(--primary);">$${totalGrantsAll.toLocaleString()}</div>
+          </div>
+        </div>`;
 
       state.grants.forEach(g => {
         let showCheckboxes = state.productions.map(p => {
@@ -1356,7 +1503,7 @@
               <button class="btn-danger" onclick="deleteGrant(${g.id})">Delete Grant</button>
             </div>
             
-            <div class="grid-3" style="margin-bottom:12px;">
+            <div class="grid-4" style="margin-bottom:12px;">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">GRANT AMOUNT ($)</label><br>
                 $<input type="number" value="${g.amount}" min="0" style="font-weight:bold;" onchange="updateGrant(${g.id}, 'amount', Math.max(0, parseFloat(this.value)))">
@@ -1369,9 +1516,27 @@
                 </select>
               </div>
               <div>
-                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW</label><br>
-                <strong style="color:var(--primary); font-size:1.1rem;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+                <select onchange="updateGrant(${g.id}, 'season', this.value)">
+                  <option value="2025-2026" ${(g.season||'2026-2027')==='2025-2026'?'selected':''}>2025–2026</option>
+                  <option value="2026-2027" ${(g.season||'2026-2027')==='2026-2027'?'selected':''}>2026–2027</option>
+                  <option value="2027-2028" ${(g.season||'2026-2027')==='2027-2028'?'selected':''}>2027–2028</option>
+                </select>
               </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
+                <select onchange="updateGrant(${g.id}, 'year', this.value)">
+                  <option value="2025" ${(g.year||'2026')==='2025'?'selected':''}>2025</option>
+                  <option value="2026" ${(g.year||'2026')==='2026'?'selected':''}>2026</option>
+                  <option value="2027" ${(g.year||'2026')==='2027'?'selected':''}>2027</option>
+                  <option value="2028" ${(g.year||'2026')==='2028'?'selected':''}>2028</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW:</label>
+              <strong style="color:var(--primary); font-size:1.05rem; margin-left:6px;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
             </div>
 
             <div>
@@ -1400,7 +1565,7 @@
       if (item) { item[field] = val; saveState(); }
     }
     function addGrant() {
-      state.grants.push({ id: Date.now(), name: "New Grant Opportunity", amount: 2500, status: "Anticipated", targetShowIds: [] });
+      state.grants.push({ id: Date.now(), name: "New Grant Opportunity", amount: 2500, status: "Anticipated", targetShowIds: [], season: "2026-2027", year: "2026" });
       saveState();
     }
     function deleteGrant(id) {
@@ -1436,7 +1601,7 @@
               <button class="btn-danger" onclick="deleteSponsor(${s.id})">Delete Sponsor</button>
             </div>
             
-            <div class="grid-3" style="margin-bottom:12px;">
+            <div class="grid-4" style="margin-bottom:12px;">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">SPONSORSHIP AMOUNT ($)</label><br>
                 $<input type="number" value="${s.amount}" min="0" style="font-weight:bold;" onchange="updateSponsor(${s.id}, 'amount', Math.max(0, parseFloat(this.value)))">
@@ -1449,9 +1614,27 @@
                 </select>
               </div>
               <div>
-                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW</label><br>
-                <strong style="color:var(--primary); font-size:1.1rem;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+                <select onchange="updateSponsor(${s.id}, 'season', this.value)">
+                  <option value="2025-2026" ${(s.season||'2026-2027')==='2025-2026'?'selected':''}>2025–2026</option>
+                  <option value="2026-2027" ${(s.season||'2026-2027')==='2026-2027'?'selected':''}>2026–2027</option>
+                  <option value="2027-2028" ${(s.season||'2026-2027')==='2027-2028'?'selected':''}>2027–2028</option>
+                </select>
               </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
+                <select onchange="updateSponsor(${s.id}, 'year', this.value)">
+                  <option value="2025" ${(s.year||'2026')==='2025'?'selected':''}>2025</option>
+                  <option value="2026" ${(s.year||'2026')==='2026'?'selected':''}>2026</option>
+                  <option value="2027" ${(s.year||'2026')==='2027'?'selected':''}>2027</option>
+                  <option value="2028" ${(s.year||'2026')==='2028'?'selected':''}>2028</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW:</label>
+              <strong style="color:var(--primary); font-size:1.05rem; margin-left:6px;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
             </div>
 
             <div>
@@ -1481,7 +1664,7 @@
     }
     function addSponsorship() {
       if (!state.sponsorships) state.sponsorships = [];
-      state.sponsorships.push({ id: Date.now(), name: "New Sponsor Partner", amount: 1500, status: "Anticipated", targetShowIds: [] });
+      state.sponsorships.push({ id: Date.now(), name: "New Sponsor Partner", amount: 1500, status: "Anticipated", targetShowIds: [], season: "2026-2027", year: "2026" });
       saveState();
     }
     function deleteSponsor(id) {
@@ -1546,7 +1729,7 @@
     }
     function addDonation() {
       if (!state.donations) state.donations = [];
-      state.donations.push({ id: Date.now(), name: "New Campaign Drive", type: "Individual Donations", amount: 1000, status: "Anticipated", season: "2026-2027" });
+      state.donations.push({ id: Date.now(), name: "New Campaign Drive", type: "Individual Donations", amount: 1000, status: "Anticipated", season: "2026-2027", year: "2026" });
       saveState();
     }
     function deleteDonation(id) {
@@ -1627,6 +1810,14 @@
                   <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" min="0" onchange="updateProd(${p.id}, 'performanceWeeks', Math.max(0, parseInt(this.value)))"></div>
                   <div><label>Performances:</label><br><input type="number" value="${p.performances}" min="0" onchange="updateProd(${p.id}, 'performances', Math.max(0, parseInt(this.value)))"></div>
                   <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" min="0" onchange="updateProd(${p.id}, 'capacity', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Budget Year:</label><br>
+                    <select onchange="updateProd(${p.id}, 'year', this.value)">
+                      <option value="2025" ${(p.year||'2026')==='2025'?'selected':''}>2025</option>
+                      <option value="2026" ${(p.year||'2026')==='2026'?'selected':''}>2026</option>
+                      <option value="2027" ${(p.year||'2026')==='2027'?'selected':''}>2027</option>
+                      <option value="2028" ${(p.year||'2026')==='2028'?'selected':''}>2028</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
@@ -1770,14 +1961,21 @@
       saveState();
     }
 
+    // RENDER OPERATING OVERHEAD TAB WITH PARENT CATEGORY SELECTORS
     function renderOverheadTable() {
       const tbody = document.querySelector('#overhead-table tbody');
       tbody.innerHTML = '';
       state.overhead.forEach(item => {
+        let parentCatOptions = OVERHEAD_PARENT_CATEGORIES.map(cat => {
+          let selected = (item.parentCategory || "53000 Fees for Services (NonEmployees)") === cat ? 'selected' : '';
+          return `<option value="${cat}" ${selected}>${cat}</option>`;
+        }).join('');
+
         tbody.innerHTML += `
           <tr>
             <td><input type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
-            <td>$<input type="number" value="${item.annual}" min="0" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value)))"></td>
+            <td><select style="width:100%; font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'parentCategory', this.value)">${parentCatOptions}</select></td>
+            <td>$<input type="number" value="${item.annual === 0 ? '' : item.annual}" placeholder="0" min="0" style="width:110px;" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value) || 0))"></td>
             <td><input type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
             <td><button class="btn-danger" onclick="deleteOverhead(${item.id})">Delete</button></td>
           </tr>`;
@@ -1788,10 +1986,13 @@
       const item = state.overhead.find(o => o.id === id);
       if (item) { item[field] = val; saveState(); }
     }
+    
+    // Blank default for new overhead item
     function addOverhead() {
-      state.overhead.push({ id: Date.now(), name: "New Operating Expense Line Item", annual: 500, apportion: false });
+      state.overhead.push({ id: Date.now(), name: "New Custom Operating Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 0, apportion: false });
       saveState();
     }
+    
     function deleteOverhead(id) {
       state.overhead = state.overhead.filter(o => o.id !== id);
       saveState();
