@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Whim Productions - Season Financial & Production Budget Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Libraries for XLSX and Word Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --bg-color: #f8fafc;
@@ -46,12 +48,16 @@
     button.btn-primary:hover { background: var(--primary-hover); }
     button.btn-secondary { background: #0284c7; color: white; border: none; font-weight: 600; cursor: pointer; }
     button.btn-secondary:hover { background: #0369a1; }
+    button.btn-success { background: #16a34a; color: white; border: none; font-weight: 600; cursor: pointer; }
+    button.btn-success:hover { background: #15803d; }
     button.btn-danger { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; font-weight: 600; cursor: pointer; }
     button.btn-danger:hover { background: #fecaca; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
     th { background: #f1f5f9; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    tr.section-header td { background: #e0e7ff; font-weight: 700; color: #3730a3; text-transform: uppercase; }
+    tr.total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: 2px solid var(--border); }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
@@ -99,7 +105,9 @@
       <h1>Whim Productions - Budget & Scenario Hub</h1>
       <div class="subtitle">Consolidated Financial Planning, Production Budgets & Funding Allocations</div>
     </div>
-    <div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+      <button class="btn-success" onclick="exportToExcel()">📊 Export Excel (.xlsx)</button>
+      <button class="btn-secondary" onclick="exportToWord()">📄 Export Word (.doc)</button>
       <button class="btn-secondary" onclick="printReport()">🖨️ Print / Save PDF</button>
       <button class="btn-primary" onclick="exportData()">Export Data (JSON)</button>
       <button onclick="document.getElementById('importFile').click()">Import Data</button>
@@ -109,6 +117,7 @@
 
   <div class="nav-tabs">
     <button class="tab-btn active" onclick="switchTab('dashboard')">Consolidated P&L</button>
+    <button class="tab-btn" onclick="switchTab('master_pnl')">📊 Season Master P&L</button>
     <button class="tab-btn" onclick="switchTab('builder')">✨ New Show Builder</button>
     <button class="tab-btn" onclick="switchTab('productions')">Productions & Events</button>
     <button class="tab-btn" onclick="switchTab('grants')">Grants Hub</button>
@@ -168,6 +177,24 @@
     </div>
   </div>
 
+  <!-- SEASON MASTER P&L TAB -->
+  <div id="master_pnl" class="tab-content">
+    <div class="card">
+      <div class="flex-between" style="margin-bottom: 12px;">
+        <h3>Season Master P&L Statement</h3>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-success" onclick="exportToExcel()">Export Excel</button>
+          <button class="btn-secondary" onclick="exportToWord()">Export Word</button>
+        </div>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        Comprehensive financial rollup statement mirroring the proposed 2026–2027 Season Budget sheet.
+      </p>
+
+      <div id="master-pnl-table-container"></div>
+    </div>
+  </div>
+
   <!-- SHOW BUILDER TAB -->
   <div id="builder" class="tab-content">
     <div class="grid-2">
@@ -205,13 +232,11 @@
           <input type="number" id="f_gaPrice" value="30.00" oninput="calculateBuilder()">
         </div>
         
-        <!-- Pay It Forward Fields -->
         <div class="grid-2">
           <div class="form-group"><label>Pay It Forward Seats (Run)</label><input type="number" id="f_pifSeats" value="10" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Pay It Forward Price ($)</label><input type="number" id="f_pifPrice" value="50.00" oninput="calculateBuilder()"></div>
         </div>
 
-        <!-- ArtsKC The Drop -->
         <div class="form-group">
           <label>ArtsKC "The Drop" Seats (Run)</label>
           <input type="number" id="f_dropSeats" value="15" oninput="calculateBuilder()">
@@ -223,7 +248,6 @@
           <div class="form-group"><label>PWYW Price Floor ($)</label><input type="number" id="f_pwywPrice" value="15.00" oninput="calculateBuilder()"></div>
         </div>
 
-        <!-- Comps Fields -->
         <div class="grid-2">
           <div class="form-group"><label>Company Comps (Run)</label><input type="number" id="f_companyComps" value="10" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Production Comps</label><input type="text" id="f_autoProdComps" value="Auto (2x Staff)" disabled style="background:#f1f5f9; font-weight:bold;"></div>
@@ -976,6 +1000,115 @@
       renderDonationsHub();
       renderProductions(filteredShows, isFullCap, perShowApportionedAdmin);
       renderChart(totalTicketRevenue, totalNonBoxRevenue + totalDonations, totalProductionExpenses, totalOverhead);
+      renderMasterPNL(filteredShows, isFullCap);
+    }
+
+    function renderMasterPNL(filteredShows, isFullCap) {
+      const container = document.getElementById('master-pnl-table-container');
+      if (!container) return;
+
+      let totalTixRev = 0, totalConcessions = 0, totalMerch = 0, totalShowDonations = 0, totalShowSponsors = 0;
+      let lineItemRollup = {};
+      LINE_ITEM_KEYS.forEach(k => lineItemRollup[k] = 0);
+
+      filteredShows.forEach(p => {
+        let m = calculateShowBoxOffice(p, isFullCap);
+        totalTixRev += m.totalTixRev;
+        totalConcessions += (p.concessions || 0);
+        totalMerch += (p.merch || 0);
+        totalShowDonations += (p.showDonations || 0);
+        totalShowSponsors += (p.showSponsorship || 0);
+
+        if (p.items) {
+          LINE_ITEM_KEYS.forEach(k => {
+            lineItemRollup[k] += getItemTotal(p.items, k);
+          });
+        }
+      });
+
+      let totalHubGrants = state.grants.reduce((s, g) => s + g.amount, 0);
+      let totalHubSponsorships = (state.sponsorships || []).reduce((s, sp) => s + sp.amount, 0);
+      let totalHubDonations = (state.donations || []).reduce((s, d) => s + d.amount, 0);
+
+      let totalRev = totalTixRev + totalConcessions + totalMerch + totalShowDonations + totalShowSponsors + totalHubGrants + totalHubSponsorships + totalHubDonations;
+
+      let totalArtistStipends = STIPEND_KEYS.reduce((s, k) => s + lineItemRollup[k], 0);
+      let totalProductionSupplies = ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
+      let totalMediaMarketing = ['photography', 'videography', 'printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
+      let totalOverhead = state.overhead.reduce((s, o) => s + o.annual, 0);
+
+      let totalExpenses = totalArtistStipends + totalProductionSupplies + totalMediaMarketing + totalOverhead;
+      let netIncome = totalRev - totalExpenses;
+
+      let html = `
+        <table id="master-pnl-table">
+          <thead>
+            <tr>
+              <th>Line Item / Account Category</th>
+              <th style="text-align:right;">Projected Amount ($)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="section-header"><td colspan="2">I. REVENUE (INCOMING FUNDS)</td></tr>
+            <tr><td>Admission & Ticket Sales (Box Office)</td><td style="text-align:right;">$${totalTixRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td>Concessions Revenue</td><td style="text-align:right;">$${totalConcessions.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td>Merchandise Revenue</td><td style="text-align:right;">$${totalMerch.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td>Grants (Secured & Anticipated)</td><td style="text-align:right;">$${totalHubGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td>Corporate & Business Sponsorships</td><td style="text-align:right;">$${(totalHubSponsorships + totalShowSponsors).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td>Individual & Show Donations</td><td style="text-align:right;">$${(totalHubDonations + totalShowDonations).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="total-row"><td>TOTAL PROJECTED REVENUE</td><td style="text-align:right; color:var(--success);">$${totalRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="section-header"><td colspan="2">II. EXPENSES (OUTGOING FUNDS)</td></tr>
+            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">A. Artist Stipends & Creative Personnel</td></tr>
+            <tr><td style="padding-left:24px;">Total Artist Stipends & Script Royalties</td><td style="text-align:right;">$${totalArtistStipends.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">B. Production & Exhibition Operations</td></tr>
+            <tr><td style="padding-left:24px;">Scenic, Costumes, Props & Facility Rentals</td><td style="text-align:right;">$${totalProductionSupplies.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">C. Media, Marketing & Promotion</td></tr>
+            <tr><td style="padding-left:24px;">Photography, Videography, Ads & Print Materials</td><td style="text-align:right;">$${totalMediaMarketing.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">D. General Operating Overhead</td></tr>
+            ${state.overhead.map(o => `<tr><td style="padding-left:24px;">${o.name}</td><td style="text-align:right;">$${o.annual.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>`).join('')}
+
+            <tr class="total-row"><td>TOTAL PROJECTED EXPENSES</td><td style="text-align:right; color:var(--danger);">$${totalExpenses.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="total-row" style="background:#eef2ff;">
+              <td>NET OPERATING INCOME / SURPLUS (DEFICIT)</td>
+              <td style="text-align:right; color:${netIncome>=0?'var(--success)':'var(--danger)'};">$${netIncome.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+            </tr>
+          </tbody>
+        </table>`;
+
+      container.innerHTML = html;
+    }
+
+    function exportToExcel() {
+      const table = document.getElementById('master-pnl-table');
+      if (!table) { alert("Please view the Season Master P&L tab first."); return; }
+      const wb = XLSX.utils.table_to_book(table, { sheet: "Season Master PNL" });
+      XLSX.writeFile(wb, `Whim_Productions_Master_PNL_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function exportToWord() {
+      const tableHTML = document.getElementById('master-pnl-table-container')?.innerHTML;
+      if (!tableHTML) { alert("Please view the Season Master P&L tab first."); return; }
+
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+            "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+            "xmlns='http://www.w3.org/TR/REC-html40'>"+
+            "<head><meta charset='utf-8'><title>Season Master P&L Statement</title>"+
+            "<style>table { width:100%; border-collapse:collapse; } th, td { border:1px solid #cbd5e1; padding:8px; font-family:Arial, sans-serif; font-size:12px; } th { background:#f1f5f9; }</style>"+
+            "</head><body><h2>Whim Productions - Season Master P&L Statement</h2>";
+      const footer = "</body></html>";
+      const sourceHTML = header + tableHTML + footer;
+
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+      const fileDownload = document.createElement("a");
+      document.body.appendChild(fileDownload);
+      fileDownload.href = source;
+      fileDownload.download = `Whim_Productions_Master_PNL_${new Date().toISOString().slice(0,10)}.doc`;
+      fileDownload.click();
+      document.body.removeChild(fileDownload);
     }
 
     function renderGrantsHub() {
