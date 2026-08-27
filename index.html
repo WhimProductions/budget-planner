@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Whim Productions - Season Financial & Production Budget Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Libraries for XLSX and Word Export -->
+  <!-- Library for XLSX Export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
@@ -22,7 +22,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; max-width: 1350px; margin: 0 auto; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; max-width: 1400px; margin: 0 auto; }
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--border); }
     h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-main); }
@@ -57,6 +57,7 @@
     th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
     th { background: #f1f5f9; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
     tr.section-header td { background: #e0e7ff; font-weight: 700; color: #3730a3; text-transform: uppercase; }
+    tr.sub-header td { background: #f1f5f9; font-weight: 700; color: #475569; }
     tr.total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: 2px solid var(--border); }
 
     .tab-content { display: none; }
@@ -120,6 +121,7 @@
     <button class="tab-btn" onclick="switchTab('master_pnl')">📊 Season Master P&L</button>
     <button class="tab-btn" onclick="switchTab('builder')">✨ New Show Builder</button>
     <button class="tab-btn" onclick="switchTab('productions')">Productions & Events</button>
+    <button class="tab-btn" onclick="switchTab('rentals')">Rentals & Events Hub</button>
     <button class="tab-btn" onclick="switchTab('grants')">Grants Hub</button>
     <button class="tab-btn" onclick="switchTab('sponsorships')">Sponsorships Hub</button>
     <button class="tab-btn" onclick="switchTab('donations')">Donations Hub</button>
@@ -188,7 +190,7 @@
         </div>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
-        Comprehensive financial rollup statement mirroring the proposed 2026–2027 Season Budget sheet.
+        Comprehensive financial rollup statement mirroring the proposed 2026–2027 Season Budget spreadsheet structure.
       </p>
 
       <div id="master-pnl-table-container"></div>
@@ -376,7 +378,7 @@
           <span class="line-item-total" id="f_boardop_tot">$0</span>
         </div>
         <div class="line-item-row">
-          <label>Scripts - Rights & Royalties</label>
+          <label>Scripts - Printing, Purchase or Rent</label>
           <input type="number" id="f_scripts_qty" value="1" oninput="calculateBuilder()">
           <input type="number" id="f_scripts_rate" value="600" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_scripts_tot">$0</span>
@@ -542,6 +544,20 @@
     </div>
   </div>
 
+  <!-- RENTALS & EVENTS HUB TAB (NEW) -->
+  <div id="rentals" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h3>Outside Rentals & Hosted Events Hub</h3>
+        <button class="btn-primary" onclick="addRentalBooking()">+ Add New Rental / Event Booking</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+        Track projected rental income and bar/concession yields from outside bookings across Whim's core rental categories.
+      </p>
+      <div id="rentals-container"></div>
+    </div>
+  </div>
+
   <!-- GRANTS TAB -->
   <div id="grants" class="tab-content">
     <div class="card">
@@ -574,11 +590,11 @@
   <div id="donations" class="tab-content">
     <div class="card">
       <div class="flex-between">
-        <h3>Donations Hub (Individual & Corporate Contributions)</h3>
+        <h3>Donations Hub</h3>
         <button class="btn-primary" onclick="addDonation()">+ Add New Donation Campaign</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
-        Track projected general donations and fundraising contributions. These funds feed directly into the Consolidated P&L as general organizational revenue and are not apportioned to individual show budgets.
+        Track projected general donations, individual campaigns, and board contributions.
       </p>
       <div id="donations-container"></div>
     </div>
@@ -591,12 +607,15 @@
         <h3>General Annual Operating Expenses (Overhead & Occupancy)</h3>
         <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
       </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:12px;">
+        Explicit operating expense categories matching Whim's annual P&L statement.
+      </p>
       <table id="overhead-table">
         <thead>
           <tr>
-            <th>Expense Name</th>
+            <th>Expense Category / Line Item</th>
             <th>Annual Amount ($)</th>
-            <th>Apportion to Shows?</th>
+            <th>Apportion 1/12th to Shows?</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -627,22 +646,48 @@
 
     let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
       overhead: [
-        { id: 1, name: "Fees for Accounting / Bookkeeping", annual: 6038, apportion: true },
-        { id: 2, name: "General Liability Insurance", annual: 614, apportion: true },
-        { id: 3, name: "Occupancy & Facility Rental", annual: 12684, apportion: false },
-        { id: 4, name: "Advertising & Marketing", annual: 2650, apportion: false },
-        { id: 5, name: "IT & Website Hosting", annual: 1130, apportion: false }
+        { id: 1, name: "Fees for Fundraising", annual: 4730, apportion: false },
+        { id: 2, name: "Fees for Accounting / Bookkeeping", annual: 6038, apportion: true },
+        { id: 3, name: "Other Fees for Services", annual: 300, apportion: false },
+        { id: 4, name: "Advertising and Promotion (General)", annual: 3050, apportion: false },
+        { id: 5, name: "Office Supplies", annual: 750, apportion: false },
+        { id: 6, name: "Postage and Delivery", annual: 100, apportion: false },
+        { id: 7, name: "Printing (General)", annual: 150, apportion: false },
+        { id: 8, name: "Information Technology", annual: 530, apportion: false },
+        { id: 9, name: "Website Hosting / Domains", annual: 600, apportion: false },
+        { id: 10, name: "Occupancy - Facility Rental", annual: 6000, apportion: false },
+        { id: 11, name: "Occupancy - Utilities", annual: 5700, apportion: false },
+        { id: 12, name: "Occupancy - Security", annual: 384, apportion: false },
+        { id: 13, name: "Occupancy - Repairs & Maintenance", annual: 600, apportion: false },
+        { id: 14, name: "Professional Dev and Course Fees", annual: 300, apportion: false },
+        { id: 15, name: "Dues and Subscriptions", annual: 1020, apportion: false },
+        { id: 16, name: "Sundry", annual: 180, apportion: false },
+        { id: 17, name: "Concession Cost of Goods Sold (Beverages)", annual: 750, apportion: false },
+        { id: 18, name: "Concession Cost of Goods Sold (Snacks)", annual: 750, apportion: false },
+        { id: 19, name: "Merchandise Cost of Goods Sold", annual: 500, apportion: false },
+        { id: 20, name: "Filing Fees", annual: 130, apportion: false },
+        { id: 21, name: "General Liability Insurance", annual: 614, apportion: true },
+        { id: 22, name: "Credit Card Merchant Fees", annual: 600, apportion: false },
+        { id: 23, name: "PayPal / Processing Fees", annual: 50, apportion: false }
+      ],
+      rentals: [
+        { id: 401, name: "Fringe Festival Booking", category: "KC Fringe Rental", rentalFee: 2500, concessionsRev: 600, season: "2026-2027" },
+        { id: 402, name: "Local Burlesque Showcase", category: "Burlesque Rentals", rentalFee: 1200, concessionsRev: 400, season: "2026-2027" }
       ],
       grants: [
-        { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1, 2] },
+        { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1] },
         { id: 102, name: "Kids Christmas Grant", amount: 8875, status: "Anticipated", targetShowIds: [] }
       ],
       sponsorships: [
         { id: 201, name: "Local Business Title Sponsor", amount: 2500, status: "Awarded", targetShowIds: [1] }
       ],
       donations: [
-        { id: 301, name: "Annual Individual Giving Campaign", amount: 12000, status: "Anticipated", season: "2026-2027" },
-        { id: 302, name: "Board Member Contributions", amount: 3500, status: "Awarded", season: "2026-2027" }
+        { id: 301, name: "Annual Individual Giving Campaign", type: "Individual Donations", amount: 6000, status: "Anticipated", season: "2026-2027" },
+        { id: 302, name: "Board Member Annual Pledges", type: "Board Member Donations", amount: 300, status: "Awarded", season: "2026-2027" },
+        { id: 303, name: "Special Events & Fundraisers Revenue", type: "Special Events Revenue", amount: 1023, status: "Anticipated", season: "2026-2027" },
+        { id: 304, name: "In-Kind Venue/Equipment Donations", type: "Donations In-Kind", amount: 500, status: "Awarded", season: "2026-2027" },
+        { id: 305, name: "Advertising Revenue (Whim Events)", type: "Advertising Revenue", amount: 250, status: "Anticipated", season: "2026-2027" },
+        { id: 306, name: "Advertising Revenue (External)", type: "Advertising Revenue", amount: 100, status: "Anticipated", season: "2026-2027" }
       ],
       productions: [
         {
@@ -945,6 +990,7 @@
       const perShowApportionedAdmin = (annualApportionedPool / 12);
 
       let filteredShows = state.productions.filter(p => selectedSeason === 'all' || p.season === selectedSeason);
+      let filteredRentals = (state.rentals || []).filter(r => selectedSeason === 'all' || r.season === selectedSeason);
 
       let totalTicketRevenue = 0;
       let totalNonBoxRevenue = 0;
@@ -977,11 +1023,14 @@
         totalStipendsPool += showStipends;
       });
 
+      let rentalFeesTotal = filteredRentals.reduce((s, r) => s + (r.rentalFee || 0), 0);
+      let rentalConcessionsTotal = filteredRentals.reduce((s, r) => s + (r.concessionsRev || 0), 0);
+
       let unallocatedGrants = state.grants.filter(g => !g.targetShowIds || g.targetShowIds.length === 0).reduce((s, g) => s + g.amount, 0);
       let unallocatedSponsors = (state.sponsorships||[]).filter(s => !s.targetShowIds || s.targetShowIds.length === 0).reduce((s, sp) => s + sp.amount, 0);
-      let totalDonations = (state.donations||[]).filter(d => selectedSeason === 'all' || d.season === selectedSeason).reduce((s, d) => s + d.amount, 0);
+      let totalDonationsHub = (state.donations||[]).filter(d => selectedSeason === 'all' || d.season === selectedSeason).reduce((s, d) => s + d.amount, 0);
 
-      const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + unallocatedGrants + unallocatedSponsors + totalDonations;
+      const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + rentalFeesTotal + rentalConcessionsTotal + unallocatedGrants + unallocatedSponsors + totalDonationsHub;
       const totalExpenses = totalOverhead + (totalProductionExpenses - (filteredShows.length * perShowApportionedAdmin));
       const netIncome = totalRevenue - totalExpenses;
 
@@ -995,26 +1044,27 @@
       document.getElementById('kpi-stipends').innerText = '$' + totalStipendsPool.toLocaleString(undefined, {maximumFractionDigits:0});
 
       renderOverheadTable();
+      renderRentalsHub();
       renderGrantsHub();
       renderSponsorshipsHub();
       renderDonationsHub();
       renderProductions(filteredShows, isFullCap, perShowApportionedAdmin);
-      renderChart(totalTicketRevenue, totalNonBoxRevenue + totalDonations, totalProductionExpenses, totalOverhead);
-      renderMasterPNL(filteredShows, isFullCap);
+      renderChart(totalTicketRevenue, totalNonBoxRevenue + totalDonationsHub + rentalFeesTotal + rentalConcessionsTotal, totalProductionExpenses, totalOverhead);
+      renderMasterPNL(filteredShows, filteredRentals, isFullCap);
     }
 
-    function renderMasterPNL(filteredShows, isFullCap) {
+    function renderMasterPNL(filteredShows, filteredRentals, isFullCap) {
       const container = document.getElementById('master-pnl-table-container');
       if (!container) return;
 
-      let totalTixRev = 0, totalConcessions = 0, totalMerch = 0, totalShowDonations = 0, totalShowSponsors = 0;
+      let totalTixRev = 0, totalShowConcessions = 0, totalMerch = 0, totalShowDonations = 0, totalShowSponsors = 0;
       let lineItemRollup = {};
       LINE_ITEM_KEYS.forEach(k => lineItemRollup[k] = 0);
 
       filteredShows.forEach(p => {
         let m = calculateShowBoxOffice(p, isFullCap);
         totalTixRev += m.totalTixRev;
-        totalConcessions += (p.concessions || 0);
+        totalShowConcessions += (p.concessions || 0);
         totalMerch += (p.merch || 0);
         totalShowDonations += (p.showDonations || 0);
         totalShowSponsors += (p.showSponsorship || 0);
@@ -1026,55 +1076,83 @@
         }
       });
 
+      let rentalIncomeTotal = filteredRentals.reduce((s, r) => s + (r.rentalFee || 0), 0);
+      let rentalConcessionsTotal = filteredRentals.reduce((s, r) => s + (r.concessionsRev || 0), 0);
+      let totalConcessionsAll = totalShowConcessions + rentalConcessionsTotal;
+
       let totalHubGrants = state.grants.reduce((s, g) => s + g.amount, 0);
       let totalHubSponsorships = (state.sponsorships || []).reduce((s, sp) => s + sp.amount, 0);
-      let totalHubDonations = (state.donations || []).reduce((s, d) => s + d.amount, 0);
 
-      let totalRev = totalTixRev + totalConcessions + totalMerch + totalShowDonations + totalShowSponsors + totalHubGrants + totalHubSponsorships + totalHubDonations;
+      // Donations Breakdown from Hub
+      let hubIndivDonations = (state.donations||[]).filter(d => d.type === 'Individual Donations' || !d.type).reduce((s, d) => s + d.amount, 0);
+      let hubBoardDonations = (state.donations||[]).filter(d => d.type === 'Board Member Donations').reduce((s, d) => s + d.amount, 0);
+      let hubSpecialEvents = (state.donations||[]).filter(d => d.type === 'Special Events Revenue').reduce((s, d) => s + d.amount, 0);
+      let hubInKind = (state.donations||[]).filter(d => d.type === 'Donations In-Kind').reduce((s, d) => s + d.amount, 0);
+      let hubAdvertising = (state.donations||[]).filter(d => d.type === 'Advertising Revenue').reduce((s, d) => s + d.amount, 0);
+
+      let totalContributed = totalHubGrants + (totalHubSponsorships + totalShowSponsors) + (hubIndivDonations + totalShowDonations) + hubBoardDonations + hubInKind;
+      let totalProgramRev = totalTixRev + hubSpecialEvents + hubAdvertising;
+      let totalRevAll = totalContributed + totalProgramRev + rentalIncomeTotal + totalConcessionsAll + totalMerch;
 
       let totalArtistStipends = STIPEND_KEYS.reduce((s, k) => s + lineItemRollup[k], 0);
-      let totalProductionSupplies = ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
-      let totalMediaMarketing = ['photography', 'videography', 'printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
-      let totalOverhead = state.overhead.reduce((s, o) => s + o.annual, 0);
+      let totalProdExhibition = ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
+      let totalRecordingMedia = ['photography', 'videography'].reduce((s, k) => s + lineItemRollup[k], 0);
+      let totalMarketingPromos = ['printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
 
-      let totalExpenses = totalArtistStipends + totalProductionSupplies + totalMediaMarketing + totalOverhead;
-      let netIncome = totalRev - totalExpenses;
+      let totalOverhead = state.overhead.reduce((s, o) => s + o.annual, 0);
+      let totalExpensesAll = totalArtistStipends + totalProdExhibition + totalRecordingMedia + totalMarketingPromos + totalOverhead;
+      let netIncome = totalRevAll - totalExpensesAll;
 
       let html = `
         <table id="master-pnl-table">
           <thead>
             <tr>
-              <th>Line Item / Account Category</th>
+              <th>Account Line Item / Financial Category</th>
               <th style="text-align:right;">Projected Amount ($)</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="section-header"><td colspan="2">I. REVENUE (INCOMING FUNDS)</td></tr>
-            <tr><td>Admission & Ticket Sales (Box Office)</td><td style="text-align:right;">$${totalTixRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td>Concessions Revenue</td><td style="text-align:right;">$${totalConcessions.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td>Merchandise Revenue</td><td style="text-align:right;">$${totalMerch.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td>Grants (Secured & Anticipated)</td><td style="text-align:right;">$${totalHubGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td>Corporate & Business Sponsorships</td><td style="text-align:right;">$${(totalHubSponsorships + totalShowSponsors).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td>Individual & Show Donations</td><td style="text-align:right;">$${(totalHubDonations + totalShowDonations).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr class="total-row"><td>TOTAL PROJECTED REVENUE</td><td style="text-align:right; color:var(--success);">$${totalRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="section-header"><td colspan="2">40000 CONTRIBUTIONS, GIFTS, GRANTS & DONATIONS</td></tr>
+            <tr><td style="padding-left:16px;">Grants (Secured & Applied)</td><td style="text-align:right;">$${totalHubGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">Individual & Show Donations</td><td style="text-align:right;">$${(hubIndivDonations + totalShowDonations).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">Corporate Sponsorships</td><td style="text-align:right;">$${(totalHubSponsorships + totalShowSponsors).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">Board Member Donations</td><td style="text-align:right;">$${hubBoardDonations.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">Donations In-Kind</td><td style="text-align:right;">$${hubInKind.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="sub-header"><td>Subtotal Contributions & Grants</td><td style="text-align:right;">$${totalContributed.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
-            <tr class="section-header"><td colspan="2">II. EXPENSES (OUTGOING FUNDS)</td></tr>
-            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">A. Artist Stipends & Creative Personnel</td></tr>
-            <tr><td style="padding-left:24px;">Total Artist Stipends & Script Royalties</td><td style="text-align:right;">$${totalArtistStipends.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="section-header"><td colspan="2">41000 PROGRAM SERVICE REVENUE</td></tr>
+            <tr><td style="padding-left:16px;">Admission and Ticket Sales (Box Office)</td><td style="text-align:right;">$${totalTixRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">Special Events Revenue</td><td style="text-align:right;">$${hubSpecialEvents.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">Advertising Revenue (Whim & External)</td><td style="text-align:right;">$${hubAdvertising.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="sub-header"><td>Subtotal Program Service Revenue</td><td style="text-align:right;">$${totalProgramRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
-            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">B. Production & Exhibition Operations</td></tr>
-            <tr><td style="padding-left:24px;">Scenic, Costumes, Props & Facility Rentals</td><td style="text-align:right;">$${totalProductionSupplies.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="section-header"><td colspan="2">44000 RENTAL INCOME & SALES</td></tr>
+            <tr><td style="padding-left:16px;">44000 Rental Income (Outside Venue Bookings)</td><td style="text-align:right;">$${rentalIncomeTotal.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">48100 Concessions (Shows & Hosted Events)</td><td style="text-align:right;">$${totalConcessionsAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">48500 Merchandise Revenue</td><td style="text-align:right;">$${totalMerch.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
-            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">C. Media, Marketing & Promotion</td></tr>
-            <tr><td style="padding-left:24px;">Photography, Videography, Ads & Print Materials</td><td style="text-align:right;">$${totalMediaMarketing.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="total-row"><td>TOTAL PROJECTED INCOME / REVENUE</td><td style="text-align:right; color:var(--success); font-size:1.1rem;">$${totalRevAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
-            <tr><td colspan="2" style="font-weight:bold; background:#f8fafc;">D. General Operating Overhead</td></tr>
+            <tr class="section-header"><td colspan="2">EXPENSES & OPERATING COSTS</td></tr>
+            <tr class="sub-header"><td colspan="2">53500 Artist Stipends & Script Royalties</td></tr>
+            <tr><td style="padding-left:24px;">Show Personnel, Creative Team & Script Licensing Total</td><td style="text-align:right;">$${totalArtistStipends.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="sub-header"><td colspan="2">70200 Production and Exhibition Costs</td></tr>
+            <tr><td style="padding-left:24px;">Scenic Materials, Props, Costumes, Equipment & Venue Rentals</td><td style="text-align:right;">$${totalProdExhibition.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="sub-header"><td colspan="2">70300 Recording, Broadcasting & Media</td></tr>
+            <tr><td style="padding-left:24px;">Photography & Videography Documentation</td><td style="text-align:right;">$${totalRecordingMedia.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="sub-header"><td colspan="2">54000 Advertising and Promotion (Show Marketing)</td></tr>
+            <tr><td style="padding-left:24px;">Print Ads, Digital Ads & Printed Marketing Materials</td><td style="text-align:right;">$${totalMarketingPromos.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="sub-header"><td colspan="2">General Annual Operating Expenses (Overhead & Administration)</td></tr>
             ${state.overhead.map(o => `<tr><td style="padding-left:24px;">${o.name}</td><td style="text-align:right;">$${o.annual.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>`).join('')}
 
-            <tr class="total-row"><td>TOTAL PROJECTED EXPENSES</td><td style="text-align:right; color:var(--danger);">$${totalExpenses.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="total-row"><td>TOTAL PROJECTED EXPENSES</td><td style="text-align:right; color:var(--danger); font-size:1.1rem;">$${totalExpensesAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr class="total-row" style="background:#eef2ff;">
               <td>NET OPERATING INCOME / SURPLUS (DEFICIT)</td>
-              <td style="text-align:right; color:${netIncome>=0?'var(--success)':'var(--danger)'};">$${netIncome.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+              <td style="text-align:right; color:${netIncome>=0?'var(--success)':'var(--danger)'}; font-size:1.15rem;">$${netIncome.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
             </tr>
           </tbody>
         </table>`;
@@ -1109,6 +1187,65 @@
       fileDownload.download = `Whim_Productions_Master_PNL_${new Date().toISOString().slice(0,10)}.doc`;
       fileDownload.click();
       document.body.removeChild(fileDownload);
+    }
+
+    // RENTALS HUB LOGIC
+    function renderRentalsHub() {
+      const container = document.getElementById('rentals-container');
+      container.innerHTML = '';
+      if (!state.rentals) state.rentals = [];
+
+      state.rentals.forEach(r => {
+        container.innerHTML += `
+          <div class="hub-card">
+            <div class="flex-between" style="margin-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <input type="text" value="${r.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateRental(${r.id}, 'name', this.value)">
+                <select style="font-weight:bold; font-size:0.85rem;" onchange="updateRental(${r.id}, 'category', this.value)">
+                  <option value="Theater Production Rental" ${r.category==='Theater Production Rental'?'selected':''}>Theater Production Rental</option>
+                  <option value="KC Fringe Rental" ${r.category==='KC Fringe Rental'?'selected':''}>KC Fringe Rental</option>
+                  <option value="Burlesque Rentals" ${r.category==='Burlesque Rentals'?'selected':''}>Burlesque Rentals</option>
+                  <option value="Meeting Rentals" ${r.category==='Meeting Rentals'?'selected':''}>Meeting Rentals</option>
+                  <option value="Other Event Rentals" ${r.category==='Other Event Rentals'?'selected':''}>Other Event Rentals</option>
+                </select>
+              </div>
+              <button class="btn-danger" onclick="deleteRental(${r.id})">Delete Booking</button>
+            </div>
+            
+            <div class="grid-3">
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">RENTAL FEE INCOME ($)</label><br>
+                $<input type="number" value="${r.rentalFee||0}" style="font-weight:bold;" onchange="updateRental(${r.id}, 'rentalFee', parseFloat(this.value))">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED CONCESSIONS REV ($)</label><br>
+                $<input type="number" value="${r.concessionsRev||0}" style="font-weight:bold;" onchange="updateRental(${r.id}, 'concessionsRev', parseFloat(this.value))">
+              </div>
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+                <select onchange="updateRental(${r.id}, 'season', this.value)">
+                  <option value="2025-2026" ${r.season==='2025-2026'?'selected':''}>2025–2026</option>
+                  <option value="2026-2027" ${r.season==='2026-2027'?'selected':''}>2026–2027</option>
+                  <option value="2027-2028" ${r.season==='2027-2028'?'selected':''}>2027–2028</option>
+                </select>
+              </div>
+            </div>
+          </div>`;
+      });
+    }
+
+    function updateRental(id, field, val) {
+      const item = state.rentals.find(r => r.id === id);
+      if (item) { item[field] = val; saveState(); }
+    }
+    function addRentalBooking() {
+      if (!state.rentals) state.rentals = [];
+      state.rentals.push({ id: Date.now(), name: "New Event Rental", category: "Theater Production Rental", rentalFee: 1500, concessionsRev: 300, season: "2026-2027" });
+      saveState();
+    }
+    function deleteRental(id) {
+      state.rentals = state.rentals.filter(r => r.id !== id);
+      saveState();
     }
 
     function renderGrantsHub() {
@@ -1287,7 +1424,17 @@
               <button class="btn-danger" onclick="deleteDonation(${d.id})">Delete Campaign</button>
             </div>
             
-            <div class="grid-3">
+            <div class="grid-4">
+              <div>
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CAMPAIGN TYPE</label><br>
+                <select onchange="updateDonation(${d.id}, 'type', this.value)">
+                  <option value="Individual Donations" ${d.type==='Individual Donations'?'selected':''}>Individual Donations</option>
+                  <option value="Board Member Donations" ${d.type==='Board Member Donations'?'selected':''}>Board Member Donations</option>
+                  <option value="Special Events Revenue" ${d.type==='Special Events Revenue'?'selected':''}>Special Events Revenue</option>
+                  <option value="Donations In-Kind" ${d.type==='Donations In-Kind'?'selected':''}>Donations In-Kind</option>
+                  <option value="Advertising Revenue" ${d.type==='Advertising Revenue'?'selected':''}>Advertising Revenue</option>
+                </select>
+              </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED AMOUNT ($)</label><br>
                 $<input type="number" value="${d.amount}" style="font-weight:bold;" onchange="updateDonation(${d.id}, 'amount', parseFloat(this.value))">
@@ -1318,7 +1465,7 @@
     }
     function addDonation() {
       if (!state.donations) state.donations = [];
-      state.donations.push({ id: Date.now(), name: "New Donation Drive", amount: 2000, status: "Anticipated", season: "2026-2027" });
+      state.donations.push({ id: Date.now(), name: "New Campaign Drive", type: "Individual Donations", amount: 1000, status: "Anticipated", season: "2026-2027" });
       saveState();
     }
     function deleteDonation(id) {
@@ -1450,7 +1597,7 @@
             ${renderItemInput('dance', 'Dance Choreographer')}
             ${renderItemInput('carpentry', 'Carpentry / Set Construction (Hrs)')}
             ${renderItemInput('boardop', 'Board Operator')}
-            ${renderItemInput('scripts', 'Scripts - Rights & Royalties')}
+            ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent')}
 
             <div class="sub-section-title">B. Scenic, Materials & Props</div>
             ${renderItemInput('scenicMaterials', 'Scenic Materials')}
@@ -1527,7 +1674,7 @@
       if (item) { item[field] = val; saveState(); }
     }
     function addOverhead() {
-      state.overhead.push({ id: Date.now(), name: "New Operating Expense", annual: 1000, apportion: false });
+      state.overhead.push({ id: Date.now(), name: "New Operating Expense Line Item", annual: 500, apportion: false });
       saveState();
     }
     function deleteOverhead(id) {
@@ -1544,7 +1691,7 @@
           labels: ['Season Budget Overview'],
           datasets: [
             { label: 'Ticket Revenue', data: [tixRev], backgroundColor: '#4f46e5' },
-            { label: 'Grants, Sponsorships, Donations & Concessions', data: [nonBoxRev], backgroundColor: '#818cf8' },
+            { label: 'Grants, Sponsorships, Donations, Rentals & Concessions', data: [nonBoxRev], backgroundColor: '#818cf8' },
             { label: 'Production Costs & Stipends', data: [prodExp], backgroundColor: '#ef4444' },
             { label: 'General Operating Overhead', data: [overheadExp], backgroundColor: '#f87171' }
           ]
