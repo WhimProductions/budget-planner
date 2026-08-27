@@ -155,7 +155,7 @@
         <div class="kpi-value" id="kpi-margin">$0</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Artist Stipend Pool (Account 53500)</div>
+        <div class="kpi-label">Artist Stipend Pool</div>
         <div class="kpi-value" id="kpi-stipends">$0</div>
       </div>
     </div>
@@ -205,13 +205,13 @@
           <input type="number" id="f_gaPrice" value="30.00" oninput="calculateBuilder()">
         </div>
         
-        <!-- Pay It Forward Fields Together -->
+        <!-- Pay It Forward Fields -->
         <div class="grid-2">
           <div class="form-group"><label>Pay It Forward Seats (Run)</label><input type="number" id="f_pifSeats" value="10" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Pay It Forward Price ($)</label><input type="number" id="f_pifPrice" value="50.00" oninput="calculateBuilder()"></div>
         </div>
 
-        <!-- ArtsKC The Drop on Its Own Line -->
+        <!-- ArtsKC The Drop -->
         <div class="form-group">
           <label>ArtsKC "The Drop" Seats (Run)</label>
           <input type="number" id="f_dropSeats" value="15" oninput="calculateBuilder()">
@@ -223,7 +223,7 @@
           <div class="form-group"><label>PWYW Price Floor ($)</label><input type="number" id="f_pwywPrice" value="15.00" oninput="calculateBuilder()"></div>
         </div>
 
-        <!-- Comps Together on the Same Line -->
+        <!-- Comps Fields -->
         <div class="grid-2">
           <div class="form-group"><label>Company Comps (Run)</label><input type="number" id="f_companyComps" value="10" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Production Comps</label><input type="text" id="f_autoProdComps" value="Auto (2x Staff)" disabled style="background:#f1f5f9; font-weight:bold;"></div>
@@ -239,7 +239,7 @@
 
         <div class="section-title">4. Production Budget Line Items</div>
 
-        <div class="sub-section-title">A. Performers & Musicians (Account 53500)</div>
+        <div class="sub-section-title">A. Artist Stipends</div>
         <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
           <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
         </div>
@@ -255,8 +255,6 @@
           <input type="number" id="f_musicians_rate" value="150" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_musicians_tot">$0</span>
         </div>
-
-        <div class="sub-section-title">B. Production Team & Creative Staff (Account 53500)</div>
         <div class="line-item-row">
           <label>Director</label>
           <input type="number" id="f_dir_qty" value="1" oninput="calculateBuilder()">
@@ -268,6 +266,12 @@
           <input type="number" id="f_sm_qty" value="1" oninput="calculateBuilder()">
           <input type="number" id="f_sm_rate" value="800" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_sm_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Assistant Stage Manager</label>
+          <input type="number" id="f_asm_qty" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_asm_rate" value="400" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_asm_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Technical Director</label>
@@ -347,8 +351,14 @@
           <input type="number" id="f_boardop_rate" value="300" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_boardop_tot">$0</span>
         </div>
+        <div class="line-item-row">
+          <label>Scripts - Rights & Royalties</label>
+          <input type="number" id="f_scripts_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_scripts_rate" value="600" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_scripts_tot">$0</span>
+        </div>
 
-        <div class="sub-section-title">C. Scenic, Materials & Props</div>
+        <div class="sub-section-title">B. Scenic, Materials & Props</div>
         <div class="line-item-row">
           <label>Scenic Materials</label>
           <input type="number" id="f_scenicMaterials_qty" value="1" oninput="calculateBuilder()">
@@ -362,7 +372,7 @@
           <span class="line-item-total" id="f_expProps_tot">$0</span>
         </div>
 
-        <div class="sub-section-title">D. Costumes & Wardrobe</div>
+        <div class="sub-section-title">C. Costumes & Wardrobe</div>
         <div class="line-item-row">
           <label>Costume Purchases</label>
           <input type="number" id="f_expCostumes_qty" value="1" oninput="calculateBuilder()">
@@ -370,7 +380,7 @@
           <span class="line-item-total" id="f_expCostumes_tot">$0</span>
         </div>
 
-        <div class="sub-section-title">E. Rentals & Operations</div>
+        <div class="sub-section-title">D. Rentals & Operations</div>
         <div class="line-item-row">
           <label>Facility Rental - Rehearsal Weeks</label>
           <input type="number" id="f_rentFacilityRehearsal_qty" value="4" disabled style="background:#f1f5f9;">
@@ -408,10 +418,16 @@
           <span class="line-item-total" id="f_rentSetPiece_tot">$0</span>
         </div>
         <div class="line-item-row">
-          <label>Scripts - Rights & Royalties</label>
-          <input type="number" id="f_scripts_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_scripts_rate" value="600" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_scripts_tot">$0</span>
+          <label>Rental - Automobile</label>
+          <input type="number" id="f_rentAuto_qty" value="0" oninput="calculateBuilder()">
+          <input type="number" id="f_rentAuto_rate" value="0" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_rentAuto_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Fuel</label>
+          <input type="number" id="f_fuel_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_fuel_rate" value="50" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_fuel_tot">$0</span>
         </div>
         <div class="line-item-row">
           <label>Production Supplies</label>
@@ -419,14 +435,8 @@
           <input type="number" id="f_supplies_rate" value="200" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_supplies_tot">$0</span>
         </div>
-        <div class="line-item-row">
-          <label>Automobile & Fuel</label>
-          <input type="number" id="f_fuel_qty" value="1" oninput="calculateBuilder()">
-          <input type="number" id="f_fuel_rate" value="50" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_fuel_tot">$0</span>
-        </div>
 
-        <div class="sub-section-title">F. Media & Marketing Documentation</div>
+        <div class="sub-section-title">E. Media & Marketing Documentation</div>
         <div class="line-item-row">
           <label>Photography</label>
           <input type="number" id="f_photography_qty" value="1" oninput="calculateBuilder()">
@@ -438,6 +448,26 @@
           <input type="number" id="f_videography_qty" value="1" oninput="calculateBuilder()">
           <input type="number" id="f_videography_rate" value="400" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_videography_tot">$0</span>
+        </div>
+
+        <div class="sub-section-title">F. Marketing & Promotion</div>
+        <div class="line-item-row">
+          <label>Print Ads</label>
+          <input type="number" id="f_printAds_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_printAds_rate" value="200" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_printAds_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Digital Ads</label>
+          <input type="number" id="f_digitalAds_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_digitalAds_rate" value="300" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_digitalAds_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Printed Materials (Posters, Flyers)</label>
+          <input type="number" id="f_printedMaterials_qty" value="1" oninput="calculateBuilder()">
+          <input type="number" id="f_printedMaterials_rate" value="150" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_printedMaterials_tot">$0</span>
         </div>
       </div>
 
@@ -492,7 +522,7 @@
   <div id="grants" class="tab-content">
     <div class="card">
       <div class="flex-between">
-        <h3>Grants Hub (Account 40000)</h3>
+        <h3>Grants Hub</h3>
         <button class="btn-primary" onclick="addGrant()">+ Add New Grant</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
@@ -506,7 +536,7 @@
   <div id="sponsorships" class="tab-content">
     <div class="card">
       <div class="flex-between">
-        <h3>Sponsorships Hub (Account 40000)</h3>
+        <h3>Sponsorships Hub</h3>
         <button class="btn-primary" onclick="addSponsorship()">+ Add New Sponsor</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
@@ -520,7 +550,7 @@
   <div id="donations" class="tab-content">
     <div class="card">
       <div class="flex-between">
-        <h3>Donations Hub (Account 40300 Individual & Corporate Contributions)</h3>
+        <h3>Donations Hub (Individual & Corporate Contributions)</h3>
         <button class="btn-primary" onclick="addDonation()">+ Add New Donation Campaign</button>
       </div>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
@@ -540,7 +570,7 @@
       <table id="overhead-table">
         <thead>
           <tr>
-            <th>Account / Expense Name</th>
+            <th>Expense Name</th>
             <th>Annual Amount ($)</th>
             <th>Apportion to Shows?</th>
             <th>Action</th>
@@ -553,25 +583,31 @@
 
   <script>
     const LINE_ITEM_KEYS = [
-      'actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes',
+      'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance',
-      'carpentry', 'boardop', 'scenicMaterials', 'expProps', 'expCostumes',
+      'carpentry', 'boardop', 'scripts', 'scenicMaterials', 'expProps', 'expCostumes',
       'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece',
-      'scripts', 'supplies', 'fuel', 'photography', 'videography'
+      'rentAuto', 'fuel', 'supplies', 'photography', 'videography',
+      'printAds', 'digitalAds', 'printedMaterials'
     ];
 
     const PERSONNEL_KEYS = [
-      'actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes',
+      'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'boardop'
+    ];
+
+    const STIPEND_KEYS = [
+      'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
+      'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop', 'scripts'
     ];
 
     let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
       overhead: [
-        { id: 1, name: "53300 Fees for Accounting / Bookkeeping", annual: 6038, apportion: true },
-        { id: 2, name: "62310 General Liability Insurance", annual: 614, apportion: true },
-        { id: 3, name: "58000 Occupancy & Facility Rental", annual: 12684, apportion: false },
-        { id: 4, name: "54000 Advertising & Marketing", annual: 2650, apportion: false },
-        { id: 5, name: "56000 IT & Website Hosting", annual: 1130, apportion: false }
+        { id: 1, name: "Fees for Accounting / Bookkeeping", annual: 6038, apportion: true },
+        { id: 2, name: "General Liability Insurance", annual: 614, apportion: true },
+        { id: 3, name: "Occupancy & Facility Rental", annual: 12684, apportion: false },
+        { id: 4, name: "Advertising & Marketing", annual: 2650, apportion: false },
+        { id: 5, name: "IT & Website Hosting", annual: 1130, apportion: false }
       ],
       grants: [
         { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1, 2] },
@@ -596,17 +632,18 @@
           concessions: 1000, merch: 30, showDonations: 500, showSponsorship: 0,
           items: {
             actors: { qty: 7, rate: 400 }, musicians: { qty: 0, rate: 0 },
-            dir: { qty: 1, rate: 700 }, sm: { qty: 1, rate: 800 }, td: { qty: 1, rate: 600 },
+            dir: { qty: 1, rate: 700 }, sm: { qty: 1, rate: 800 }, asm: { qty: 0, rate: 400 }, td: { qty: 1, rate: 600 },
             setdes: { qty: 1, rate: 600 }, lightdes: { qty: 1, rate: 500 }, sounddes: { qty: 1, rate: 500 },
             costumedes: { qty: 1, rate: 500 }, propdes: { qty: 1, rate: 400 }, graphic: { qty: 1, rate: 300 },
             musicdir: { qty: 0, rate: 0 }, intimacy: { qty: 1, rate: 300 }, fight: { qty: 1, rate: 350 }, dance: { qty: 0, rate: 0 },
-            carpentry: { qty: 95, rate: 20 }, boardop: { qty: 1, rate: 300 },
+            carpentry: { qty: 95, rate: 20 }, boardop: { qty: 1, rate: 300 }, scripts: { qty: 1, rate: 600 },
             scenicMaterials: { qty: 1, rate: 800 }, expProps: { qty: 1, rate: 300 }, expCostumes: { qty: 1, rate: 400 },
             rentFacilityRehearsal: { qty: 4, rate: 400 }, rentFacilityPerformance: { qty: 3, rate: 700 },
             rentEquipment: { qty: 1, rate: 200 }, rentProps: { qty: 1, rate: 100 },
             rentCostumes: { qty: 1, rate: 150 }, rentSetPiece: { qty: 1, rate: 100 },
-            scripts: { qty: 1, rate: 600 }, supplies: { qty: 1, rate: 200 }, fuel: { qty: 1, rate: 50 },
-            photography: { qty: 1, rate: 300 }, videography: { qty: 1, rate: 400 }
+            rentAuto: { qty: 0, rate: 0 }, fuel: { qty: 1, rate: 50 }, supplies: { qty: 1, rate: 200 },
+            photography: { qty: 1, rate: 300 }, videography: { qty: 1, rate: 400 },
+            printAds: { qty: 1, rate: 200 }, digitalAds: { qty: 1, rate: 300 }, printedMaterials: { qty: 1, rate: 150 }
           }
         }
       ]
@@ -685,7 +722,6 @@
       const rehWeeks = parseFloat(document.getElementById('f_rehearsalWeeks').value) || 0;
       const perfWeeks = parseFloat(document.getElementById('f_performanceWeeks').value) || 0;
 
-      // Sync Facility Rental Quantities to Weeks Entered
       const rehQtyEl = document.getElementById('f_rentFacilityRehearsal_qty');
       const perfQtyEl = document.getElementById('f_rentFacilityPerformance_qty');
       if (rehQtyEl) rehQtyEl.value = rehWeeks;
@@ -714,8 +750,6 @@
       let expSum = 0;
       let personnelHeadcount = 0;
 
-      const stipendKeys = ['actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes', 'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'];
-
       LINE_ITEM_KEYS.forEach(key => {
         const qty = parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0;
         const rate = parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0;
@@ -724,7 +758,7 @@
         const totEl = document.getElementById(`f_${key}_tot`);
         if (totEl) totEl.innerText = '$' + tot.toLocaleString(undefined, {maximumFractionDigits: 0});
 
-        if (stipendKeys.includes(key)) stipendsSum += tot;
+        if (STIPEND_KEYS.includes(key)) stipendsSum += tot;
         else expSum += tot;
 
         if (PERSONNEL_KEYS.includes(key) && key !== 'carpentry') personnelHeadcount += qty;
@@ -848,7 +882,7 @@
       };
 
       state.productions.push(newShow);
-      localStorage.removeItem('whim_builder_draft'); // Clear draft after commitment
+      localStorage.removeItem('whim_builder_draft');
       saveState();
       alert(`"${newShow.name}" has been added to your Season Budget!`);
       switchTab('productions');
@@ -893,8 +927,6 @@
       let totalProductionExpenses = 0;
       let totalStipendsPool = 0;
 
-      const stipendKeys = ['actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes', 'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'];
-
       filteredShows.forEach(p => {
         let metrics = calculateShowBoxOffice(p, isFullCap);
         let showGrantAlloc = getShowAllocatedGrants(p.id);
@@ -908,7 +940,7 @@
         if (p.items) {
           LINE_ITEM_KEYS.forEach(k => {
             let tot = getItemTotal(p.items, k);
-            if (stipendKeys.includes(k)) showStipends += tot;
+            if (STIPEND_KEYS.includes(k)) showStipends += tot;
             else expSum += tot;
           });
         }
@@ -1164,8 +1196,6 @@
     function renderProductions(filteredShows, isFullCap, apportionedAdmin) {
       const container = document.getElementById('productions-container');
       container.innerHTML = '';
-      
-      const stipendKeys = ['actors', 'musicians', 'dir', 'sm', 'td', 'setdes', 'lightdes', 'sounddes', 'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'];
 
       filteredShows.forEach(p => {
         let metrics = calculateShowBoxOffice(p, isFullCap);
@@ -1178,7 +1208,7 @@
         if (p.items) {
           LINE_ITEM_KEYS.forEach(k => {
             let tot = getItemTotal(p.items, k);
-            if (stipendKeys.includes(k)) showStipends += tot;
+            if (STIPEND_KEYS.includes(k)) showStipends += tot;
             else expSum += tot;
           });
         }
@@ -1190,7 +1220,6 @@
         function renderItemInput(key, label, isQtyDisabled = false) {
           const item = (p.items && p.items[key]) ? p.items[key] : { qty: 0, rate: 0 };
           
-          // Auto sync facility rental weeks to show inputs
           if (key === 'rentFacilityRehearsal') item.qty = p.rehearsalWeeks || 0;
           if (key === 'rentFacilityPerformance') item.qty = p.performanceWeeks || 0;
 
@@ -1266,16 +1295,15 @@
 
             <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
             
-            <div class="sub-section-title">A. Performers & Musicians (Account 53500)</div>
+            <div class="sub-section-title">A. Artist Stipends</div>
             <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
               <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
             </div>
             ${renderItemInput('actors', 'Actors')}
             ${renderItemInput('musicians', 'Musicians')}
-
-            <div class="sub-section-title">B. Production Team & Creative Staff (Account 53500)</div>
             ${renderItemInput('dir', 'Director')}
             ${renderItemInput('sm', 'Stage Manager')}
+            ${renderItemInput('asm', 'Assistant Stage Manager')}
             ${renderItemInput('td', 'Technical Director')}
             ${renderItemInput('setdes', 'Set Designer')}
             ${renderItemInput('lightdes', 'Lighting Designer')}
@@ -1289,28 +1317,34 @@
             ${renderItemInput('dance', 'Dance Choreographer')}
             ${renderItemInput('carpentry', 'Carpentry / Set Construction (Hrs)')}
             ${renderItemInput('boardop', 'Board Operator')}
+            ${renderItemInput('scripts', 'Scripts - Rights & Royalties')}
 
-            <div class="sub-section-title">C. Scenic, Materials & Props</div>
+            <div class="sub-section-title">B. Scenic, Materials & Props</div>
             ${renderItemInput('scenicMaterials', 'Scenic Materials')}
             ${renderItemInput('expProps', 'Props Purchases')}
 
-            <div class="sub-section-title">D. Costumes & Wardrobe</div>
+            <div class="sub-section-title">C. Costumes & Wardrobe</div>
             ${renderItemInput('expCostumes', 'Costume Purchases')}
 
-            <div class="sub-section-title">E. Rentals & Operations</div>
+            <div class="sub-section-title">D. Rentals & Operations</div>
             ${renderItemInput('rentFacilityRehearsal', 'Facility Rental - Rehearsal Weeks', true)}
             ${renderItemInput('rentFacilityPerformance', 'Facility Rental - Performance Weeks', true)}
             ${renderItemInput('rentEquipment', 'Equipment Rental')}
             ${renderItemInput('rentProps', 'Props Rental')}
             ${renderItemInput('rentCostumes', 'Costume Rental')}
             ${renderItemInput('rentSetPiece', 'Set Piece Rental')}
-            ${renderItemInput('scripts', 'Scripts - Rights & Royalties')}
+            ${renderItemInput('rentAuto', 'Rental - Automobile')}
+            ${renderItemInput('fuel', 'Fuel')}
             ${renderItemInput('supplies', 'Production Supplies')}
-            ${renderItemInput('fuel', 'Automobile & Fuel')}
 
-            <div class="sub-section-title">F. Media & Marketing Documentation</div>
+            <div class="sub-section-title">E. Media & Marketing Documentation</div>
             ${renderItemInput('photography', 'Photography')}
             ${renderItemInput('videography', 'Videography')}
+
+            <div class="sub-section-title">F. Marketing & Promotion</div>
+            ${renderItemInput('printAds', 'Print Ads')}
+            ${renderItemInput('digitalAds', 'Digital Ads')}
+            ${renderItemInput('printedMaterials', 'Printed Materials (Posters, Flyers)')}
 
             <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
               Apportioned Admin/Insurance Share: <strong>$${apportionedAdmin.toFixed(2)}</strong>
