@@ -195,7 +195,7 @@
         <div>
           <h3>Master Financial Statement</h3>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
-            Comprehensive financial rollup statement. Toggle between Season or Calendar Year views.
+            Comprehensive financial rollup statement mirroring Whim's budget structure. Toggle between Season or Calendar Year views.
           </p>
         </div>
         <div style="display:flex; gap:12px; align-items:center;">
@@ -208,7 +208,9 @@
           </div>
           <div>
             <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Select Period:</label>
-            <select id="pnlPeriodFilter" onchange="renderApp()"></select>
+            <select id="pnlPeriodFilter" onchange="renderApp()">
+              <!-- Options populated dynamically based on View Mode -->
+            </select>
           </div>
           <button class="btn-success" onclick="exportToExcel()">Export Excel</button>
           <button class="btn-secondary" onclick="exportToWord()">Export Word</button>
@@ -244,7 +246,7 @@
           <div class="form-group"><label>Rehearsal Weeks</label><input type="number" id="f_rehearsalWeeks" value="4" min="0" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Performance Weeks</label><input type="number" id="f_performanceWeeks" value="3" min="0" oninput="calculateBuilder()"></div>
           <div class="form-group"><label>Performances</label><input type="number" id="f_performances" value="8" min="0" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>House Capacity</label><input type="number" id="f_capacity" value="57" min="0" oninput="calculateBuilder()"></div>
+          <div class="form-group"><label>House Capacity</label><input type="number" id="f_capacity" value="62" min="0" oninput="calculateBuilder()"></div>
         </div>
         <div class="grid-4">
           <div class="form-group"><label>Expected Cap %</label><input type="number" id="f_expectedAttendancePct" value="55" min="0" max="100" oninput="calculateBuilder()"></div>
@@ -653,29 +655,16 @@
     </div>
   </div>
 
-  <!-- OVERHEAD TAB WITH TOP AND BOTTOM ADD BUTTONS AND SORTING -->
+  <!-- OVERHEAD TAB -->
   <div id="overhead" class="tab-content">
     <div class="card">
-      <div class="flex-between" style="margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-        <div>
-          <h3>General Annual Operating Expenses (Overhead & Occupancy)</h3>
-          <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
-            Manage Operating Expense line items and designate their parent account categories for automated P&L rollup.
-          </p>
-        </div>
-        <div style="display:flex; gap:10px; align-items:center;">
-          <div>
-            <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Sort Expenses By:</label>
-            <select id="overheadSort" onchange="renderOverheadTable()">
-              <option value="parentCategory" selected>Parent Account Category</option>
-              <option value="name">Line Item Name (A-Z)</option>
-              <option value="annual">Annual Amount (High to Low)</option>
-            </select>
-          </div>
-          <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
-        </div>
+      <div class="flex-between">
+        <h3>General Annual Operating Expenses (Overhead & Occupancy)</h3>
+        <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
       </div>
-
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:12px;">
+        Manage Operating Expense line items and designate their parent account categories for automated P&L rollup.
+      </p>
       <table id="overhead-table">
         <thead>
           <tr>
@@ -688,11 +677,6 @@
         </thead>
         <tbody></tbody>
       </table>
-
-      <!-- Bottom Add Button for Easy Access without Scrolling Back Up -->
-      <div style="margin-top:16px; text-align:right;">
-        <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
-      </div>
     </div>
   </div>
 
@@ -779,7 +763,7 @@
           season: "2026-2027",
           year: "2026",
           rehearsalWeeks: 4, performanceWeeks: 3,
-          performances: 8, capacity: 57, expectedAttendancePct: 55,
+          performances: 8, capacity: 62, expectedAttendancePct: 55,
           gaPrice: 30.00, pifSeats: 10, pifPrice: 50.00, dropSeats: 15,
           pwywNights: 2, pwywCapPerNight: 15, pwywPrice: 15.00, companyComps: 10,
           concessions: 1000, merch: 30, showDonations: 500, showSponsorship: 0,
@@ -1180,6 +1164,7 @@
       const viewMode = document.getElementById('pnlViewMode').value;
       const periodVal = document.getElementById('pnlPeriodFilter').value;
 
+      // Filter Data according to View Mode (Season vs Calendar Year)
       let filteredShows = state.productions.filter(p => {
         if (periodVal === 'all') return true;
         return viewMode === 'season' ? p.season === periodVal : (p.year || '2026') === periodVal;
@@ -1229,11 +1214,7 @@
       let totalConcessionsAll = totalShowConcessions + rentalConcessionsTotal;
       let subtotalRentalsAndSales = rentalIncomeTotal + totalConcessionsAll + totalMerch;
 
-      // Separate Awarded vs Anticipated Grants
-      let awardedGrants = filteredGrants.filter(g => g.status === 'Awarded').reduce((s, g) => s + g.amount, 0);
-      let anticipatedGrants = filteredGrants.filter(g => g.status === 'Anticipated').reduce((s, g) => s + g.amount, 0);
-      let totalHubGrants = awardedGrants + anticipatedGrants;
-
+      let totalHubGrants = filteredGrants.reduce((s, g) => s + g.amount, 0);
       let totalHubSponsorships = filteredSponsorships.reduce((s, sp) => s + sp.amount, 0);
 
       let hubIndivDonations = filteredDonations.filter(d => d.type === 'Individual Donations' || !d.type).reduce((s, d) => s + d.amount, 0);
@@ -1251,6 +1232,7 @@
       let totalRecordingMedia = ['photography', 'videography'].reduce((s, k) => s + lineItemRollup[k], 0);
       let totalMarketingPromos = ['printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
 
+      // Render Overhead grouped dynamically by Parent Categories
       let overheadRollupHTML = '';
       OVERHEAD_PARENT_CATEGORIES.forEach(catName => {
         let catItems = state.overhead.filter(o => (o.parentCategory || "53000 Fees for Services (NonEmployees)") === catName);
@@ -1277,8 +1259,7 @@
           </thead>
           <tbody>
             <tr class="section-header"><td colspan="2">40000 CONTRIBUTIONS, GIFTS, GRANTS & DONATIONS</td></tr>
-            <tr><td style="padding-left:16px;">Awarded / Secured Grants</td><td style="text-align:right; font-weight:bold; color:var(--success);">$${awardedGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td style="padding-left:16px;">Anticipated / Applied Grants</td><td style="text-align:right; font-weight:bold; color:#a16207;">$${anticipatedGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:16px;">Grants (Secured & Applied)</td><td style="text-align:right;">$${totalHubGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr><td style="padding-left:16px;">Individual & Show Donations</td><td style="text-align:right;">$${(hubIndivDonations + totalShowDonations).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr><td style="padding-left:16px;">Corporate Sponsorships</td><td style="text-align:right;">$${(totalHubSponsorships + totalShowSponsors).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr><td style="padding-left:16px;">Board Member Donations</td><td style="text-align:right;">$${hubBoardDonations.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
@@ -1295,7 +1276,7 @@
             <tr><td style="padding-left:16px;">44000 Rental Income (Outside Venue Bookings)</td><td style="text-align:right;">$${rentalIncomeTotal.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr><td style="padding-left:16px;">48100 Concessions (Shows & Hosted Events)</td><td style="text-align:right;">$${totalConcessionsAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
             <tr><td style="padding-left:16px;">48500 Merchandise Revenue</td><td style="text-align:right;">$${totalMerch.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr class="sub-header" style="background:#eef2ff; color:#3730a3; font-weight:bold;">
+            <tr class="sub-header" style="background:#eef2ff; color:#3730a3;">
               <td>SUBTOTAL 44000 RENTAL INCOME & SALES</td>
               <td style="text-align:right;">$${subtotalRentalsAndSales.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
             </tr>
@@ -1473,7 +1454,7 @@
       saveState();
     }
 
-    // GRANTS HUB LOGIC WITH SEASON & YEAR TRACKING + LIVE TOTALS
+    // GRANTS HUB LOGIC WITH LIVE RUNNING TOTALS & SEASON/YEAR FIELDS
     function renderGrantsHub() {
       const container = document.getElementById('grants-container');
       const summaryContainer = document.getElementById('grants-summary-container');
@@ -1828,7 +1809,7 @@
                   <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" min="0" onchange="updateProd(${p.id}, 'rehearsalWeeks', Math.max(0, parseInt(this.value)))"></div>
                   <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" min="0" onchange="updateProd(${p.id}, 'performanceWeeks', Math.max(0, parseInt(this.value)))"></div>
                   <div><label>Performances:</label><br><input type="number" value="${p.performances}" min="0" onchange="updateProd(${p.id}, 'performances', Math.max(0, parseInt(this.value)))"></div>
-                  <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity||57}" min="0" onchange="updateProd(${p.id}, 'capacity', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity}" min="0" onchange="updateProd(${p.id}, 'capacity', Math.max(0, parseInt(this.value)))"></div>
                   <div><label>Budget Year:</label><br>
                     <select onchange="updateProd(${p.id}, 'year', this.value)">
                       <option value="2025" ${(p.year||'2026')==='2025'?'selected':''}>2025</option>
@@ -1980,25 +1961,11 @@
       saveState();
     }
 
-    // OPERATING OVERHEAD WITH SORTING & PARENT CATEGORY SELECTORS
+    // RENDER OPERATING OVERHEAD TAB WITH PARENT CATEGORY SELECTORS
     function renderOverheadTable() {
       const tbody = document.querySelector('#overhead-table tbody');
       tbody.innerHTML = '';
-
-      const sortBy = document.getElementById('overheadSort')?.value || 'parentCategory';
-
-      let sortedOverhead = [...state.overhead].sort((a, b) => {
-        if (sortBy === 'parentCategory') {
-          return (a.parentCategory || '').localeCompare(b.parentCategory || '');
-        } else if (sortBy === 'name') {
-          return (a.name || '').localeCompare(b.name || '');
-        } else if (sortBy === 'annual') {
-          return (b.annual || 0) - (a.annual || 0);
-        }
-        return 0;
-      });
-
-      sortedOverhead.forEach(item => {
+      state.overhead.forEach(item => {
         let parentCatOptions = OVERHEAD_PARENT_CATEGORIES.map(cat => {
           let selected = (item.parentCategory || "53000 Fees for Services (NonEmployees)") === cat ? 'selected' : '';
           return `<option value="${cat}" ${selected}>${cat}</option>`;
@@ -2022,7 +1989,7 @@
     
     // Blank default for new overhead item
     function addOverhead() {
-      state.overhead.push({ id: Date.now(), name: "New Custom Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 0, apportion: false });
+      state.overhead.push({ id: Date.now(), name: "New Custom Operating Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 0, apportion: false });
       saveState();
     }
     
