@@ -150,14 +150,20 @@
         </select>
       </div>
       <div>
+        <label>Fiscal Year Start Config:</label>
+        <select id="fyStartConfig" onchange="updateFYConfig(this.value)">
+          <option value="1" selected>January 1 (Calendar Year = Fiscal Year)</option>
+          <option value="5">May 1 (May–April Fiscal Year)</option>
+          <option value="7">July 1 (July–June Fiscal Year)</option>
+          <option value="10">October 1 (Oct–Sept Fiscal Year)</option>
+        </select>
+      </div>
+      <div>
         <label>Capacity Mode:</label>
         <select id="capacityMode" onchange="renderApp()">
           <option value="anticipated" selected>Anticipated Capacity (~55% expected attendance)</option>
           <option value="full">Full Capacity (100% Sold Out)</option>
         </select>
-      </div>
-      <div style="font-size:0.85rem; color:#4338ca; font-weight:600;">
-        Apportioned Admin/Insurance Overhead to Shows: Active (1/12th rule)
       </div>
     </div>
 
@@ -195,7 +201,7 @@
         <div>
           <h3>Master Financial Statement</h3>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
-            Comprehensive financial rollup statement. Toggle between Season or Calendar Year views.
+            Comprehensive financial rollup statement. Filter by Season, Calendar Year, or Fiscal Year.
           </p>
         </div>
         <div style="display:flex; gap:12px; align-items:center;">
@@ -204,6 +210,7 @@
             <select id="pnlViewMode" onchange="renderApp()">
               <option value="season" selected>Filter by Season</option>
               <option value="year">Filter by Calendar Year</option>
+              <option value="fy">Filter by Fiscal Year</option>
             </select>
           </div>
           <div>
@@ -679,7 +686,7 @@
         <div>
           <h3>General Annual Operating Expenses (Overhead & Occupancy)</h3>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
-            Manage Operating Expense line items and designate their parent account categories for automated P&L rollup.
+            Manage Operating Expense line items and designate their parent account categories and budget year for automated P&L rollup.
           </p>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
@@ -700,6 +707,7 @@
           <tr>
             <th>Expense Category / Line Item Name</th>
             <th>Parent Account Rollup Header</th>
+            <th>Target Year / Period</th>
             <th>Annual Amount ($)</th>
             <th>Apportion 1/12th to Shows?</th>
             <th>Action</th>
@@ -740,37 +748,38 @@
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'boardop'
     ];
 
-    // Artist stipends excludes script royalties and printing
+    // Artist stipends excludes script royalties/licensing and script printing
     const STIPEND_KEYS = [
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'
     ];
 
     let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
+      fyStartMonth: 1, // Default January
       overhead: [
-        { id: 1, name: "Fees for Fundraising", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 4730, apportion: false },
-        { id: 2, name: "Fees for Accounting / Bookkeeping", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 6038, apportion: true },
-        { id: 3, name: "Other Fees for Services", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 300, apportion: false },
-        { id: 4, name: "Advertising and Promotion (General)", parentCategory: "54000 Advertising and Promotion", annual: 3050, apportion: false },
-        { id: 5, name: "Office Supplies", parentCategory: "55000 Office Expenses", annual: 750, apportion: false },
-        { id: 6, name: "Postage and Delivery", parentCategory: "55000 Office Expenses", annual: 100, apportion: false },
-        { id: 7, name: "Printing (General)", parentCategory: "55000 Office Expenses", annual: 150, apportion: false },
-        { id: 8, name: "Information Technology", parentCategory: "56000 Information Technology", annual: 530, apportion: false },
-        { id: 9, name: "Website Hosting / Domains", parentCategory: "56000 Information Technology", annual: 600, apportion: false },
-        { id: 10, name: "Occupancy - Facility Rental", parentCategory: "58000 Occupancy", annual: 6000, apportion: false },
-        { id: 11, name: "Occupancy - Utilities", parentCategory: "58000 Occupancy", annual: 5700, apportion: false },
-        { id: 12, name: "Occupancy - Security", parentCategory: "58000 Occupancy", annual: 384, apportion: false },
-        { id: 13, name: "Occupancy - Repairs & Maintenance", parentCategory: "58000 Occupancy", annual: 600, apportion: false },
-        { id: 14, name: "Professional Dev and Course Fees", parentCategory: "59000 Professional Development", annual: 300, apportion: false },
-        { id: 15, name: "Dues and Subscriptions", parentCategory: "59000 Professional Development", annual: 1020, apportion: false },
-        { id: 16, name: "Sundry", parentCategory: "59000 Professional Development", annual: 180, apportion: false },
-        { id: 17, name: "Concession Cost of Goods Sold (Beverages)", parentCategory: "60000 Cost of Goods Sold", annual: 750, apportion: false },
-        { id: 18, name: "Concession Cost of Goods Sold (Snacks)", parentCategory: "60000 Cost of Goods Sold", annual: 750, apportion: false },
-        { id: 19, name: "Merchandise Cost of Goods Sold", parentCategory: "60000 Cost of Goods Sold", annual: 500, apportion: false },
-        { id: 20, name: "Filing Fees", parentCategory: "62000 Banking and Financial", annual: 130, apportion: false },
-        { id: 21, name: "General Liability Insurance", parentCategory: "62000 Banking and Financial", annual: 614, apportion: true },
-        { id: 22, name: "Credit Card Merchant Fees", parentCategory: "62000 Banking and Financial", annual: 600, apportion: false },
-        { id: 23, name: "PayPal / Processing Fees", parentCategory: "62000 Banking and Financial", annual: 50, apportion: false }
+        { id: 1, name: "Fees for Fundraising", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 4730, apportion: false },
+        { id: 2, name: "Fees for Accounting / Bookkeeping", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 6038, apportion: true },
+        { id: 3, name: "Other Fees for Services", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 300, apportion: false },
+        { id: 4, name: "Advertising and Promotion (General)", parentCategory: "54000 Advertising and Promotion", year: "2026", fy: "2026-2027", annual: 3050, apportion: false },
+        { id: 5, name: "Office Supplies", parentCategory: "55000 Office Expenses", year: "2026", fy: "2026-2027", annual: 750, apportion: false },
+        { id: 6, name: "Postage and Delivery", parentCategory: "55000 Office Expenses", year: "2026", fy: "2026-2027", annual: 100, apportion: false },
+        { id: 7, name: "Printing (General)", parentCategory: "55000 Office Expenses", year: "2026", fy: "2026-2027", annual: 150, apportion: false },
+        { id: 8, name: "Information Technology", parentCategory: "56000 Information Technology", year: "2026", fy: "2026-2027", annual: 530, apportion: false },
+        { id: 9, name: "Website Hosting / Domains", parentCategory: "56000 Information Technology", year: "2026", fy: "2026-2027", annual: 600, apportion: false },
+        { id: 10, name: "Occupancy - Facility Rental", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 6000, apportion: false },
+        { id: 11, name: "Occupancy - Utilities", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 5700, apportion: false },
+        { id: 12, name: "Occupancy - Security", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 384, apportion: false },
+        { id: 13, name: "Occupancy - Repairs & Maintenance", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 600, apportion: false },
+        { id: 14, name: "Professional Dev and Course Fees", parentCategory: "59000 Professional Development", year: "2026", fy: "2026-2027", annual: 300, apportion: false },
+        { id: 15, name: "Dues and Subscriptions", parentCategory: "59000 Professional Development", year: "2026", fy: "2026-2027", annual: 1020, apportion: false },
+        { id: 16, name: "Sundry", parentCategory: "59000 Professional Development", year: "2026", fy: "2026-2027", annual: 180, apportion: false },
+        { id: 17, name: "Concession Cost of Goods Sold (Beverages)", parentCategory: "60000 Cost of Goods Sold", year: "2026", fy: "2026-2027", annual: 750, apportion: false },
+        { id: 18, name: "Concession Cost of Goods Sold (Snacks)", parentCategory: "60000 Cost of Goods Sold", year: "2026", fy: "2026-2027", annual: 750, apportion: false },
+        { id: 19, name: "Merchandise Cost of Goods Sold", parentCategory: "60000 Cost of Goods Sold", year: "2026", fy: "2026-2027", annual: 500, apportion: false },
+        { id: 20, name: "Filing Fees", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 130, apportion: false },
+        { id: 21, name: "General Liability Insurance", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 614, apportion: true },
+        { id: 22, name: "Credit Card Merchant Fees", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 600, apportion: false },
+        { id: 23, name: "PayPal / Processing Fees", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 50, apportion: false }
       ],
       rentals: [
         { id: 401, name: "Fringe Festival Booking", category: "KC Fringe Rental", rentalFee: 2500, concessionsRev: 600, season: "2026-2027", year: "2026" },
@@ -823,6 +832,11 @@
     };
 
     let chartInstance = null;
+
+    function updateFYConfig(val) {
+      state.fyStartMonth = parseInt(val) || 1;
+      saveState();
+    }
 
     function saveState() {
       localStorage.setItem('whim_budget_data', JSON.stringify(state));
@@ -1097,6 +1111,9 @@
       const selectedSeason = document.getElementById('seasonFilter').value;
       const isFullCap = document.getElementById('capacityMode').value === 'full';
       
+      const fyConfig = document.getElementById('fyStartConfig');
+      if (fyConfig) fyConfig.value = state.fyStartMonth || 1;
+
       const totalOverhead = state.overhead.reduce((sum, item) => sum + item.annual, 0);
 
       const apportionedItems = state.overhead.filter(o => o.apportion);
@@ -1179,6 +1196,12 @@
           <option value="2025-2026">2025–2026 Season</option>
           <option value="2026-2027" selected>2026–2027 Season</option>
           <option value="2027-2028">2027–2028 Season</option>`;
+      } else if (mode === 'fy') {
+        periodSelect.innerHTML = `
+          <option value="all">All Fiscal Years (Combined)</option>
+          <option value="2025-2026">FY 2025–2026</option>
+          <option value="2026-2027" selected>FY 2026–2027</option>
+          <option value="2027-2028">FY 2027–2028</option>`;
       } else {
         periodSelect.innerHTML = `
           <option value="all">All Years (Combined)</option>
@@ -1202,27 +1225,44 @@
 
       let filteredShows = state.productions.filter(p => {
         if (periodVal === 'all') return true;
-        return viewMode === 'season' ? p.season === periodVal : (p.year || '2026') === periodVal;
+        if (viewMode === 'season') return p.season === periodVal;
+        if (viewMode === 'fy') return (p.fy || p.season) === periodVal;
+        return (p.year || '2026') === periodVal;
       });
 
       let filteredRentals = (state.rentals || []).filter(r => {
         if (periodVal === 'all') return true;
-        return viewMode === 'season' ? r.season === periodVal : (r.year || '2026') === periodVal;
+        if (viewMode === 'season') return r.season === periodVal;
+        if (viewMode === 'fy') return (r.fy || r.season) === periodVal;
+        return (r.year || '2026') === periodVal;
       });
 
       let filteredGrants = state.grants.filter(g => {
         if (periodVal === 'all') return true;
-        return viewMode === 'season' ? (g.season || '2026-2027') === periodVal : (g.year || '2026') === periodVal;
+        if (viewMode === 'season') return (g.season || '2026-2027') === periodVal;
+        if (viewMode === 'fy') return (g.fy || g.season || '2026-2027') === periodVal;
+        return (g.year || '2026') === periodVal;
       });
 
       let filteredSponsorships = (state.sponsorships || []).filter(s => {
         if (periodVal === 'all') return true;
-        return viewMode === 'season' ? (s.season || '2026-2027') === periodVal : (s.year || '2026') === periodVal;
+        if (viewMode === 'season') return (s.season || '2026-2027') === periodVal;
+        if (viewMode === 'fy') return (s.fy || s.season || '2026-2027') === periodVal;
+        return (s.year || '2026') === periodVal;
       });
 
       let filteredDonations = (state.donations || []).filter(d => {
         if (periodVal === 'all') return true;
-        return viewMode === 'season' ? (d.season || '2026-2027') === periodVal : (d.year || '2026') === periodVal;
+        if (viewMode === 'season') return (d.season || '2026-2027') === periodVal;
+        if (viewMode === 'fy') return (d.fy || d.season || '2026-2027') === periodVal;
+        return (d.year || '2026') === periodVal;
+      });
+
+      let filteredOverhead = state.overhead.filter(o => {
+        if (periodVal === 'all') return true;
+        if (viewMode === 'season') return (o.season || '2026-2027') === periodVal;
+        if (viewMode === 'fy') return (o.fy || o.season || '2026-2027') === periodVal;
+        return (o.year || '2026') === periodVal;
       });
 
       let totalTixRev = 0, totalShowConcessions = 0, totalMerch = 0, totalShowDonations = 0, totalShowSponsors = 0;
@@ -1249,6 +1289,7 @@
       let totalConcessionsAll = totalShowConcessions + rentalConcessionsTotal;
       let subtotalRentalsAndSales = rentalIncomeTotal + totalConcessionsAll + totalMerch;
 
+      // Separate Awarded vs Anticipated Grants explicitly
       let awardedGrants = filteredGrants.filter(g => g.status === 'Awarded').reduce((s, g) => s + g.amount, 0);
       let anticipatedGrants = filteredGrants.filter(g => g.status === 'Anticipated').reduce((s, g) => s + g.amount, 0);
       let totalHubGrants = awardedGrants + anticipatedGrants;
@@ -1265,7 +1306,7 @@
       let totalProgramRev = totalTixRev + hubSpecialEvents + hubAdvertising;
       let totalRevAll = totalContributed + totalProgramRev + subtotalRentalsAndSales;
 
-      // Artist stipends excludes script royalties/licensing & script printing
+      // Artist stipends excludes script royalties/licensing and script printing
       let totalArtistStipends = STIPEND_KEYS.reduce((s, k) => s + lineItemRollup[k], 0);
       let totalScriptRoyalties = lineItemRollup['royalties'] || 0;
       let totalScriptPrinting = lineItemRollup['scripts'] || 0;
@@ -1276,7 +1317,7 @@
 
       let overheadRollupHTML = '';
       OVERHEAD_PARENT_CATEGORIES.forEach(catName => {
-        let catItems = state.overhead.filter(o => (o.parentCategory || "53000 Fees for Services (NonEmployees)") === catName);
+        let catItems = filteredOverhead.filter(o => (o.parentCategory || "53000 Fees for Services (NonEmployees)") === catName);
         if (catItems.length > 0) {
           let catSum = catItems.reduce((s, o) => s + o.annual, 0);
           overheadRollupHTML += `<tr class="sub-header"><td colspan="2">${catName} (Subtotal: $${catSum.toLocaleString()})</td></tr>`;
@@ -1286,7 +1327,7 @@
         }
       });
 
-      let totalOverhead = state.overhead.reduce((s, o) => s + o.annual, 0);
+      let totalOverhead = filteredOverhead.reduce((s, o) => s + o.annual, 0);
       let totalExpensesAll = totalArtistStipends + totalProdExhibition + totalRecordingMedia + totalMarketingPromos + totalOverhead;
       let netIncome = totalRevAll - totalExpensesAll;
 
@@ -2031,6 +2072,14 @@
           <tr>
             <td><input type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
             <td><select style="width:100%; font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'parentCategory', this.value)">${parentCatOptions}</select></td>
+            <td>
+              <select style="font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'year', this.value)">
+                <option value="2025" ${(item.year||'2026')==='2025'?'selected':''}>2025</option>
+                <option value="2026" ${(item.year||'2026')==='2026'?'selected':''}>2026</option>
+                <option value="2027" ${(item.year||'2026')==='2027'?'selected':''}>2027</option>
+                <option value="2028" ${(item.year||'2026')==='2028'?'selected':''}>2028</option>
+              </select>
+            </td>
             <td>$<input type="number" value="${item.annual === 0 ? '' : item.annual}" placeholder="0" min="0" style="width:110px;" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value) || 0))"></td>
             <td><input type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
             <td><button class="btn-danger" onclick="deleteOverhead(${item.id})">Delete</button></td>
@@ -2045,7 +2094,7 @@
     
     // Blank default for new overhead item
     function addOverhead() {
-      state.overhead.push({ id: Date.now(), name: "New Custom Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", annual: 0, apportion: false });
+      state.overhead.push({ id: Date.now(), name: "New Custom Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 0, apportion: false });
       saveState();
     }
     
