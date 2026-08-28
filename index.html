@@ -410,9 +410,15 @@
 
         <div class="sub-section-title">B. Production and Exhibition Costs</div>
         <div class="line-item-row">
-          <label>Scripts - Printing, Purchase or Rent / Royalties</label>
+          <label>Script Royalties & Licensing Fees</label>
+          <input type="number" id="f_royalties_qty" value="1" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_royalties_rate" value="500" min="0" oninput="calculateBuilder()">
+          <span class="line-item-total" id="f_royalties_tot">$0</span>
+        </div>
+        <div class="line-item-row">
+          <label>Scripts - Printing, Purchase or Rent</label>
           <input type="number" id="f_scripts_qty" value="1" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_scripts_rate" value="600" min="0" oninput="calculateBuilder()">
+          <input type="number" id="f_scripts_rate" value="100" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_scripts_tot">$0</span>
         </div>
         <div class="line-item-row">
@@ -600,7 +606,7 @@
         Collapsible season rollups for projected rental income and concessions yield.
       </p>
       <div id="rentals-container"></div>
-      
+
       <div style="margin-top:16px; text-align:right;">
         <button class="btn-primary" onclick="addRentalBooking()">+ Add New Rental / Event Booking</button>
       </div>
@@ -723,7 +729,7 @@
     const LINE_ITEM_KEYS = [
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance',
-      'carpentry', 'boardop', 'scripts', 'scenicMaterials', 'expProps', 'expCostumes',
+      'carpentry', 'boardop', 'royalties', 'scripts', 'scenicMaterials', 'expProps', 'expCostumes',
       'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece',
       'rentAuto', 'fuel', 'supplies', 'photography', 'videography',
       'printAds', 'digitalAds', 'printedMaterials'
@@ -734,7 +740,7 @@
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'boardop'
     ];
 
-    // Artist stipends excludes script royalties/licensing
+    // Artist stipends excludes script royalties and printing
     const STIPEND_KEYS = [
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'
@@ -802,7 +808,8 @@
             setdes: { qty: 1, rate: 600 }, lightdes: { qty: 1, rate: 500 }, sounddes: { qty: 1, rate: 500 },
             costumedes: { qty: 1, rate: 500 }, propdes: { qty: 1, rate: 400 }, graphic: { qty: 1, rate: 300 },
             musicdir: { qty: 0, rate: 0 }, intimacy: { qty: 1, rate: 300 }, fight: { qty: 1, rate: 350 }, dance: { qty: 0, rate: 0 },
-            carpentry: { qty: 95, rate: 20 }, boardop: { qty: 1, rate: 300 }, scripts: { qty: 1, rate: 600 },
+            carpentry: { qty: 95, rate: 20 }, boardop: { qty: 1, rate: 300 },
+            royalties: { qty: 1, rate: 500 }, scripts: { qty: 1, rate: 100 },
             scenicMaterials: { qty: 1, rate: 800 }, expProps: { qty: 1, rate: 300 }, expCostumes: { qty: 1, rate: 400 },
             rentFacilityRehearsal: { qty: 4, rate: 400 }, rentFacilityPerformance: { qty: 3, rate: 700 },
             rentEquipment: { qty: 1, rate: 200 }, rentProps: { qty: 1, rate: 100 },
@@ -1242,7 +1249,6 @@
       let totalConcessionsAll = totalShowConcessions + rentalConcessionsTotal;
       let subtotalRentalsAndSales = rentalIncomeTotal + totalConcessionsAll + totalMerch;
 
-      // Separate Awarded vs Anticipated Grants explicitly
       let awardedGrants = filteredGrants.filter(g => g.status === 'Awarded').reduce((s, g) => s + g.amount, 0);
       let anticipatedGrants = filteredGrants.filter(g => g.status === 'Anticipated').reduce((s, g) => s + g.amount, 0);
       let totalHubGrants = awardedGrants + anticipatedGrants;
@@ -1259,10 +1265,12 @@
       let totalProgramRev = totalTixRev + hubSpecialEvents + hubAdvertising;
       let totalRevAll = totalContributed + totalProgramRev + subtotalRentalsAndSales;
 
-      // Artist stipends excludes script printing & royalties
+      // Artist stipends excludes script royalties/licensing & script printing
       let totalArtistStipends = STIPEND_KEYS.reduce((s, k) => s + lineItemRollup[k], 0);
-      let totalScriptRoyalties = lineItemRollup['scripts'] || 0;
-      let totalProdExhibition = totalScriptRoyalties + ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
+      let totalScriptRoyalties = lineItemRollup['royalties'] || 0;
+      let totalScriptPrinting = lineItemRollup['scripts'] || 0;
+
+      let totalProdExhibition = totalScriptRoyalties + totalScriptPrinting + ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
       let totalRecordingMedia = ['photography', 'videography'].reduce((s, k) => s + lineItemRollup[k], 0);
       let totalMarketingPromos = ['printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
 
@@ -1322,8 +1330,9 @@
             <tr><td style="padding-left:24px;">Show Personnel & Creative Staff Total</td><td style="text-align:right;">$${totalArtistStipends.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
             <tr class="sub-header"><td colspan="2">70200 Production and Exhibition Costs</td></tr>
-            <tr><td style="padding-left:24px;">Script Printing & Royalties/Licensing</td><td style="text-align:right;">$${totalScriptRoyalties.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td style="padding-left:24px;">Scenic Materials, Props, Costumes, Equipment & Venue Rentals</td><td style="text-align:right;">$${(totalProdExhibition - totalScriptRoyalties).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:24px;">Script Royalties & Licensing Fees</td><td style="text-align:right;">$${totalScriptRoyalties.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:24px;">Scripts - Printing, Purchase or Rent</td><td style="text-align:right;">$${totalScriptPrinting.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:24px;">Scenic Materials, Props, Costumes, Equipment & Venue Rentals</td><td style="text-align:right;">$${(totalProdExhibition - totalScriptRoyalties - totalScriptPrinting).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
             <tr class="sub-header"><td colspan="2">70300 Recording, Broadcasting & Media</td></tr>
             <tr><td style="padding-left:24px;">Photography & Videography Documentation</td><td style="text-align:right;">$${totalRecordingMedia.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
@@ -1917,7 +1926,8 @@
                 ${renderItemInput('boardop', 'Board Operator')}
 
                 <div class="sub-section-title">B. Production and Exhibition Costs</div>
-                ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent / Royalties')}
+                ${renderItemInput('royalties', 'Script Royalties & Licensing Fees')}
+                ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent')}
                 ${renderItemInput('scenicMaterials', 'Scenic Materials')}
                 ${renderItemInput('expProps', 'Props Purchases')}
                 ${renderItemInput('expCostumes', 'Costume Purchases')}
