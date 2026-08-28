@@ -686,18 +686,28 @@
         <div>
           <h3>General Annual Operating Expenses (Overhead & Occupancy)</h3>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
-            Manage Operating Expense line items and designate their parent account categories and budget year for automated P&L rollup.
+            Manage Operating Expense line items for specific Calendar/Fiscal Years and designate their parent account categories for automated P&L rollup.
           </p>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
           <div>
-            <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Sort Expenses By:</label>
+            <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Target Period:</label>
+            <select id="overheadPeriodSelect" onchange="renderOverheadTable()">
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Sort By:</label>
             <select id="overheadSort" onchange="renderOverheadTable()">
               <option value="parentCategory" selected>Parent Account Category</option>
               <option value="name">Line Item Name (A-Z)</option>
               <option value="annual">Annual Amount (High to Low)</option>
             </select>
           </div>
+          <button class="btn-secondary" style="font-size:0.85rem;" onclick="copyOverheadFromPreviousYear()">📋 Copy Overhead Template from Previous Year</button>
           <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
         </div>
       </div>
@@ -707,7 +717,6 @@
           <tr>
             <th>Expense Category / Line Item Name</th>
             <th>Parent Account Rollup Header</th>
-            <th>Target Year / Period</th>
             <th>Annual Amount ($)</th>
             <th>Apportion 1/12th to Shows?</th>
             <th>Action</th>
@@ -2044,14 +2053,17 @@
       saveState();
     }
 
-    // OPERATING OVERHEAD WITH SORTING & PARENT CATEGORY SELECTORS
+    // OPERATING OVERHEAD FILTERED BY TARGET PERIOD
     function renderOverheadTable() {
       const tbody = document.querySelector('#overhead-table tbody');
       tbody.innerHTML = '';
 
+      const targetPeriod = document.getElementById('overheadPeriodSelect')?.value || '2026';
       const sortBy = document.getElementById('overheadSort')?.value || 'parentCategory';
 
-      let sortedOverhead = [...state.overhead].sort((a, b) => {
+      let periodOverhead = state.overhead.filter(o => (o.year || '2026') === targetPeriod);
+
+      let sortedOverhead = [...periodOverhead].sort((a, b) => {
         if (sortBy === 'parentCategory') {
           return (a.parentCategory || '').localeCompare(b.parentCategory || '');
         } else if (sortBy === 'name') {
@@ -2072,14 +2084,6 @@
           <tr>
             <td><input type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
             <td><select style="width:100%; font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'parentCategory', this.value)">${parentCatOptions}</select></td>
-            <td>
-              <select style="font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'year', this.value)">
-                <option value="2025" ${(item.year||'2026')==='2025'?'selected':''}>2025</option>
-                <option value="2026" ${(item.year||'2026')==='2026'?'selected':''}>2026</option>
-                <option value="2027" ${(item.year||'2026')==='2027'?'selected':''}>2027</option>
-                <option value="2028" ${(item.year||'2026')==='2028'?'selected':''}>2028</option>
-              </select>
-            </td>
             <td>$<input type="number" value="${item.annual === 0 ? '' : item.annual}" placeholder="0" min="0" style="width:110px;" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value) || 0))"></td>
             <td><input type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
             <td><button class="btn-danger" onclick="deleteOverhead(${item.id})">Delete</button></td>
@@ -2092,10 +2096,36 @@
       if (item) { item[field] = val; saveState(); }
     }
     
-    // Blank default for new overhead item
     function addOverhead() {
-      state.overhead.push({ id: Date.now(), name: "New Custom Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 0, apportion: false });
+      const currentPeriod = document.getElementById('overheadPeriodSelect')?.value || '2026';
+      state.overhead.push({ id: Date.now(), name: "New Custom Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", year: currentPeriod, fy: `${currentPeriod}-${parseInt(currentPeriod)+1}`, annual: 0, apportion: false });
       saveState();
+    }
+
+    function copyOverheadFromPreviousYear() {
+      const currentPeriod = document.getElementById('overheadPeriodSelect')?.value || '2026';
+      const prevPeriod = (parseInt(currentPeriod) - 1).toString();
+
+      const prevItems = state.overhead.filter(o => (o.year || '2026') === prevPeriod);
+      if (prevItems.length === 0) {
+        alert(`No overhead entries found for ${prevPeriod} to copy from.`);
+        return;
+      }
+
+      if (confirm(`Copy ${prevItems.length} overhead template items from ${prevPeriod} to ${currentPeriod}?`)) {
+        prevItems.forEach(item => {
+          state.overhead.push({
+            id: Date.now() + Math.random(),
+            name: item.name,
+            parentCategory: item.parentCategory,
+            year: currentPeriod,
+            fy: `${currentPeriod}-${parseInt(currentPeriod)+1}`,
+            annual: item.annual,
+            apportion: item.apportion
+          });
+        });
+        saveState();
+      }
     }
     
     function deleteOverhead(id) {
