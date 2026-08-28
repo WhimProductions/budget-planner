@@ -407,14 +407,14 @@
           <input type="number" id="f_boardop_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_boardop_tot">$0</span>
         </div>
+
+        <div class="sub-section-title">B. Production and Exhibition Costs</div>
         <div class="line-item-row">
-          <label>Scripts - Printing, Purchase or Rent</label>
+          <label>Scripts - Printing, Purchase or Rent / Royalties</label>
           <input type="number" id="f_scripts_qty" value="1" min="0" oninput="calculateBuilder()">
           <input type="number" id="f_scripts_rate" value="600" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_scripts_tot">$0</span>
         </div>
-
-        <div class="sub-section-title">B. Scenic, Materials & Props</div>
         <div class="line-item-row">
           <label>Scenic Materials</label>
           <input type="number" id="f_scenicMaterials_qty" value="1" min="0" oninput="calculateBuilder()">
@@ -427,8 +427,6 @@
           <input type="number" id="f_expProps_rate" value="300" min="0" oninput="calculateBuilder()">
           <span class="line-item-total" id="f_expProps_tot">$0</span>
         </div>
-
-        <div class="sub-section-title">C. Costumes & Wardrobe</div>
         <div class="line-item-row">
           <label>Costume Purchases</label>
           <input type="number" id="f_expCostumes_qty" value="1" min="0" oninput="calculateBuilder()">
@@ -436,7 +434,7 @@
           <span class="line-item-total" id="f_expCostumes_tot">$0</span>
         </div>
 
-        <div class="sub-section-title">D. Rentals & Operations</div>
+        <div class="sub-section-title">C. Rentals & Operations</div>
         <div class="line-item-row">
           <label>Facility Rental - Rehearsal Weeks</label>
           <input type="number" id="f_rentFacilityRehearsal_qty" value="4" disabled style="background:#f1f5f9;">
@@ -492,7 +490,7 @@
           <span class="line-item-total" id="f_supplies_tot">$0</span>
         </div>
 
-        <div class="sub-section-title">E. Media & Marketing Documentation</div>
+        <div class="sub-section-title">D. Media & Marketing Documentation</div>
         <div class="line-item-row">
           <label>Photography</label>
           <input type="number" id="f_photography_qty" value="1" min="0" oninput="calculateBuilder()">
@@ -506,7 +504,7 @@
           <span class="line-item-total" id="f_videography_tot">$0</span>
         </div>
 
-        <div class="sub-section-title">F. Marketing & Promotion</div>
+        <div class="sub-section-title">E. Marketing & Promotion</div>
         <div class="line-item-row">
           <label>Print Ads</label>
           <input type="number" id="f_printAds_qty" value="1" min="0" oninput="calculateBuilder()">
@@ -602,6 +600,10 @@
         Collapsible season rollups for projected rental income and concessions yield.
       </p>
       <div id="rentals-container"></div>
+      
+      <div style="margin-top:16px; text-align:right;">
+        <button class="btn-primary" onclick="addRentalBooking()">+ Add New Rental / Event Booking</button>
+      </div>
     </div>
   </div>
 
@@ -618,10 +620,13 @@
         <button class="btn-primary" onclick="addGrant()">+ Add New Grant</button>
       </div>
 
-      <!-- Live Grants Running Totals Summary -->
       <div id="grants-summary-container" style="margin-bottom:16px;"></div>
 
       <div id="grants-container"></div>
+
+      <div style="margin-top:16px; text-align:right;">
+        <button class="btn-primary" onclick="addGrant()">+ Add New Grant</button>
+      </div>
     </div>
   </div>
 
@@ -636,6 +641,10 @@
         Assign corporate or individual sponsorships to specific productions. Sponsorship funds automatically apportion across selected shows.
       </p>
       <div id="sponsorships-container"></div>
+
+      <div style="margin-top:16px; text-align:right;">
+        <button class="btn-primary" onclick="addSponsorship()">+ Add New Sponsor</button>
+      </div>
     </div>
   </div>
 
@@ -650,6 +659,10 @@
         Track projected general donations, individual campaigns, and board contributions.
       </p>
       <div id="donations-container"></div>
+
+      <div style="margin-top:16px; text-align:right;">
+        <button class="btn-primary" onclick="addDonation()">+ Add New Donation Campaign</button>
+      </div>
     </div>
   </div>
 
@@ -689,7 +702,6 @@
         <tbody></tbody>
       </table>
 
-      <!-- Bottom Add Button for Easy Access without Scrolling Back Up -->
       <div style="margin-top:16px; text-align:right;">
         <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
       </div>
@@ -722,9 +734,10 @@
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'boardop'
     ];
 
+    // Artist stipends excludes script royalties/licensing
     const STIPEND_KEYS = [
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
-      'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop', 'scripts'
+      'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'
     ];
 
     let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
@@ -1229,7 +1242,7 @@
       let totalConcessionsAll = totalShowConcessions + rentalConcessionsTotal;
       let subtotalRentalsAndSales = rentalIncomeTotal + totalConcessionsAll + totalMerch;
 
-      // Separate Awarded vs Anticipated Grants
+      // Separate Awarded vs Anticipated Grants explicitly
       let awardedGrants = filteredGrants.filter(g => g.status === 'Awarded').reduce((s, g) => s + g.amount, 0);
       let anticipatedGrants = filteredGrants.filter(g => g.status === 'Anticipated').reduce((s, g) => s + g.amount, 0);
       let totalHubGrants = awardedGrants + anticipatedGrants;
@@ -1246,8 +1259,10 @@
       let totalProgramRev = totalTixRev + hubSpecialEvents + hubAdvertising;
       let totalRevAll = totalContributed + totalProgramRev + subtotalRentalsAndSales;
 
+      // Artist stipends excludes script printing & royalties
       let totalArtistStipends = STIPEND_KEYS.reduce((s, k) => s + lineItemRollup[k], 0);
-      let totalProdExhibition = ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
+      let totalScriptRoyalties = lineItemRollup['scripts'] || 0;
+      let totalProdExhibition = totalScriptRoyalties + ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
       let totalRecordingMedia = ['photography', 'videography'].reduce((s, k) => s + lineItemRollup[k], 0);
       let totalMarketingPromos = ['printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
 
@@ -1303,11 +1318,12 @@
             <tr class="total-row"><td>TOTAL PROJECTED INCOME / REVENUE</td><td style="text-align:right; color:var(--success); font-size:1.1rem;">$${totalRevAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
             <tr class="section-header"><td colspan="2">EXPENSES & OPERATING COSTS</td></tr>
-            <tr class="sub-header"><td colspan="2">53500 Artist Stipends & Script Royalties</td></tr>
-            <tr><td style="padding-left:24px;">Show Personnel, Creative Team & Script Licensing Total</td><td style="text-align:right;">$${totalArtistStipends.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr class="sub-header"><td colspan="2">53500 Artist Stipends</td></tr>
+            <tr><td style="padding-left:24px;">Show Personnel & Creative Staff Total</td><td style="text-align:right;">$${totalArtistStipends.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
             <tr class="sub-header"><td colspan="2">70200 Production and Exhibition Costs</td></tr>
-            <tr><td style="padding-left:24px;">Scenic Materials, Props, Costumes, Equipment & Venue Rentals</td><td style="text-align:right;">$${totalProdExhibition.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:24px;">Script Printing & Royalties/Licensing</td><td style="text-align:right;">$${totalScriptRoyalties.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+            <tr><td style="padding-left:24px;">Scenic Materials, Props, Costumes, Equipment & Venue Rentals</td><td style="text-align:right;">$${(totalProdExhibition - totalScriptRoyalties).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
 
             <tr class="sub-header"><td colspan="2">70300 Recording, Broadcasting & Media</td></tr>
             <tr><td style="padding-left:24px;">Photography & Videography Documentation</td><td style="text-align:right;">$${totalRecordingMedia.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
@@ -1473,7 +1489,6 @@
       saveState();
     }
 
-    // GRANTS HUB LOGIC WITH SEASON & YEAR TRACKING + LIVE TOTALS
     function renderGrantsHub() {
       const container = document.getElementById('grants-container');
       const summaryContainer = document.getElementById('grants-summary-container');
@@ -1900,16 +1915,14 @@
                 ${renderItemInput('dance', 'Dance Choreographer')}
                 ${renderItemInput('carpentry', 'Carpentry / Set Construction (Hrs)')}
                 ${renderItemInput('boardop', 'Board Operator')}
-                ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent')}
 
-                <div class="sub-section-title">B. Scenic, Materials & Props</div>
+                <div class="sub-section-title">B. Production and Exhibition Costs</div>
+                ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent / Royalties')}
                 ${renderItemInput('scenicMaterials', 'Scenic Materials')}
                 ${renderItemInput('expProps', 'Props Purchases')}
-
-                <div class="sub-section-title">C. Costumes & Wardrobe</div>
                 ${renderItemInput('expCostumes', 'Costume Purchases')}
 
-                <div class="sub-section-title">D. Rentals & Operations</div>
+                <div class="sub-section-title">C. Rentals & Operations</div>
                 ${renderItemInput('rentFacilityRehearsal', 'Facility Rental - Rehearsal Weeks', true)}
                 ${renderItemInput('rentFacilityPerformance', 'Facility Rental - Performance Weeks', true)}
                 ${renderItemInput('rentEquipment', 'Equipment Rental')}
@@ -1920,11 +1933,11 @@
                 ${renderItemInput('fuel', 'Fuel')}
                 ${renderItemInput('supplies', 'Production Supplies')}
 
-                <div class="sub-section-title">E. Media & Marketing Documentation</div>
+                <div class="sub-section-title">D. Media & Marketing Documentation</div>
                 ${renderItemInput('photography', 'Photography')}
                 ${renderItemInput('videography', 'Videography')}
 
-                <div class="sub-section-title">F. Marketing & Promotion</div>
+                <div class="sub-section-title">E. Marketing & Promotion</div>
                 ${renderItemInput('printAds', 'Print Ads')}
                 ${renderItemInput('digitalAds', 'Digital Ads')}
                 ${renderItemInput('printedMaterials', 'Printed Materials (Posters, Flyers)')}
