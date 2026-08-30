@@ -1,1151 +1,4360 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Whim Productions - Season Financial & Production Budget Hub</title>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Library for XLSX Export -->
+
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
+
     :root {
+
       --bg-color: #f8fafc;
+
       --card-bg: #ffffff;
+
       --primary: #4f46e5;
+
       --primary-hover: #4338ca;
+
       --text-main: #0f172a;
+
       --text-muted: #64748b;
+
       --border: #cbd5e1;
+
       --success: #16a34a;
+
       --danger: #dc2626;
+
       --accent-bg: #eef2ff;
+
     }
+
+
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
     body { background-color: var(--bg-color); color: var(--text-main); padding: 24px; max-width: 1400px; margin: 0 auto; }
+
     
+
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--border); }
+
     h1 { font-size: 1.75rem; font-weight: 700; color: var(--text-main); }
+
     .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+
     
+
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+
     .tab-btn { padding: 10px 18px; border: 1px solid var(--border); background: var(--card-bg); font-weight: 600; border-radius: 6px; cursor: pointer; transition: 0.2s; color: var(--text-main); }
+
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
     
+
     .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border); padding: 14px; border-radius: 8px; }
+
     .kpi-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+
     .kpi-value { font-size: 1.35rem; font-weight: 700; margin-top: 4px; }
+
     .kpi-value.positive { color: var(--success); }
+
     .kpi-value.negative { color: var(--danger); }
 
+
+
     .scenario-picker { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; background: var(--accent-bg); padding: 14px 20px; border-radius: 8px; border: 1px solid #c7d2fe; flex-wrap: wrap; }
+
     .scenario-picker label { font-weight: 700; color: #3730a3; }
+
     
+
     select, input, button { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.9rem; }
+
     button.btn-primary { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; }
+
     button.btn-primary:hover { background: var(--primary-hover); }
+
     button.btn-secondary { background: #0284c7; color: white; border: none; font-weight: 600; cursor: pointer; }
+
     button.btn-secondary:hover { background: #0369a1; }
+
     button.btn-success { background: #16a34a; color: white; border: none; font-weight: 600; cursor: pointer; }
+
     button.btn-success:hover { background: #15803d; }
+
     button.btn-danger { background: #fee2e2; color: var(--danger); border: 1px solid #fca5a5; font-weight: 600; cursor: pointer; }
+
     button.btn-danger:hover { background: #fecaca; }
 
+
+
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+
     th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
     th { background: #f1f5f9; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
     tr.section-header td { background: #e0e7ff; font-weight: 700; color: #3730a3; text-transform: uppercase; }
+
     tr.sub-header td { background: #f1f5f9; font-weight: 700; color: #475569; }
+
     tr.total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: 2px solid var(--border); }
 
+
+
     .tab-content { display: none; }
+
     .tab-content.active { display: block; }
+
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
     .chart-container { height: 320px; margin-top: 16px; }
+
     
+
     .season-group { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 16px; overflow: hidden; background: #ffffff; }
+
     .season-header { background: #f1f5f9; padding: 12px 18px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-weight: 700; }
+
     .season-header:hover { background: #e2e8f0; }
+
     .season-title { font-size: 1.1rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+
     .season-content { padding: 14px; background: #fafafa; }
+
     
+
     .show-card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: #ffffff; overflow: hidden; }
+
     .show-header { padding: 12px 16px; background: #ffffff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+
     .show-header:hover { background: #f8fafc; }
+
     .show-body { padding: 18px; border-top: 1px solid var(--border); }
 
+
+
     .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+
     .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+
     .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+
     .section-title { font-weight: 700; font-size: 0.95rem; margin: 16px 0 8px 0; color: var(--primary); border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+
     .sub-section-title { font-weight: 700; font-size: 0.85rem; margin: 10px 0 6px 0; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
 
+
+
     .form-group { margin-bottom: 12px; }
+
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
+
     .form-group input, .form-group select { width: 100%; }
 
+
+
     .line-item-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; }
+
     .line-item-row label { font-size: 0.85rem; font-weight: 600; }
+
     .line-item-total { font-weight: 700; font-size: 0.9rem; text-align: right; padding-right: 6px; }
 
+
+
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+
     .badge-awarded { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+
     .badge-anticipated { background: #fef9c3; color: #a16207; border: 1px solid #fde047; }
 
+
+
     .hub-card { border: 1px solid var(--border); padding: 16px; border-radius: 8px; margin-bottom: 14px; background: #ffffff; }
+
     .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+
     .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; background: #f1f5f9; padding: 4px 10px; border-radius: 4px; }
 
+
+
     @media print {
+
       body { background: #ffffff; padding: 0; margin: 0; max-width: 100%; }
+
       header div:last-child, .nav-tabs, button, input[type="file"], .btn-danger { display: none !important; }
+
       .tab-content { display: block !important; }
+
       .card, .kpi-card, .show-card, .hub-card, .season-group { border: 1px solid #cbd5e1 !important; box-shadow: none !important; page-break-inside: avoid; }
+
       input, select { border: none !important; background: transparent !important; appearance: none; -webkit-appearance: none; font-weight: bold; padding: 0 !important; }
+
       .scenario-picker { border: 1px solid #a5b4fc !important; background: #f5f3ff !important; }
+
     }
+
   </style>
+
 </head>
+
 <body>
 
+
+
   <header>
+
     <div>
+
       <h1>Whim Productions - Budget & Scenario Hub</h1>
+
       <div class="subtitle">Consolidated Financial Planning, Production Budgets & Funding Allocations</div>
+
     </div>
+
     <div style="display:flex; gap:6px; flex-wrap:wrap;">
+
       <button class="btn-success" onclick="exportToExcel()">📊 Export Excel (.xlsx)</button>
+
       <button class="btn-secondary" onclick="exportToWord()">📄 Export Word (.doc)</button>
+
       <button class="btn-secondary" onclick="printReport()">🖨️ Print / Save PDF</button>
+
       <button class="btn-primary" onclick="exportData()">Export Data (JSON)</button>
+
       <button onclick="document.getElementById('importFile').click()">Import Data</button>
+
       <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+
     </div>
+
   </header>
 
+
+
   <div class="nav-tabs">
+
     <button class="tab-btn active" onclick="switchTab('dashboard')">Consolidated P&L</button>
+
     <button class="tab-btn" onclick="switchTab('master_pnl')">📊 Season Master P&L</button>
+
     <button class="tab-btn" onclick="switchTab('builder')">✨ New Show Builder</button>
+
     <button class="tab-btn" onclick="switchTab('productions')">Productions & Events</button>
+
     <button class="tab-btn" onclick="switchTab('rentals')">Rentals & Events Hub</button>
+
     <button class="tab-btn" onclick="switchTab('grants')">Grants Hub</button>
+
     <button class="tab-btn" onclick="switchTab('sponsorships')">Sponsorships Hub</button>
+
     <button class="tab-btn" onclick="switchTab('donations')">Donations Hub</button>
+
     <button class="tab-btn" onclick="switchTab('overhead')">Operating Overhead</button>
+
   </div>
+
+
+
+  <!-- DASHBOARD TAB -->
 
   <div id="dashboard" class="tab-content active">
+
     <div class="scenario-picker">
+
       <div>
+
         <label>Season Filter:</label>
+
         <select id="seasonFilter" onchange="renderApp()">
+
           <option value="all" selected>All Seasons (Combined)</option>
+
           <option value="2025-2026">2025–2026 Season</option>
+
           <option value="2026-2027">2026–2027 Season</option>
+
           <option value="2027-2028">2027–2028 Season</option>
+
         </select>
+
       </div>
+
       <div>
+
         <label>Fiscal Year Start Config:</label>
+
         <select id="fyStartConfig" onchange="updateFYConfig(this.value)">
+
           <option value="1" selected>January 1 (Calendar Year = Fiscal Year)</option>
+
           <option value="5">May 1 (May–April Fiscal Year)</option>
+
           <option value="7">July 1 (July–June Fiscal Year)</option>
+
           <option value="10">October 1 (Oct–Sept Fiscal Year)</option>
+
         </select>
+
       </div>
+
       <div>
+
         <label>Capacity Mode:</label>
+
         <select id="capacityMode" onchange="renderApp()">
+
           <option value="anticipated" selected>Anticipated Capacity (~55% expected attendance)</option>
+
           <option value="full">Full Capacity (100% Sold Out)</option>
+
         </select>
+
       </div>
+
     </div>
+
+
 
     <div class="kpi-grid">
+
       <div class="kpi-card">
+
         <div class="kpi-label">Total Projected Revenue</div>
+
         <div class="kpi-value" id="kpi-rev">$0</div>
+
       </div>
+
       <div class="kpi-card">
+
         <div class="kpi-label">Total Operating & Production Expenses</div>
+
         <div class="kpi-value" id="kpi-exp">$0</div>
+
       </div>
+
       <div class="kpi-card">
+
         <div class="kpi-label">Net Operating Income</div>
+
         <div class="kpi-value" id="kpi-margin">$0</div>
+
       </div>
+
       <div class="kpi-card">
+
         <div class="kpi-label">Artist Stipend Pool</div>
+
         <div class="kpi-value" id="kpi-stipends">$0</div>
+
       </div>
+
     </div>
 
+
+
     <div class="card">
+
       <h3>Annual Season Budget Summary</h3>
+
       <div class="chart-container">
+
         <canvas id="financialChart"></canvas>
+
       </div>
+
     </div>
+
   </div>
+
+
+
+  <!-- SEASON MASTER P&L TAB -->
 
   <div id="master_pnl" class="tab-content">
+
     <div class="card">
+
       <div class="flex-between" style="margin-bottom: 12px; flex-wrap:wrap; gap:10px;">
+
         <div>
-          <h3>Master Financial Statement (GAAP Compliant)</h3>
+
+          <h3>Master Financial Statement</h3>
+
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
-            Comprehensive GAAP financial rollup statement. Separates cash contributions, gifts-in-kind, rental income, and inventory sales.
+
+            Comprehensive financial rollup statement. Filter by Season, Calendar Year, or Fiscal Year.
+
           </p>
+
         </div>
+
         <div style="display:flex; gap:12px; align-items:center;">
+
           <div>
+
             <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">View Mode:</label>
+
             <select id="pnlViewMode" onchange="renderApp()">
+
               <option value="season" selected>Filter by Season</option>
+
               <option value="year">Filter by Calendar Year</option>
+
               <option value="fy">Filter by Fiscal Year</option>
+
             </select>
+
           </div>
+
           <div>
+
             <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Select Period:</label>
+
             <select id="pnlPeriodFilter" onchange="renderApp()"></select>
+
           </div>
+
           <button class="btn-success" onclick="exportToExcel()">Export Excel</button>
+
           <button class="btn-secondary" onclick="exportToWord()">Export Word</button>
+
         </div>
+
       </div>
 
+
+
       <div id="master-pnl-table-container"></div>
+
     </div>
+
   </div>
 
+
+
+  <!-- SHOW BUILDER TAB -->
+
   <div id="builder" class="tab-content">
+
     <div class="grid-2">
+
       <div class="card">
+
         <div class="flex-between" style="margin-bottom:10px;">
+
           <h3>Show Modeling Form</h3>
+
           <button class="btn-secondary" style="font-size:0.85rem;" onclick="saveBuilderDraft()">💾 Save Draft</button>
+
         </div>
+
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px;">Model a new production with specific ticketing rules and quantity/unit rates.</p>
+
         
+
         <div class="section-title">1. Show Parameters</div>
+
         <div class="grid-2">
+
           <div class="form-group"><label>Show Title</label><input type="text" id="f_name" value="" placeholder="Enter Show Title..." oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Season</label>
+
             <select id="f_season" onchange="calculateBuilder()">
+
               <option value="2025-2026">2025–2026</option>
+
               <option value="2026-2027" selected>2026–2027</option>
+
               <option value="2027-2028">2027–2028</option>
+
             </select>
+
           </div>
+
         </div>
+
         <div class="grid-4">
+
           <div class="form-group"><label>Rehearsal Weeks</label><input type="number" id="f_rehearsalWeeks" value="4" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Performance Weeks</label><input type="number" id="f_performanceWeeks" value="3" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Performances</label><input type="number" id="f_performances" value="8" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>House Capacity</label><input type="number" id="f_capacity" value="57" min="0" oninput="calculateBuilder()"></div>
+
         </div>
+
         <div class="grid-4">
+
           <div class="form-group"><label>Expected Cap %</label><input type="number" id="f_expectedAttendancePct" value="55" min="0" max="100" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Budget Year</label>
+
             <select id="f_year" onchange="calculateBuilder()">
+
               <option value="2025">2025</option>
+
               <option value="2026" selected>2026</option>
+
               <option value="2027">2027</option>
+
               <option value="2028">2028</option>
+
             </select>
+
           </div>
+
         </div>
+
+
 
         <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
-        <div class="form-group">
-          <label>General Admission Price ($)</label>
-          <input type="number" id="f_gaPrice" value="30.00" min="0" oninput="calculateBuilder()">
-        </div>
-        
-        <div class="grid-2">
-          <div class="form-group"><label>Pay It Forward Seats (Run)</label><input type="number" id="f_pifSeats" value="10" min="0" oninput="calculateBuilder()"></div>
-          <div class="form-group"><label>Pay It Forward Price ($)</label><input type="number" id="f_pifPrice" value="50.00" min="0" oninput="calculateBuilder()"></div>
-        </div>
 
         <div class="form-group">
-          <label>ArtsKC "The Drop" Seats (Run)</label>
-          <input type="number" id="f_dropSeats" value="15" min="0" oninput="calculateBuilder()">
+
+          <label>General Admission Price ($)</label>
+
+          <input type="number" id="f_gaPrice" value="30.00" min="0" oninput="calculateBuilder()">
+
         </div>
+
+        
+
+        <div class="grid-2">
+
+          <div class="form-group"><label>Pay It Forward Seats (Run)</label><input type="number" id="f_pifSeats" value="10" min="0" oninput="calculateBuilder()"></div>
+
+          <div class="form-group"><label>Pay It Forward Price ($)</label><input type="number" id="f_pifPrice" value="50.00" min="0" oninput="calculateBuilder()"></div>
+
+        </div>
+
+
+
+        <div class="form-group">
+
+          <label>ArtsKC "The Drop" Seats (Run)</label>
+
+          <input type="number" id="f_dropSeats" value="15" min="0" oninput="calculateBuilder()">
+
+        </div>
+
+
 
         <div class="grid-3">
+
           <div class="form-group"><label>PWYW Nights Offered</label><input type="number" id="f_pwywNights" value="2" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>PWYW Cap / Night</label><input type="number" id="f_pwywCapPerNight" value="15" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>PWYW Price Floor ($)</label><input type="number" id="f_pwywPrice" value="15.00" min="0" oninput="calculateBuilder()"></div>
+
         </div>
+
+
 
         <div class="grid-2">
+
           <div class="form-group"><label>Company Comps (Run)</label><input type="number" id="f_companyComps" value="10" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Production Comps</label><input type="text" id="f_autoProdComps" value="Auto (2x Staff)" disabled style="background:#f1f5f9; font-weight:bold;"></div>
+
         </div>
 
+
+
         <div class="section-title">3. Non-Box Office Revenue</div>
+
         <div class="grid-4">
+
           <div class="form-group"><label>Concessions ($)</label><input type="number" id="f_concessions" value="800" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Merch ($)</label><input type="number" id="f_merch" value="50" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Show Donations ($)</label><input type="number" id="f_showDonations" value="500" min="0" oninput="calculateBuilder()"></div>
+
           <div class="form-group"><label>Show Sponsorship ($)</label><input type="number" id="f_showSponsorship" value="0" min="0" oninput="calculateBuilder()"></div>
+
         </div>
+
+
 
         <div class="section-title">4. Production Budget Line Items</div>
 
+
+
         <div class="sub-section-title">A. Artist Stipends</div>
+
         <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
+
           <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
+
         </div>
-        <div class="line-item-row"><label>Actors</label><input type="number" id="f_actors_qty" value="6" min="0" oninput="calculateBuilder()"><input type="number" id="f_actors_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_actors_tot">$0</span></div>
-        <div class="line-item-row"><label>Musicians</label><input type="number" id="f_musicians_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_musicians_rate" value="150" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_musicians_tot">$0</span></div>
-        <div class="line-item-row"><label>Director</label><input type="number" id="f_dir_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_dir_rate" value="700" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_dir_tot">$0</span></div>
-        <div class="line-item-row"><label>Stage Manager</label><input type="number" id="f_sm_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_sm_rate" value="800" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_sm_tot">$0</span></div>
-        <div class="line-item-row"><label>Assistant Stage Manager</label><input type="number" id="f_asm_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_asm_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_asm_tot">$0</span></div>
-        <div class="line-item-row"><label>Technical Director</label><input type="number" id="f_td_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_td_rate" value="600" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_td_tot">$0</span></div>
-        <div class="line-item-row"><label>Set Designer</label><input type="number" id="f_setdes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_setdes_rate" value="600" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_setdes_tot">$0</span></div>
-        <div class="line-item-row"><label>Lighting Designer</label><input type="number" id="f_lightdes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_lightdes_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_lightdes_tot">$0</span></div>
-        <div class="line-item-row"><label>Sound Designer</label><input type="number" id="f_sounddes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_sounddes_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_sounddes_tot">$0</span></div>
-        <div class="line-item-row"><label>Costume Designer</label><input type="number" id="f_costumedes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_costumedes_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_costumedes_tot">$0</span></div>
-        <div class="line-item-row"><label>Props Designer</label><input type="number" id="f_propdes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_propdes_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_propdes_tot">$0</span></div>
-        <div class="line-item-row"><label>Graphic / Art Designer</label><input type="number" id="f_graphic_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_graphic_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_graphic_tot">$0</span></div>
-        <div class="line-item-row"><label>Music Director</label><input type="number" id="f_musicdir_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_musicdir_rate" value="0" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_musicdir_tot">$0</span></div>
-        <div class="line-item-row"><label>Intimacy Choreographer</label><input type="number" id="f_intimacy_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_intimacy_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_intimacy_tot">$0</span></div>
-        <div class="line-item-row"><label>Fight Choreographer</label><input type="number" id="f_fight_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_fight_rate" value="350" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_fight_tot">$0</span></div>
-        <div class="line-item-row"><label>Dance Choreographer</label><input type="number" id="f_dance_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_dance_rate" value="0" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_dance_tot">$0</span></div>
-        <div class="line-item-row"><label>Carpentry / Set Construction (Hrs)</label><input type="number" id="f_carpentry_qty" value="40" min="0" oninput="calculateBuilder()"><input type="number" id="f_carpentry_rate" value="20" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_carpentry_tot">$0</span></div>
-        <div class="line-item-row"><label>Board Operator</label><input type="number" id="f_boardop_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_boardop_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_boardop_tot">$0</span></div>
+
+        <div class="line-item-row">
+
+          <label>Actors</label>
+
+          <input type="number" id="f_actors_qty" value="6" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_actors_rate" value="400" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_actors_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Musicians</label>
+
+          <input type="number" id="f_musicians_qty" value="0" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_musicians_rate" value="150" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_musicians_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Director</label>
+
+          <input type="number" id="f_dir_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_dir_rate" value="700" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_dir_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Stage Manager</label>
+
+          <input type="number" id="f_sm_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_sm_rate" value="800" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_sm_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Assistant Stage Manager</label>
+
+          <input type="number" id="f_asm_qty" value="0" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_asm_rate" value="400" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_asm_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Technical Director</label>
+
+          <input type="number" id="f_td_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_td_rate" value="600" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_td_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Set Designer</label>
+
+          <input type="number" id="f_setdes_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_setdes_rate" value="600" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_setdes_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Lighting Designer</label>
+
+          <input type="number" id="f_lightdes_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_lightdes_rate" value="500" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_lightdes_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Sound Designer</label>
+
+          <input type="number" id="f_sounddes_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_sounddes_rate" value="500" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_sounddes_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Costume Designer</label>
+
+          <input type="number" id="f_costumedes_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_costumedes_rate" value="500" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_costumedes_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Props Designer</label>
+
+          <input type="number" id="f_propdes_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_propdes_rate" value="400" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_propdes_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Graphic / Art Designer</label>
+
+          <input type="number" id="f_graphic_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_graphic_rate" value="300" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_graphic_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Music Director</label>
+
+          <input type="number" id="f_musicdir_qty" value="0" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_musicdir_rate" value="0" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_musicdir_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Intimacy Choreographer</label>
+
+          <input type="number" id="f_intimacy_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_intimacy_rate" value="300" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_intimacy_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Fight Choreographer</label>
+
+          <input type="number" id="f_fight_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_fight_rate" value="350" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_fight_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Dance Choreographer</label>
+
+          <input type="number" id="f_dance_qty" value="0" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_dance_rate" value="0" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_dance_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Carpentry / Set Construction (Hrs)</label>
+
+          <input type="number" id="f_carpentry_qty" value="40" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_carpentry_rate" value="20" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_carpentry_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Board Operator</label>
+
+          <input type="number" id="f_boardop_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_boardop_rate" value="300" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_boardop_tot">$0</span>
+
+        </div>
+
+
 
         <div class="sub-section-title">B. Production and Exhibition Costs</div>
-        <div class="line-item-row"><label>Script Royalties & Licensing Fees</label><input type="number" id="f_royalties_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_royalties_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_royalties_tot">$0</span></div>
-        <div class="line-item-row"><label>Scripts - Printing, Purchase or Rent</label><input type="number" id="f_scripts_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_scripts_rate" value="100" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_scripts_tot">$0</span></div>
-        <div class="line-item-row"><label>Scenic Materials</label><input type="number" id="f_scenicMaterials_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_scenicMaterials_rate" value="800" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_scenicMaterials_tot">$0</span></div>
-        <div class="line-item-row"><label>Props Purchases</label><input type="number" id="f_expProps_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_expProps_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_expProps_tot">$0</span></div>
-        <div class="line-item-row"><label>Costume Purchases</label><input type="number" id="f_expCostumes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_expCostumes_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_expCostumes_tot">$0</span></div>
+
+        <div class="line-item-row">
+
+          <label>Script Royalties & Licensing Fees</label>
+
+          <input type="number" id="f_royalties_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_royalties_rate" value="500" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_royalties_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Scripts - Printing, Purchase or Rent</label>
+
+          <input type="number" id="f_scripts_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_scripts_rate" value="100" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_scripts_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Scenic Materials</label>
+
+          <input type="number" id="f_scenicMaterials_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_scenicMaterials_rate" value="800" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_scenicMaterials_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Props Purchases</label>
+
+          <input type="number" id="f_expProps_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_expProps_rate" value="300" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_expProps_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Costume Purchases</label>
+
+          <input type="number" id="f_expCostumes_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_expCostumes_rate" value="400" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_expCostumes_tot">$0</span>
+
+        </div>
+
+
 
         <div class="sub-section-title">C. Rentals & Operations</div>
-        <div class="line-item-row"><label>Facility Rental - Rehearsal Weeks</label><input type="number" id="f_rentFacilityRehearsal_qty" value="4" disabled style="background:#f1f5f9;"><input type="number" id="f_rentFacilityRehearsal_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentFacilityRehearsal_tot">$0</span></div>
-        <div class="line-item-row"><label>Facility Rental - Performance Weeks</label><input type="number" id="f_rentFacilityPerformance_qty" value="3" disabled style="background:#f1f5f9;"><input type="number" id="f_rentFacilityPerformance_rate" value="700" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentFacilityPerformance_tot">$0</span></div>
-        <div class="line-item-row"><label>Equipment Rental</label><input type="number" id="f_rentEquipment_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentEquipment_rate" value="200" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentEquipment_tot">$0</span></div>
-        <div class="line-item-row"><label>Props Rental</label><input type="number" id="f_rentProps_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentProps_rate" value="100" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentProps_tot">$0</span></div>
-        <div class="line-item-row"><label>Costume Rental</label><input type="number" id="f_rentCostumes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentCostumes_rate" value="150" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentCostumes_tot">$0</span></div>
-        <div class="line-item-row"><label>Set Piece Rental</label><input type="number" id="f_rentSetPiece_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentSetPiece_rate" value="100" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentSetPiece_tot">$0</span></div>
-        <div class="line-item-row"><label>Rental - Automobile</label><input type="number" id="f_rentAuto_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentAuto_rate" value="0" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentAuto_tot">$0</span></div>
-        <div class="line-item-row"><label>Fuel</label><input type="number" id="f_fuel_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_fuel_rate" value="50" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_fuel_tot">$0</span></div>
-        <div class="line-item-row"><label>Production Supplies</label><input type="number" id="f_supplies_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_supplies_rate" value="200" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_supplies_tot">$0</span></div>
+
+        <div class="line-item-row">
+
+          <label>Facility Rental - Rehearsal Weeks</label>
+
+          <input type="number" id="f_rentFacilityRehearsal_qty" value="4" disabled style="background:#f1f5f9;">
+
+          <input type="number" id="f_rentFacilityRehearsal_rate" value="400" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_rentFacilityRehearsal_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Facility Rental - Performance Weeks</label>
+
+          <input type="number" id="f_rentFacilityPerformance_qty" value="3" disabled style="background:#f1f5f9;">
+
+          <input type="number" id="f_rentFacilityPerformance_rate" value="700" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_rentFacilityPerformance_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Equipment Rental</label>
+
+          <input type="number" id="f_rentEquipment_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_rentEquipment_rate" value="200" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_rentEquipment_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Props Rental</label>
+
+          <input type="number" id="f_rentProps_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_rentProps_rate" value="100" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_rentProps_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Costume Rental</label>
+
+          <input type="number" id="f_rentCostumes_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_rentCostumes_rate" value="150" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_rentCostumes_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Set Piece Rental</label>
+
+          <input type="number" id="f_rentSetPiece_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_rentSetPiece_rate" value="100" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_rentSetPiece_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Rental - Automobile</label>
+
+          <input type="number" id="f_rentAuto_qty" value="0" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_rentAuto_rate" value="0" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_rentAuto_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Fuel</label>
+
+          <input type="number" id="f_fuel_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_fuel_rate" value="50" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_fuel_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Production Supplies</label>
+
+          <input type="number" id="f_supplies_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_supplies_rate" value="200" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_supplies_tot">$0</span>
+
+        </div>
+
+
 
         <div class="sub-section-title">D. Media & Marketing Documentation</div>
-        <div class="line-item-row"><label>Photography</label><input type="number" id="f_photography_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_photography_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_photography_tot">$0</span></div>
-        <div class="line-item-row"><label>Videography</label><input type="number" id="f_videography_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_videography_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_videography_tot">$0</span></div>
+
+        <div class="line-item-row">
+
+          <label>Photography</label>
+
+          <input type="number" id="f_photography_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_photography_rate" value="300" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_photography_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Videography</label>
+
+          <input type="number" id="f_videography_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_videography_rate" value="400" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_videography_tot">$0</span>
+
+        </div>
+
+
 
         <div class="sub-section-title">E. Marketing & Promotion</div>
-        <div class="line-item-row"><label>Print Ads</label><input type="number" id="f_printAds_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_printAds_rate" value="200" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_printAds_tot">$0</span></div>
-        <div class="line-item-row"><label>Digital Ads</label><input type="number" id="f_digitalAds_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_digitalAds_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_digitalAds_tot">$0</span></div>
-        <div class="line-item-row"><label>Printed Materials (Posters, Flyers)</label><input type="number" id="f_printedMaterials_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_printedMaterials_rate" value="150" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_printedMaterials_tot">$0</span></div>
+
+        <div class="line-item-row">
+
+          <label>Print Ads</label>
+
+          <input type="number" id="f_printAds_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_printAds_rate" value="200" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_printAds_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Digital Ads</label>
+
+          <input type="number" id="f_digitalAds_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_digitalAds_rate" value="300" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_digitalAds_tot">$0</span>
+
+        </div>
+
+        <div class="line-item-row">
+
+          <label>Printed Materials (Posters, Flyers)</label>
+
+          <input type="number" id="f_printedMaterials_qty" value="1" min="0" oninput="calculateBuilder()">
+
+          <input type="number" id="f_printedMaterials_rate" value="150" min="0" oninput="calculateBuilder()">
+
+          <span class="line-item-total" id="f_printedMaterials_tot">$0</span>
+
+        </div>
+
       </div>
+
+
 
       <div>
+
         <div class="card" style="background: #faf5ff; border-color: #d8b4fe;">
+
           <h3 style="color: #6b21a8;">Anticipated Outcome Preview</h3>
+
           <p style="font-size:0.85rem; color:#7e22ce; margin-bottom:16px;">
+
             Dynamic ticket tier calculation & stipend summary. These numbers do not account for any grant allocation.
+
           </p>
+
+
 
           <div class="kpi-grid">
+
             <div class="kpi-card">
+
               <div class="kpi-label">Anticipated Ticket Rev</div>
+
               <div class="kpi-value" id="prev-tix">$0</div>
+
               <div style="font-size:0.75rem; color:var(--text-muted);" id="prev-tix-sub">0 seats sold</div>
+
             </div>
+
             <div class="kpi-card">
+
               <div class="kpi-label">Effective Avg Ticket</div>
+
               <div class="kpi-value" id="prev-avg-tix">$0</div>
+
             </div>
+
             <div class="kpi-card">
+
               <div class="kpi-label">Direct Show Expenses</div>
+
               <div class="kpi-value" id="prev-direct-exp">$0</div>
+
               <div style="font-size:0.75rem; color:var(--text-muted);">Form entries only</div>
+
             </div>
+
             <div class="kpi-card">
+
               <div class="kpi-label">Total Expenses + Admin</div>
+
               <div class="kpi-value" id="prev-exp">$0</div>
+
               <div style="font-size:0.75rem; color:var(--text-muted);">Includes 1/12th Admin</div>
+
             </div>
+
             <div class="kpi-card" style="grid-column: span 2;">
+
               <div class="kpi-label">Net Show Contribution</div>
+
               <div class="kpi-value" id="prev-margin">$0</div>
+
             </div>
+
           </div>
+
+
 
           <div style="display:flex; gap:10px; flex-direction:column;">
+
             <button class="btn-primary" style="width:100%; padding:14px; font-size:1.05rem;" onclick="commitBuilderShow()">+ Add This Show to Master Season Budget</button>
+
             <button class="btn-secondary" style="width:100%; padding:10px;" onclick="saveBuilderDraft()">💾 Save Draft</button>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
+
+
+
+  <!-- PRODUCTIONS TAB -->
 
   <div id="productions" class="tab-content">
+
     <div class="card">
+
       <div class="flex-between">
+
         <h3>Season Productions & Events</h3>
+
         <div style="display:flex; gap:8px;">
+
           <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllShowAccordions(true)">Expand All</button>
+
           <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllShowAccordions(false)">Collapse All</button>
+
           <button class="btn-primary" onclick="switchTab('builder')">+ Open Show Builder Form</button>
+
         </div>
+
       </div>
+
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+
         Collapsible season and show rollups. Click any Season or Show header to expand/collapse.
+
       </p>
+
       <div id="productions-container"></div>
+
     </div>
+
   </div>
+
+
+
+  <!-- RENTALS & EVENTS HUB TAB -->
 
   <div id="rentals" class="tab-content">
+
     <div class="card">
+
       <div class="flex-between">
+
         <h3>Outside Rentals & Hosted Events Hub</h3>
+
         <div style="display:flex; gap:8px;">
+
           <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllRentalAccordions(true)">Expand All</button>
+
           <button class="btn-secondary" style="font-size:0.8rem;" onclick="toggleAllRentalAccordions(false)">Collapse All</button>
+
           <button class="btn-primary" onclick="addRentalBooking()">+ Add New Rental / Event Booking</button>
+
         </div>
+
       </div>
+
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+
         Collapsible season rollups for projected rental income and concessions yield.
+
       </p>
+
       <div id="rentals-container"></div>
 
+
+
       <div style="margin-top:16px; text-align:right;">
+
         <button class="btn-primary" onclick="addRentalBooking()">+ Add New Rental / Event Booking</button>
+
       </div>
+
     </div>
+
   </div>
+
+
+
+  <!-- GRANTS TAB -->
 
   <div id="grants" class="tab-content">
+
     <div class="card">
+
       <div class="flex-between" style="margin-bottom:12px;">
+
         <div>
+
           <h3>Grants Hub</h3>
+
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+
             Assign grants to specific productions or season goals. Live running totals track Awarded vs. Anticipated amounts.
+
           </p>
+
         </div>
+
         <button class="btn-primary" onclick="addGrant()">+ Add New Grant</button>
+
       </div>
+
+
 
       <div id="grants-summary-container" style="margin-bottom:16px;"></div>
+
+
+
       <div id="grants-container"></div>
 
+
+
       <div style="margin-top:16px; text-align:right;">
+
         <button class="btn-primary" onclick="addGrant()">+ Add New Grant</button>
+
       </div>
+
     </div>
+
   </div>
+
+
+
+  <!-- SPONSORSHIPS TAB -->
 
   <div id="sponsorships" class="tab-content">
+
     <div class="card">
+
       <div class="flex-between">
+
         <h3>Sponsorships Hub</h3>
+
         <button class="btn-primary" onclick="addSponsorship()">+ Add New Sponsor</button>
+
       </div>
+
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+
         Assign corporate or individual sponsorships to specific productions. Sponsorship funds automatically apportion across selected shows.
+
       </p>
+
       <div id="sponsorships-container"></div>
 
+
+
       <div style="margin-top:16px; text-align:right;">
+
         <button class="btn-primary" onclick="addSponsorship()">+ Add New Sponsor</button>
+
       </div>
+
     </div>
+
   </div>
+
+
+
+  <!-- DONATIONS HUB TAB -->
 
   <div id="donations" class="tab-content">
+
     <div class="card">
+
       <div class="flex-between">
+
         <h3>Donations Hub</h3>
+
         <button class="btn-primary" onclick="addDonation()">+ Add New Donation Campaign</button>
+
       </div>
+
       <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:16px;">
+
         Track projected general donations, individual campaigns, and board contributions.
+
       </p>
+
       <div id="donations-container"></div>
 
+
+
       <div style="margin-top:16px; text-align:right;">
+
         <button class="btn-primary" onclick="addDonation()">+ Add New Donation Campaign</button>
+
       </div>
+
     </div>
+
   </div>
+
+
+
+  <!-- OVERHEAD TAB WITH TOP AND BOTTOM ADD BUTTONS AND SORTING -->
 
   <div id="overhead" class="tab-content">
+
     <div class="card">
+
       <div class="flex-between" style="margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+
         <div>
+
           <h3>General Annual Operating Expenses (Overhead & Occupancy)</h3>
+
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
+
             Manage Operating Expense line items for specific Calendar/Fiscal Years and designate their parent account categories for automated P&L rollup.
+
           </p>
+
         </div>
+
         <div style="display:flex; gap:10px; align-items:center;">
+
           <div>
+
             <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Target Period:</label>
+
             <select id="overheadPeriodSelect" onchange="renderOverheadTable()">
+
               <option value="2025">2025</option>
+
               <option value="2026" selected>2026</option>
+
               <option value="2027">2027</option>
+
               <option value="2028">2028</option>
+
             </select>
+
           </div>
+
           <div>
+
             <label style="font-weight:bold; font-size:0.85rem; margin-right:6px;">Sort By:</label>
+
             <select id="overheadSort" onchange="renderOverheadTable()">
+
               <option value="parentCategory" selected>Parent Account Category</option>
+
               <option value="name">Line Item Name (A-Z)</option>
+
               <option value="annual">Annual Amount (High to Low)</option>
+
             </select>
+
           </div>
+
           <button class="btn-secondary" style="font-size:0.85rem;" onclick="copyOverheadFromPreviousYear()">📋 Copy Overhead Template from Previous Year</button>
+
           <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
+
         </div>
+
       </div>
+
+
 
       <table id="overhead-table">
+
         <thead>
+
           <tr>
+
             <th>Expense Category / Line Item Name</th>
+
             <th>Parent Account Rollup Header</th>
+
             <th>Annual Amount ($)</th>
+
             <th>Apportion 1/12th to Shows?</th>
+
             <th>Action</th>
+
           </tr>
+
         </thead>
+
         <tbody></tbody>
+
       </table>
 
+
+
       <div style="margin-top:16px; text-align:right;">
+
         <button class="btn-primary" onclick="addOverhead()">+ Add Expense Item</button>
+
       </div>
+
     </div>
+
   </div>
 
+
+
   <script>
+
     const OVERHEAD_PARENT_CATEGORIES = [
+
       "53000 Fees for Services (NonEmployees)",
+
       "54000 Advertising and Promotion",
+
       "55000 Office Expenses",
+
       "56000 Information Technology",
+
       "58000 Occupancy",
+
       "59000 Professional Development",
+
       "60000 Cost of Goods Sold",
+
       "62000 Banking and Financial"
+
     ];
+
+
 
     const LINE_ITEM_KEYS = [
+
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
+
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance',
+
       'carpentry', 'boardop', 'royalties', 'scripts', 'scenicMaterials', 'expProps', 'expCostumes',
+
       'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece',
+
       'rentAuto', 'fuel', 'supplies', 'photography', 'videography',
+
       'printAds', 'digitalAds', 'printedMaterials'
+
     ];
+
+
 
     const PERSONNEL_KEYS = [
+
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
+
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'boardop'
+
     ];
+
+
+
+    // Artist stipends excludes script royalties/licensing and script printing
 
     const STIPEND_KEYS = [
+
       'actors', 'musicians', 'dir', 'sm', 'asm', 'td', 'setdes', 'lightdes', 'sounddes',
+
       'costumedes', 'propdes', 'graphic', 'musicdir', 'intimacy', 'fight', 'dance', 'carpentry', 'boardop'
+
     ];
 
+
+
     let state = JSON.parse(localStorage.getItem('whim_budget_data')) || {
-      fyStartMonth: 1,
+
+      fyStartMonth: 1, // Default January
+
       overhead: [
+
         { id: 1, name: "Fees for Fundraising", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 4730, apportion: false },
+
         { id: 2, name: "Fees for Accounting / Bookkeeping", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 6038, apportion: true },
+
         { id: 3, name: "Other Fees for Services", parentCategory: "53000 Fees for Services (NonEmployees)", year: "2026", fy: "2026-2027", annual: 300, apportion: false },
+
         { id: 4, name: "Advertising and Promotion (General)", parentCategory: "54000 Advertising and Promotion", year: "2026", fy: "2026-2027", annual: 3050, apportion: false },
+
         { id: 5, name: "Office Supplies", parentCategory: "55000 Office Expenses", year: "2026", fy: "2026-2027", annual: 750, apportion: false },
+
         { id: 6, name: "Postage and Delivery", parentCategory: "55000 Office Expenses", year: "2026", fy: "2026-2027", annual: 100, apportion: false },
+
         { id: 7, name: "Printing (General)", parentCategory: "55000 Office Expenses", year: "2026", fy: "2026-2027", annual: 150, apportion: false },
+
         { id: 8, name: "Information Technology", parentCategory: "56000 Information Technology", year: "2026", fy: "2026-2027", annual: 530, apportion: false },
+
         { id: 9, name: "Website Hosting / Domains", parentCategory: "56000 Information Technology", year: "2026", fy: "2026-2027", annual: 600, apportion: false },
+
         { id: 10, name: "Occupancy - Facility Rental", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 6000, apportion: false },
+
         { id: 11, name: "Occupancy - Utilities", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 5700, apportion: false },
+
         { id: 12, name: "Occupancy - Security", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 384, apportion: false },
+
         { id: 13, name: "Occupancy - Repairs & Maintenance", parentCategory: "58000 Occupancy", year: "2026", fy: "2026-2027", annual: 600, apportion: false },
+
         { id: 14, name: "Professional Dev and Course Fees", parentCategory: "59000 Professional Development", year: "2026", fy: "2026-2027", annual: 300, apportion: false },
+
         { id: 15, name: "Dues and Subscriptions", parentCategory: "59000 Professional Development", year: "2026", fy: "2026-2027", annual: 1020, apportion: false },
+
         { id: 16, name: "Sundry", parentCategory: "59000 Professional Development", year: "2026", fy: "2026-2027", annual: 180, apportion: false },
+
         { id: 17, name: "Concession Cost of Goods Sold (Beverages)", parentCategory: "60000 Cost of Goods Sold", year: "2026", fy: "2026-2027", annual: 750, apportion: false },
+
         { id: 18, name: "Concession Cost of Goods Sold (Snacks)", parentCategory: "60000 Cost of Goods Sold", year: "2026", fy: "2026-2027", annual: 750, apportion: false },
+
         { id: 19, name: "Merchandise Cost of Goods Sold", parentCategory: "60000 Cost of Goods Sold", year: "2026", fy: "2026-2027", annual: 500, apportion: false },
+
         { id: 20, name: "Filing Fees", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 130, apportion: false },
+
         { id: 21, name: "General Liability Insurance", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 614, apportion: true },
+
         { id: 22, name: "Credit Card Merchant Fees", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 600, apportion: false },
+
         { id: 23, name: "PayPal / Processing Fees", parentCategory: "62000 Banking and Financial", year: "2026", fy: "2026-2027", annual: 50, apportion: false }
+
       ],
+
       rentals: [
+
         { id: 401, name: "Fringe Festival Booking", category: "KC Fringe Rental", rentalFee: 2500, concessionsRev: 600, season: "2026-2027", year: "2026" },
+
         { id: 402, name: "Local Burlesque Showcase", category: "Burlesque Rentals", rentalFee: 1200, concessionsRev: 400, season: "2026-2027", year: "2026" }
+
       ],
+
       grants: [
+
         { id: 101, name: "ArtsKC Project Grant", amount: 5000, status: "Awarded", targetShowIds: [1], season: "2026-2027", year: "2026" },
+
         { id: 102, name: "Kids Christmas Grant", amount: 8875, status: "Anticipated", targetShowIds: [], season: "2026-2027", year: "2026" }
+
       ],
+
       sponsorships: [
+
         { id: 201, name: "Local Business Title Sponsor", amount: 2500, status: "Awarded", targetShowIds: [1], season: "2026-2027", year: "2026" }
+
       ],
+
       donations: [
+
         { id: 301, name: "Annual Individual Giving Campaign", type: "Individual Donations", amount: 6000, status: "Anticipated", season: "2026-2027", year: "2026" },
+
         { id: 302, name: "Board Member Annual Pledges", type: "Board Member Donations", amount: 300, status: "Awarded", season: "2026-2027", year: "2026" },
+
         { id: 303, name: "Special Events & Fundraisers Revenue", type: "Special Events Revenue", amount: 1023, status: "Anticipated", season: "2026-2027", year: "2026" },
+
         { id: 304, name: "In-Kind Venue/Equipment Donations", type: "Donations In-Kind", amount: 500, status: "Awarded", season: "2026-2027", year: "2026" },
+
         { id: 305, name: "Advertising Revenue (Whim Events)", type: "Advertising Revenue", amount: 250, status: "Anticipated", season: "2026-2027", year: "2026" },
+
         { id: 306, name: "Advertising Revenue (External)", type: "Advertising Revenue", amount: 100, status: "Anticipated", season: "2026-2027", year: "2026" }
+
       ],
+
       productions: [
+
         {
+
           id: 1,
+
           name: "Lipstick",
+
           season: "2026-2027",
+
           year: "2026",
+
           rehearsalWeeks: 4, performanceWeeks: 3,
+
           performances: 8, capacity: 57, expectedAttendancePct: 55,
+
           gaPrice: 30.00, pifSeats: 10, pifPrice: 50.00, dropSeats: 15,
+
           pwywNights: 2, pwywCapPerNight: 15, pwywPrice: 15.00, companyComps: 10,
+
           concessions: 1000, merch: 30, showDonations: 500, showSponsorship: 0,
+
           items: {
+
             actors: { qty: 7, rate: 400 }, musicians: { qty: 0, rate: 0 },
+
             dir: { qty: 1, rate: 700 }, sm: { qty: 1, rate: 800 }, asm: { qty: 0, rate: 400 }, td: { qty: 1, rate: 600 },
+
             setdes: { qty: 1, rate: 600 }, lightdes: { qty: 1, rate: 500 }, sounddes: { qty: 1, rate: 500 },
+
             costumedes: { qty: 1, rate: 500 }, propdes: { qty: 1, rate: 400 }, graphic: { qty: 1, rate: 300 },
+
             musicdir: { qty: 0, rate: 0 }, intimacy: { qty: 1, rate: 300 }, fight: { qty: 1, rate: 350 }, dance: { qty: 0, rate: 0 },
+
             carpentry: { qty: 95, rate: 20 }, boardop: { qty: 1, rate: 300 },
+
             royalties: { qty: 1, rate: 500 }, scripts: { qty: 1, rate: 100 },
+
             scenicMaterials: { qty: 1, rate: 800 }, expProps: { qty: 1, rate: 300 }, expCostumes: { qty: 1, rate: 400 },
+
             rentFacilityRehearsal: { qty: 4, rate: 400 }, rentFacilityPerformance: { qty: 3, rate: 700 },
+
             rentEquipment: { qty: 1, rate: 200 }, rentProps: { qty: 1, rate: 100 },
+
             rentCostumes: { qty: 1, rate: 150 }, rentSetPiece: { qty: 1, rate: 100 },
+
             rentAuto: { qty: 0, rate: 0 }, fuel: { qty: 1, rate: 50 }, supplies: { qty: 1, rate: 200 },
+
             photography: { qty: 1, rate: 300 }, videography: { qty: 1, rate: 400 },
+
             printAds: { qty: 1, rate: 200 }, digitalAds: { qty: 1, rate: 300 }, printedMaterials: { qty: 1, rate: 150 }
+
           }
+
         }
+
       ]
+
     };
+
+
 
     let chartInstance = null;
 
+
+
     function updateFYConfig(val) {
+
       state.fyStartMonth = parseInt(val) || 1;
+
       saveState();
+
     }
+
+
 
     function saveState() {
+
       localStorage.setItem('whim_budget_data', JSON.stringify(state));
+
       renderApp();
+
     }
+
+
 
     function switchTab(tabId) {
+
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
       
+
       const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+
       if (targetBtn) targetBtn.classList.add('active');
+
       
+
       document.getElementById(tabId).classList.add('active');
+
       if (tabId === 'builder') {
+
         loadBuilderDraft();
+
         calculateBuilder();
+
       }
+
     }
+
+
 
     function getItemTotal(items, key) {
+
       if (!items || !items[key]) return 0;
+
       let qty = items[key].qty || 0;
+
       let rate = items[key].rate || 0;
+
       return Math.max(0, qty) * Math.max(0, rate);
+
     }
+
+
 
     function calculateShowBoxOffice(p, isFullCap) {
+
       const per = p.performances || 0;
+
       const cap = p.capacity || 0;
+
       const attPct = isFullCap ? 1.0 : ((p.expectedAttendancePct || 55) / 100);
+
       const totalCapacitySeats = per * cap;
+
       const totalAttendedSeats = totalCapacitySeats * attPct;
 
+
+
       let personnelCount = 0;
+
       if (p.items) {
+
         PERSONNEL_KEYS.forEach(k => {
+
           if (k !== 'carpentry') personnelCount += Math.max(0, p.items[k]?.qty || 0);
+
         });
+
       }
+
       const autoProdComps = personnelCount * 2;
+
       const companyComps = p.companyComps || 0;
+
       const totalComps = autoProdComps + companyComps;
 
+
+
       const gaPrice = p.gaPrice || 30.00;
+
       
+
       const pifSeats = Math.min(totalAttendedSeats, p.pifSeats || 0);
+
       const pifRev = pifSeats * (p.pifPrice || 50.00);
 
+
+
       const dropSeats = Math.min(Math.max(0, totalAttendedSeats - pifSeats), p.dropSeats || 0);
+
       const dropRev = dropSeats * gaPrice;
 
+
+
       const maxPwywCapacity = (p.pwywNights || 0) * (p.pwywCapPerNight || 0);
+
       const pwywSeats = Math.min(Math.max(0, totalAttendedSeats - pifSeats - dropSeats), maxPwywCapacity);
+
       const pwywRev = pwywSeats * (p.pwywPrice || 15.00);
 
+
+
       const nonGaSpecialSeats = pifSeats + dropSeats + pwywSeats + totalComps;
+
       const gaSeats = Math.max(0, totalAttendedSeats - nonGaSpecialSeats);
+
       const gaRev = gaSeats * gaPrice;
 
+
+
       const totalTixRev = pifRev + dropRev + pwywRev + gaRev;
+
       const totalPaidSeats = pifSeats + dropSeats + pwywSeats + gaSeats;
+
       const weightedAvgTicket = totalPaidSeats > 0 ? (totalTixRev / totalPaidSeats) : 0;
 
+
+
       return {
+
         totalAttendedSeats, totalPaidSeats, autoProdComps, companyComps, totalComps,
+
         pifSeats, dropSeats, pwywSeats, gaSeats, totalTixRev, weightedAvgTicket
+
       };
+
     }
 
+
+
     function calculateBuilder() {
+
       const rehWeeks = Math.max(0, parseFloat(document.getElementById('f_rehearsalWeeks').value) || 0);
+
       const perfWeeks = Math.max(0, parseFloat(document.getElementById('f_performanceWeeks').value) || 0);
 
+
+
       const rehQtyEl = document.getElementById('f_rentFacilityRehearsal_qty');
+
       const perfQtyEl = document.getElementById('f_rentFacilityPerformance_qty');
+
       if (rehQtyEl) rehQtyEl.value = rehWeeks;
+
       if (perfQtyEl) perfQtyEl.value = perfWeeks;
 
+
+
       const per = Math.max(0, parseFloat(document.getElementById('f_performances').value) || 0);
+
       const cap = Math.max(0, parseFloat(document.getElementById('f_capacity').value) || 0);
+
       const attPct = Math.max(0, parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0) / 100;
 
+
+
       const gaPrice = Math.max(0, parseFloat(document.getElementById('f_gaPrice').value) || 0);
+
       const pifSeats = Math.max(0, parseFloat(document.getElementById('f_pifSeats').value) || 0);
+
       const pifPrice = Math.max(0, parseFloat(document.getElementById('f_pifPrice').value) || 0);
+
       const dropSeats = Math.max(0, parseFloat(document.getElementById('f_dropSeats').value) || 0);
+
       
+
       const pwywNights = Math.max(0, parseFloat(document.getElementById('f_pwywNights').value) || 0);
+
       const pwywCapPerNight = Math.max(0, parseFloat(document.getElementById('f_pwywCapPerNight').value) || 0);
+
       const pwywPrice = Math.max(0, parseFloat(document.getElementById('f_pwywPrice').value) || 0);
+
       const companyComps = Math.max(0, parseFloat(document.getElementById('f_companyComps').value) || 0);
 
+
+
       const conc = Math.max(0, parseFloat(document.getElementById('f_concessions').value) || 0);
+
       const merch = Math.max(0, parseFloat(document.getElementById('f_merch').value) || 0);
+
       const showDonations = Math.max(0, parseFloat(document.getElementById('f_showDonations').value) || 0);
+
       const showSponsorship = Math.max(0, parseFloat(document.getElementById('f_showSponsorship').value) || 0);
 
+
+
       let stipendsSum = 0;
+
       let expSum = 0;
+
       let personnelHeadcount = 0;
 
+
+
       LINE_ITEM_KEYS.forEach(key => {
+
         const qtyInput = parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0;
+
         const rateInput = parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0;
+
         
+
         const qty = Math.max(0, qtyInput);
+
         const rate = Math.max(0, rateInput);
+
         const tot = qty * rate;
 
+
+
         const totEl = document.getElementById(`f_${key}_tot`);
+
         if (totEl) totEl.innerText = '$' + tot.toLocaleString(undefined, {maximumFractionDigits: 0});
 
+
+
         if (STIPEND_KEYS.includes(key)) stipendsSum += tot;
+
         else expSum += tot;
 
+
+
         if (PERSONNEL_KEYS.includes(key) && key !== 'carpentry') personnelHeadcount += qty;
+
       });
+
+
 
       const autoComps = personnelHeadcount * 2;
+
       const autoCompsEl = document.getElementById('f_autoProdComps');
+
       if (autoCompsEl) autoCompsEl.value = `${autoComps} Seats (${personnelHeadcount} Staff)`;
 
+
+
       const mockShow = {
+
         performances: per, capacity: cap, expectedAttendancePct: attPct * 100,
+
         gaPrice, pifSeats, pifPrice, dropSeats, pwywNights, pwywCapPerNight, pwywPrice, companyComps,
+
         items: {}
+
       };
+
       
+
       LINE_ITEM_KEYS.forEach(k => {
+
         mockShow.items[k] = {
+
           qty: Math.max(0, parseFloat(document.getElementById(`f_${k}_qty`)?.value) || 0),
+
           rate: Math.max(0, parseFloat(document.getElementById(`f_${k}_rate`)?.value) || 0)
+
         };
+
       });
+
+
 
       const metrics = calculateShowBoxOffice(mockShow, false);
 
+
+
       const apportionedItems = state.overhead.filter(o => o.apportion);
+
       const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
+
       const perShowAdmin = (annualApportionedPool / 12);
 
+
+
       const directShowExpenses = stipendsSum + expSum;
+
       const totalExpWithAdmin = directShowExpenses + perShowAdmin;
+
       const totalRevenue = metrics.totalTixRev + conc + merch + showDonations + showSponsorship;
+
       const netMargin = totalRevenue - totalExpWithAdmin;
 
+
+
       document.getElementById('prev-tix').innerText = '$' + metrics.totalTixRev.toLocaleString(undefined, {maximumFractionDigits:0});
+
       document.getElementById('prev-tix-sub').innerText = `${metrics.totalAttendedSeats.toFixed(0)} seats projected`;
+
       document.getElementById('prev-avg-tix').innerText = '$' + metrics.weightedAvgTicket.toFixed(2);
+
       
+
       document.getElementById('prev-direct-exp').innerText = '$' + directShowExpenses.toLocaleString(undefined, {maximumFractionDigits:0});
+
       document.getElementById('prev-exp').innerText = '$' + totalExpWithAdmin.toLocaleString(undefined, {maximumFractionDigits:0});
+
       
+
       const marginEl = document.getElementById('prev-margin');
+
       marginEl.innerText = '$' + netMargin.toLocaleString(undefined, {maximumFractionDigits:0});
+
       marginEl.className = 'kpi-value ' + (netMargin >= 0 ? 'positive' : 'negative');
+
     }
+
+
 
     function saveBuilderDraft() {
+
       const draft = {};
+
       const fields = [
+
         'f_name', 'f_season', 'f_year', 'f_rehearsalWeeks', 'f_performanceWeeks', 'f_performances', 'f_capacity', 'f_expectedAttendancePct',
+
         'f_gaPrice', 'f_pifSeats', 'f_pifPrice', 'f_dropSeats', 'f_pwywNights', 'f_pwywCapPerNight', 'f_pwywPrice', 'f_companyComps',
+
         'f_concessions', 'f_merch', 'f_showDonations', 'f_showSponsorship'
+
       ];
+
       fields.forEach(id => {
+
         const el = document.getElementById(id);
+
         if (el) draft[id] = el.value;
+
       });
+
+
 
       draft.items = {};
+
       LINE_ITEM_KEYS.forEach(k => {
+
         draft.items[k] = {
+
           qty: Math.max(0, parseFloat(document.getElementById(`f_${k}_qty`)?.value) || 0),
+
           rate: Math.max(0, parseFloat(document.getElementById(`f_${k}_rate`)?.value) || 0)
+
         };
+
       });
+
+
 
       localStorage.setItem('whim_builder_draft', JSON.stringify(draft));
+
       alert("Draft saved! Your progress will be retained.");
+
     }
+
+
 
     function loadBuilderDraft() {
+
       const saved = localStorage.getItem('whim_builder_draft');
+
       if (!saved) return;
+
       try {
+
         const draft = JSON.parse(saved);
+
         Object.keys(draft).forEach(id => {
+
           if (id !== 'items') {
+
             const el = document.getElementById(id);
+
             if (el) el.value = draft[id];
+
           }
+
         });
+
         if (draft.items) {
+
           LINE_ITEM_KEYS.forEach(k => {
+
             if (draft.items[k]) {
+
               const qtyEl = document.getElementById(`f_${k}_qty`);
+
               const rateEl = document.getElementById(`f_${k}_rate`);
+
               if (qtyEl) qtyEl.value = Math.max(0, draft.items[k].qty);
+
               if (rateEl) rateEl.value = Math.max(0, draft.items[k].rate);
+
             }
+
           });
+
         }
+
       } catch(e) { console.error("Error loading builder draft", e); }
+
     }
+
+
 
     function commitBuilderShow() {
+
       const itemsObj = {};
+
       LINE_ITEM_KEYS.forEach(key => {
+
         itemsObj[key] = {
+
           qty: Math.max(0, parseFloat(document.getElementById(`f_${key}_qty`)?.value) || 0),
+
           rate: Math.max(0, parseFloat(document.getElementById(`f_${key}_rate`)?.value) || 0)
+
         };
+
       });
+
+
 
       const newShow = {
+
         id: Date.now(),
+
         name: document.getElementById('f_name').value.trim() || "Untitled New Show",
+
         season: document.getElementById('f_season').value || "2026-2027",
+
         year: document.getElementById('f_year').value || "2026",
+
         rehearsalWeeks: Math.max(0, parseInt(document.getElementById('f_rehearsalWeeks').value) || 0),
+
         performanceWeeks: Math.max(0, parseInt(document.getElementById('f_performanceWeeks').value) || 0),
+
         performances: Math.max(0, parseInt(document.getElementById('f_performances').value) || 0),
+
         capacity: Math.max(0, parseInt(document.getElementById('f_capacity').value) || 0),
+
         expectedAttendancePct: Math.max(0, parseFloat(document.getElementById('f_expectedAttendancePct').value) || 0),
+
         gaPrice: Math.max(0, parseFloat(document.getElementById('f_gaPrice').value) || 0),
+
         pifSeats: Math.max(0, parseFloat(document.getElementById('f_pifSeats').value) || 0),
+
         pifPrice: Math.max(0, parseFloat(document.getElementById('f_pifPrice').value) || 0),
+
         dropSeats: Math.max(0, parseFloat(document.getElementById('f_dropSeats').value) || 0),
+
         pwywNights: Math.max(0, parseFloat(document.getElementById('f_pwywNights').value) || 0),
+
         pwywCapPerNight: Math.max(0, parseFloat(document.getElementById('f_pwywCapPerNight').value) || 0),
+
         pwywPrice: Math.max(0, parseFloat(document.getElementById('f_pwywPrice').value) || 0),
+
         companyComps: Math.max(0, parseFloat(document.getElementById('f_companyComps').value) || 0),
+
         concessions: Math.max(0, parseFloat(document.getElementById('f_concessions').value) || 0),
+
         merch: Math.max(0, parseFloat(document.getElementById('f_merch').value) || 0),
+
         showDonations: Math.max(0, parseFloat(document.getElementById('f_showDonations').value) || 0),
+
         showSponsorship: Math.max(0, parseFloat(document.getElementById('f_showSponsorship').value) || 0),
+
         items: itemsObj
+
       };
 
+
+
       state.productions.push(newShow);
+
       localStorage.removeItem('whim_builder_draft');
+
       saveState();
+
       alert(`"${newShow.name}" has been added to your Season Budget!`);
+
       switchTab('productions');
+
     }
+
+
 
     function getShowAllocatedGrants(showId) {
+
       let total = 0;
+
       state.grants.forEach(g => {
+
         if (g.targetShowIds && g.targetShowIds.includes(showId)) {
+
           total += (g.amount / g.targetShowIds.length);
+
         }
+
       });
+
       return total;
+
     }
+
+
 
     function getShowAllocatedSponsorships(showId) {
+
       let total = 0;
+
       if (state.sponsorships) {
+
         state.sponsorships.forEach(s => {
+
           if (s.targetShowIds && s.targetShowIds.includes(showId)) {
+
             total += (s.amount / s.targetShowIds.length);
+
           }
+
         });
+
       }
+
       return total;
+
     }
 
+
+
     function renderApp() {
+
       const selectedSeason = document.getElementById('seasonFilter').value;
+
       const isFullCap = document.getElementById('capacityMode').value === 'full';
+
       
+
       const fyConfig = document.getElementById('fyStartConfig');
+
       if (fyConfig) fyConfig.value = state.fyStartMonth || 1;
+
+
 
       const totalOverhead = state.overhead.reduce((sum, item) => sum + item.annual, 0);
 
+
+
       const apportionedItems = state.overhead.filter(o => o.apportion);
+
       const annualApportionedPool = apportionedItems.reduce((sum, o) => sum + o.annual, 0);
+
       const perShowApportionedAdmin = (annualApportionedPool / 12);
 
+
+
       let filteredShows = state.productions.filter(p => selectedSeason === 'all' || p.season === selectedSeason);
+
       let filteredRentals = (state.rentals || []).filter(r => selectedSeason === 'all' || r.season === selectedSeason);
 
+
+
       let totalTicketRevenue = 0;
+
       let totalNonBoxRevenue = 0;
+
       let totalProductionExpenses = 0;
+
       let totalStipendsPool = 0;
 
+
+
       filteredShows.forEach(p => {
+
         let metrics = calculateShowBoxOffice(p, isFullCap);
+
         let showGrantAlloc = getShowAllocatedGrants(p.id);
+
         let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
 
+
+
         let showNonBoxRev = showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0) + (p.showDonations||0) + (p.showSponsorship||0);
+
         
+
         let showStipends = 0;
+
         let expSum = 0;
 
+
+
         if (p.items) {
+
           LINE_ITEM_KEYS.forEach(k => {
+
             let tot = getItemTotal(p.items, k);
+
             if (STIPEND_KEYS.includes(k)) showStipends += tot;
+
             else expSum += tot;
+
           });
+
         }
+
+
 
         let showExpenses = showStipends + expSum + perShowApportionedAdmin;
 
+
+
         totalTicketRevenue += metrics.totalTixRev;
+
         totalNonBoxRevenue += showNonBoxRev;
+
         totalProductionExpenses += showExpenses;
+
         totalStipendsPool += showStipends;
+
       });
 
+
+
       let rentalFeesTotal = filteredRentals.reduce((s, r) => s + (r.rentalFee || 0), 0);
+
       let rentalConcessionsTotal = filteredRentals.reduce((s, r) => s + (r.concessionsRev || 0), 0);
 
+
+
       let unallocatedGrants = state.grants.filter(g => !g.targetShowIds || g.targetShowIds.length === 0).reduce((s, g) => s + g.amount, 0);
+
       let unallocatedSponsors = (state.sponsorships||[]).filter(s => !s.targetShowIds || s.targetShowIds.length === 0).reduce((s, sp) => s + sp.amount, 0);
+
       let totalDonationsHub = (state.donations||[]).filter(d => selectedSeason === 'all' || d.season === selectedSeason).reduce((s, d) => s + d.amount, 0);
 
+
+
       const totalRevenue = totalTicketRevenue + totalNonBoxRevenue + rentalFeesTotal + rentalConcessionsTotal + unallocatedGrants + unallocatedSponsors + totalDonationsHub;
+
       const totalExpenses = totalOverhead + (totalProductionExpenses - (filteredShows.length * perShowApportionedAdmin));
+
       const netIncome = totalRevenue - totalExpenses;
 
+
+
       document.getElementById('kpi-rev').innerText = '$' + totalRevenue.toLocaleString(undefined, {maximumFractionDigits:0});
+
       document.getElementById('kpi-exp').innerText = '$' + totalExpenses.toLocaleString(undefined, {maximumFractionDigits:0});
+
       
+
       const marginEl = document.getElementById('kpi-margin');
+
       marginEl.innerText = '$' + netIncome.toLocaleString(undefined, {maximumFractionDigits:0});
+
       marginEl.className = 'kpi-value ' + (netIncome >= 0 ? 'positive' : 'negative');
+
+
 
       document.getElementById('kpi-stipends').innerText = '$' + totalStipendsPool.toLocaleString(undefined, {maximumFractionDigits:0});
 
+
+
       renderOverheadTable();
+
       renderRentalsHub();
+
       renderGrantsHub();
+
       renderSponsorshipsHub();
+
       renderDonationsHub();
+
       renderProductions(filteredShows, isFullCap, perShowApportionedAdmin);
+
       renderChart(totalTicketRevenue, totalNonBoxRevenue + totalDonationsHub + rentalFeesTotal + rentalConcessionsTotal, totalProductionExpenses, totalOverhead);
+
       renderMasterPNL(isFullCap);
+
     }
+
+
 
     function updatePNLFilterOptions() {
+
       const mode = document.getElementById('pnlViewMode').value;
+
       const periodSelect = document.getElementById('pnlPeriodFilter');
+
       const currentVal = periodSelect.value;
+
       periodSelect.innerHTML = '';
 
+
+
       if (mode === 'season') {
+
         periodSelect.innerHTML = `
+
           <option value="all">All Seasons (Combined)</option>
+
           <option value="2025-2026">2025–2026 Season</option>
+
           <option value="2026-2027" selected>2026–2027 Season</option>
+
           <option value="2027-2028">2027–2028 Season</option>`;
+
       } else if (mode === 'fy') {
+
         periodSelect.innerHTML = `
+
           <option value="all">All Fiscal Years (Combined)</option>
+
           <option value="2025-2026">FY 2025–2026</option>
+
           <option value="2026-2027" selected>FY 2026–2027</option>
+
           <option value="2027-2028">FY 2027–2028</option>`;
+
       } else {
+
         periodSelect.innerHTML = `
+
           <option value="all">All Years (Combined)</option>
+
           <option value="2025">Calendar Year 2025</option>
+
           <option value="2026" selected>Calendar Year 2026</option>
+
           <option value="2027">Calendar Year 2027</option>
+
           <option value="2028">Calendar Year 2028</option>`;
+
       }
+
       if (currentVal && periodSelect.querySelector(`option[value="${currentVal}"]`)) {
+
         periodSelect.value = currentVal;
+
       }
+
     }
 
+
+
     function renderMasterPNL(isFullCap) {
+
       updatePNLFilterOptions();
+
       const container = document.getElementById('master-pnl-table-container');
+
       if (!container) return;
 
+
+
       const viewMode = document.getElementById('pnlViewMode').value;
+
       const periodVal = document.getElementById('pnlPeriodFilter').value;
 
+
+
       let filteredShows = state.productions.filter(p => {
+
         if (periodVal === 'all') return true;
+
         if (viewMode === 'season') return p.season === periodVal;
+
         if (viewMode === 'fy') return (p.fy || p.season) === periodVal;
+
         return (p.year || '2026') === periodVal;
+
       });
+
+
 
       let filteredRentals = (state.rentals || []).filter(r => {
+
         if (periodVal === 'all') return true;
+
         if (viewMode === 'season') return r.season === periodVal;
+
         if (viewMode === 'fy') return (r.fy || r.season) === periodVal;
+
         return (r.year || '2026') === periodVal;
+
       });
+
+
 
       let filteredGrants = state.grants.filter(g => {
+
         if (periodVal === 'all') return true;
+
         if (viewMode === 'season') return (g.season || '2026-2027') === periodVal;
+
         if (viewMode === 'fy') return (g.fy || g.season || '2026-2027') === periodVal;
+
         return (g.year || '2026') === periodVal;
+
       });
+
+
 
       let filteredSponsorships = (state.sponsorships || []).filter(s => {
+
         if (periodVal === 'all') return true;
+
         if (viewMode === 'season') return (s.season || '2026-2027') === periodVal;
+
         if (viewMode === 'fy') return (s.fy || s.season || '2026-2027') === periodVal;
+
         return (s.year || '2026') === periodVal;
+
       });
+
+
 
       let filteredDonations = (state.donations || []).filter(d => {
+
         if (periodVal === 'all') return true;
+
         if (viewMode === 'season') return (d.season || '2026-2027') === periodVal;
+
         if (viewMode === 'fy') return (d.fy || d.season || '2026-2027') === periodVal;
+
         return (d.year || '2026') === periodVal;
+
       });
+
+
 
       let filteredOverhead = state.overhead.filter(o => {
+
         if (periodVal === 'all') return true;
+
         if (viewMode === 'season') return (o.season || '2026-2027') === periodVal;
+
         if (viewMode === 'fy') return (o.fy || o.season || '2026-2027') === periodVal;
+
         return (o.year || '2026') === periodVal;
+
       });
+
+
 
       let totalTixRev = 0, totalShowConcessions = 0, totalMerch = 0, totalShowDonations = 0, totalShowSponsors = 0;
+
       let lineItemRollup = {};
+
       LINE_ITEM_KEYS.forEach(k => lineItemRollup[k] = 0);
 
+
+
       filteredShows.forEach(p => {
+
         let m = calculateShowBoxOffice(p, isFullCap);
+
         totalTixRev += m.totalTixRev;
+
         totalShowConcessions += (p.concessions || 0);
+
         totalMerch += (p.merch || 0);
+
         totalShowDonations += (p.showDonations || 0);
+
         totalShowSponsors += (p.showSponsorship || 0);
 
+
+
         if (p.items) {
+
           LINE_ITEM_KEYS.forEach(k => {
+
             lineItemRollup[k] += getItemTotal(p.items, k);
+
           });
+
         }
+
       });
 
+
+
       let rentalIncomeTotal = filteredRentals.reduce((s, r) => s + (r.rentalFee || 0), 0);
+
       let rentalConcessionsTotal = filteredRentals.reduce((s, r) => s + (r.concessionsRev || 0), 0);
+
       let totalConcessionsAll = totalShowConcessions + rentalConcessionsTotal;
+
       let subtotalRentalsAndSales = rentalIncomeTotal + totalConcessionsAll + totalMerch;
 
+
+
+      // Separate Awarded vs Anticipated Grants explicitly
+
       let awardedGrants = filteredGrants.filter(g => g.status === 'Awarded').reduce((s, g) => s + g.amount, 0);
+
       let anticipatedGrants = filteredGrants.filter(g => g.status === 'Anticipated').reduce((s, g) => s + g.amount, 0);
+
       let totalHubGrants = awardedGrants + anticipatedGrants;
+
+
 
       let totalHubSponsorships = filteredSponsorships.reduce((s, sp) => s + sp.amount, 0);
 
+
+
       let hubIndivDonations = filteredDonations.filter(d => d.type === 'Individual Donations' || !d.type).reduce((s, d) => s + d.amount, 0);
+
       let hubBoardDonations = filteredDonations.filter(d => d.type === 'Board Member Donations').reduce((s, d) => s + d.amount, 0);
+
       let hubSpecialEvents = filteredDonations.filter(d => d.type === 'Special Events Revenue').reduce((s, d) => s + d.amount, 0);
+
       let hubInKind = filteredDonations.filter(d => d.type === 'Donations In-Kind').reduce((s, d) => s + d.amount, 0);
+
       let hubAdvertising = filteredDonations.filter(d => d.type === 'Advertising Revenue').reduce((s, d) => s + d.amount, 0);
 
+
+
       let totalContributed = totalHubGrants + (totalHubSponsorships + totalShowSponsors) + (hubIndivDonations + totalShowDonations) + hubBoardDonations + hubInKind;
+
       let totalProgramRev = totalTixRev + hubSpecialEvents + hubAdvertising;
+
       let totalRevAll = totalContributed + totalProgramRev + subtotalRentalsAndSales;
 
+
+
+      // Artist stipends excludes script royalties/licensing and script printing
+
       let totalArtistStipends = STIPEND_KEYS.reduce((s, k) => s + lineItemRollup[k], 0);
+
       let totalScriptRoyalties = lineItemRollup['royalties'] || 0;
+
       let totalScriptPrinting = lineItemRollup['scripts'] || 0;
 
+
+
       let totalProdExhibition = totalScriptRoyalties + totalScriptPrinting + ['scenicMaterials', 'expProps', 'expCostumes', 'rentFacilityRehearsal', 'rentFacilityPerformance', 'rentEquipment', 'rentProps', 'rentCostumes', 'rentSetPiece', 'rentAuto', 'fuel', 'supplies'].reduce((s, k) => s + lineItemRollup[k], 0);
+
       let totalRecordingMedia = ['photography', 'videography'].reduce((s, k) => s + lineItemRollup[k], 0);
+
       let totalMarketingPromos = ['printAds', 'digitalAds', 'printedMaterials'].reduce((s, k) => s + lineItemRollup[k], 0);
 
+
+
       let overheadRollupHTML = '';
+
       OVERHEAD_PARENT_CATEGORIES.forEach(catName => {
+
         let catItems = filteredOverhead.filter(o => (o.parentCategory || "53000 Fees for Services (NonEmployees)") === catName);
+
         if (catItems.length > 0) {
+
           let catSum = catItems.reduce((s, o) => s + o.annual, 0);
-          overheadRollupHTML += `<tr class="sub-header"><td colspan="2">${catName} (Subtotal:$${catSum.toLocaleString()})</td></tr>`;
+
+          overheadRollupHTML += `<tr class="sub-header"><td colspan="2">${catName} (Subtotal: $${catSum.toLocaleString()})</td></tr>`;
+
           catItems.forEach(o => {
+
             overheadRollupHTML += `<tr><td style="padding-left:24px;">${o.name}</td><td style="text-align:right;">$${o.annual.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>`;
+
           });
+
         }
+
       });
 
+
+
       let totalOverhead = filteredOverhead.reduce((s, o) => s + o.annual, 0);
+
       let totalExpensesAll = totalArtistStipends + totalProdExhibition + totalRecordingMedia + totalMarketingPromos + totalOverhead;
+
       let netIncome = totalRevAll - totalExpensesAll;
 
+
+
       let html = `
+
         <table id="master-pnl-table">
+
           <thead>
+
             <tr>
-              <th>Account Line Item / Financial Category (${viewMode.toUpperCase()}: ${periodVal})</th>               <th style="text-align:right;">Projected Amount ($)</th>             </tr>           </thead>           <tbody>             <tr class="section-header"><td colspan="2">40000 CONTRIBUTIONS, GIFTS, GRANTS & DONATIONS</td></tr>             <tr><td style="padding-left:16px;">Awarded / Secured Grants</td><td style="text-align:right; font-weight:bold; color:var(--success);">$${awardedGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td style="padding-left:16px;">Anticipated / Applied Grants</td><td style="text-align:right; font-weight:bold; color:#a16207;">$${anticipatedGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>             <tr><td style="padding-left:16px;">Individual & Show Donations</td><td style="text-align:right;">$${(hubIndivDonations + totalShowDonations).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td style="padding-left:16px;">Corporate Sponsorships</td><td style="text-align:right;">$${(totalHubSponsorships + totalShowSponsors).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>             <tr><td style="padding-left:16px;">Board Member Donations</td><td style="text-align:right;">$${hubBoardDonations.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
-            <tr><td style="padding-left:16px
+
+              <th>Account Line Item / Financial Category (${viewMode.toUpperCase()}: ${periodVal})</th>
+
+              <th style="text-align:right;">Projected Amount ($)</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            <tr class="section-header"><td colspan="2">40000 CONTRIBUTIONS, GIFTS, GRANTS & DONATIONS</td></tr>
+
+            <tr><td style="padding-left:16px;">Awarded / Secured Grants</td><td style="text-align:right; font-weight:bold; color:var(--success);">$${awardedGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">Anticipated / Applied Grants</td><td style="text-align:right; font-weight:bold; color:#a16207;">$${anticipatedGrants.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">Individual & Show Donations</td><td style="text-align:right;">$${(hubIndivDonations + totalShowDonations).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">Corporate Sponsorships</td><td style="text-align:right;">$${(totalHubSponsorships + totalShowSponsors).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">Board Member Donations</td><td style="text-align:right;">$${hubBoardDonations.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">Donations In-Kind</td><td style="text-align:right;">$${hubInKind.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="sub-header"><td>Subtotal Contributions & Grants</td><td style="text-align:right;">$${totalContributed.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+
+
+            <tr class="section-header"><td colspan="2">41000 PROGRAM SERVICE REVENUE</td></tr>
+
+            <tr><td style="padding-left:16px;">Admission and Ticket Sales (Box Office)</td><td style="text-align:right;">$${totalTixRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">Special Events Revenue</td><td style="text-align:right;">$${hubSpecialEvents.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">Advertising Revenue (Whim & External)</td><td style="text-align:right;">$${hubAdvertising.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="sub-header"><td>Subtotal Program Service Revenue</td><td style="text-align:right;">$${totalProgramRev.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+
+
+            <tr class="section-header"><td colspan="2">44000 RENTAL INCOME & SALES</td></tr>
+
+            <tr><td style="padding-left:16px;">44000 Rental Income (Outside Venue Bookings)</td><td style="text-align:right;">$${rentalIncomeTotal.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">48100 Concessions (Shows & Hosted Events)</td><td style="text-align:right;">$${totalConcessionsAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:16px;">48500 Merchandise Revenue</td><td style="text-align:right;">$${totalMerch.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="sub-header" style="background:#eef2ff; color:#3730a3; font-weight:bold;">
+
+              <td>SUBTOTAL 44000 RENTAL INCOME & SALES</td>
+
+              <td style="text-align:right;">$${subtotalRentalsAndSales.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+
+            </tr>
+
+
+
+            <tr class="total-row"><td>TOTAL PROJECTED INCOME / REVENUE</td><td style="text-align:right; color:var(--success); font-size:1.1rem;">$${totalRevAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+
+
+            <tr class="section-header"><td colspan="2">EXPENSES & OPERATING COSTS</td></tr>
+
+            <tr class="sub-header"><td colspan="2">53500 Artist Stipends</td></tr>
+
+            <tr><td style="padding-left:24px;">Show Personnel & Creative Staff Total</td><td style="text-align:right;">$${totalArtistStipends.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+
+
+            <tr class="sub-header"><td colspan="2">70200 Production and Exhibition Costs</td></tr>
+
+            <tr><td style="padding-left:24px;">Script Royalties & Licensing Fees</td><td style="text-align:right;">$${totalScriptRoyalties.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:24px;">Scripts - Printing, Purchase or Rent</td><td style="text-align:right;">$${totalScriptPrinting.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr><td style="padding-left:24px;">Scenic Materials, Props, Costumes, Equipment & Venue Rentals</td><td style="text-align:right;">$${(totalProdExhibition - totalScriptRoyalties - totalScriptPrinting).toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+
+
+            <tr class="sub-header"><td colspan="2">70300 Recording, Broadcasting & Media</td></tr>
+
+            <tr><td style="padding-left:24px;">Photography & Videography Documentation</td><td style="text-align:right;">$${totalRecordingMedia.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+
+
+            <tr class="sub-header"><td colspan="2">54000 Advertising and Promotion (Show Marketing)</td></tr>
+
+            <tr><td style="padding-left:24px;">Print Ads, Digital Ads & Printed Marketing Materials</td><td style="text-align:right;">$${totalMarketingPromos.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+
+
+            <tr class="section-header"><td colspan="2">GENERAL ANNUAL OPERATING EXPENSES (OVERHEAD & ADMINISTRATION)</td></tr>
+
+            ${overheadRollupHTML}
+
+
+
+            <tr class="total-row"><td>TOTAL PROJECTED EXPENSES</td><td style="text-align:right; color:var(--danger); font-size:1.1rem;">$${totalExpensesAll.toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>
+
+            <tr class="total-row" style="background:#eef2ff;">
+
+              <td>NET OPERATING INCOME / SURPLUS (DEFICIT)</td>
+
+              <td style="text-align:right; color:${netIncome>=0?'var(--success)':'var(--danger)'}; font-size:1.15rem;">$${netIncome.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+
+            </tr>
+
+          </tbody>
+
+        </table>`;
+
+
+
+      container.innerHTML = html;
+
+    }
+
+
+
+    function exportToExcel() {
+
+      const table = document.getElementById('master-pnl-table');
+
+      if (!table) { alert("Please view the Season Master P&L tab first."); return; }
+
+      const wb = XLSX.utils.table_to_book(table, { sheet: "Season Master PNL" });
+
+      XLSX.writeFile(wb, `Whim_Productions_Master_PNL_${new Date().toISOString().slice(0,10)}.xlsx`);
+
+    }
+
+
+
+    function exportToWord() {
+
+      const tableHTML = document.getElementById('master-pnl-table-container')?.innerHTML;
+
+      if (!tableHTML) { alert("Please view the Season Master P&L tab first."); return; }
+
+
+
+      const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+
+            "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+
+            "xmlns='http://www.w3.org/TR/REC-html40'>"+
+
+            "<head><meta charset='utf-8'><title>Season Master P&L Statement</title>"+
+
+            "<style>table { width:100%; border-collapse:collapse; } th, td { border:1px solid #cbd5e1; padding:8px; font-family:Arial, sans-serif; font-size:12px; } th { background:#f1f5f9; }</style>"+
+
+            "</head><body><h2>Whim Productions - Season Master P&L Statement</h2>";
+
+      const footer = "</body></html>";
+
+      const sourceHTML = header + tableHTML + footer;
+
+
+
+      const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+
+      const fileDownload = document.createElement("a");
+
+      document.body.appendChild(fileDownload);
+
+      fileDownload.href = source;
+
+      fileDownload.download = `Whim_Productions_Master_PNL_${new Date().toISOString().slice(0,10)}.doc`;
+
+      fileDownload.click();
+
+      document.body.removeChild(fileDownload);
+
+    }
+
+
+
+    function toggleAccordion(contentId, iconId) {
+
+      const el = document.getElementById(contentId);
+
+      const icon = document.getElementById(iconId);
+
+      if (!el) return;
+
+      if (el.style.display === 'none') {
+
+        el.style.display = 'block';
+
+        if (icon) icon.innerText = '▼';
+
+      } else {
+
+        el.style.display = 'none';
+
+        if (icon) icon.innerText = '▶';
+
+      }
+
+    }
+
+
+
+    function toggleAllShowAccordions(expand) {
+
+      document.querySelectorAll('.season-content').forEach(el => el.style.display = expand ? 'block' : 'none');
+
+      document.querySelectorAll('.show-body').forEach(el => el.style.display = expand ? 'block' : 'none');
+
+      document.querySelectorAll('.acc-icon').forEach(el => el.innerText = expand ? '▼' : '▶');
+
+    }
+
+
+
+    function toggleAllRentalAccordions(expand) {
+
+      document.querySelectorAll('.rental-season-content').forEach(el => el.style.display = expand ? 'block' : 'none');
+
+      document.querySelectorAll('.rental-acc-icon').forEach(el => el.innerText = expand ? '▼' : '▶');
+
+    }
+
+
+
+    function renderRentalsHub() {
+
+      const container = document.getElementById('rentals-container');
+
+      container.innerHTML = '';
+
+      if (!state.rentals) state.rentals = [];
+
+
+
+      const seasons = ["2025-2026", "2026-2027", "2027-2028"];
+
+      
+
+      seasons.forEach((seasonKey, sIdx) => {
+
+        const seasonRentals = state.rentals.filter(r => r.season === seasonKey);
+
+        if (seasonRentals.length === 0) return;
+
+
+
+        const totalFees = seasonRentals.reduce((s, r) => s + (r.rentalFee || 0), 0);
+
+        const totalConc = seasonRentals.reduce((s, r) => s + (r.concessionsRev || 0), 0);
+
+
+
+        let bookingsHTML = seasonRentals.map(r => `
+
+          <div class="hub-card">
+
+            <div class="flex-between" style="margin-bottom:10px;">
+
+              <div style="display:flex; align-items:center; gap:12px;">
+
+                <input type="text" value="${r.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateRental(${r.id}, 'name', this.value)">
+
+                <select style="font-weight:bold; font-size:0.85rem;" onchange="updateRental(${r.id}, 'category', this.value)">
+
+                  <option value="Theater Production Rental" ${r.category==='Theater Production Rental'?'selected':''}>Theater Production Rental</option>
+
+                  <option value="KC Fringe Rental" ${r.category==='KC Fringe Rental'?'selected':''}>KC Fringe Rental</option>
+
+                  <option value="Burlesque Rentals" ${r.category==='Burlesque Rentals'?'selected':''}>Burlesque Rentals</option>
+
+                  <option value="Meeting Rentals" ${r.category==='Meeting Rentals'?'selected':''}>Meeting Rentals</option>
+
+                  <option value="Other Event Rentals" ${r.category==='Other Event Rentals'?'selected':''}>Other Event Rentals</option>
+
+                </select>
+
+              </div>
+
+              <button class="btn-danger" onclick="deleteRental(${r.id})">Delete Booking</button>
+
+            </div>
+
+            
+
+            <div class="grid-4">
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">RENTAL FEE INCOME ($)</label><br>
+
+                $<input type="number" value="${r.rentalFee||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'rentalFee', Math.max(0, parseFloat(this.value)))">
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED CONCESSIONS REV ($)</label><br>
+
+                $<input type="number" value="${r.concessionsRev||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'concessionsRev', Math.max(0, parseFloat(this.value)))">
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+
+                <select onchange="updateRental(${r.id}, 'season', this.value)">
+
+                  <option value="2025-2026" ${r.season==='2025-2026'?'selected':''}>2025–2026</option>
+
+                  <option value="2026-2027" ${r.season==='2026-2027'?'selected':''}>2026–2027</option>
+
+                  <option value="2027-2028" ${r.season==='2027-2028'?'selected':''}>2027–2028</option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
+
+                <select onchange="updateRental(${r.id}, 'year', this.value)">
+
+                  <option value="2025" ${r.year==='2025'?'selected':''}>2025</option>
+
+                  <option value="2026" ${r.year==='2026'?'selected':''}>2026</option>
+
+                  <option value="2027" ${r.year==='2027'?'selected':''}>2027</option>
+
+                  <option value="2028" ${r.year==='2028'?'selected':''}>2028</option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+          </div>`).join('');
+
+
+
+        container.innerHTML += `
+
+          <div class="season-group">
+
+            <div class="season-header" onclick="toggleAccordion('rent-season-content-${sIdx}', 'rent-season-icon-${sIdx}')">
+
+              <div class="season-title">
+
+                <span id="rent-season-icon-${sIdx}" class="rental-acc-icon">▼</span>
+
+                📅 ${seasonKey} Season Rentals (${seasonRentals.length} Bookings)
+
+              </div>
+
+              <div style="font-size:0.9rem;">
+
+                Rentals Income: <strong style="color:var(--success);">$${totalFees.toLocaleString()}</strong> | Concessions Yield: <strong>$${totalConc.toLocaleString()}</strong>
+
+              </div>
+
+            </div>
+
+            <div id="rent-season-content-${sIdx}" class="season-content rental-season-content">
+
+              ${bookingsHTML}
+
+            </div>
+
+          </div>`;
+
+      });
+
+    }
+
+
+
+    function updateRental(id, field, val) {
+
+      const item = state.rentals.find(r => r.id === id);
+
+      if (item) { item[field] = val; saveState(); }
+
+    }
+
+    function addRentalBooking() {
+
+      if (!state.rentals) state.rentals = [];
+
+      state.rentals.push({ id: Date.now(), name: "New Event Rental", category: "Theater Production Rental", rentalFee: 1500, concessionsRev: 300, season: "2026-2027", year: "2026" });
+
+      saveState();
+
+    }
+
+    function deleteRental(id) {
+
+      state.rentals = state.rentals.filter(r => r.id !== id);
+
+      saveState();
+
+    }
+
+
+
+    function renderGrantsHub() {
+
+      const container = document.getElementById('grants-container');
+
+      const summaryContainer = document.getElementById('grants-summary-container');
+
+      container.innerHTML = '';
+
+
+
+      let totalAwarded = state.grants.filter(g => g.status === 'Awarded').reduce((s, g) => s + g.amount, 0);
+
+      let totalAnticipated = state.grants.filter(g => g.status === 'Anticipated').reduce((s, g) => s + g.amount, 0);
+
+      let totalGrantsAll = totalAwarded + totalAnticipated;
+
+
+
+      summaryContainer.innerHTML = `
+
+        <div class="kpi-grid">
+
+          <div class="kpi-card">
+
+            <div class="kpi-label">Awarded / Secured Grants</div>
+
+            <div class="kpi-value positive">$${totalAwarded.toLocaleString()}</div>
+
+          </div>
+
+          <div class="kpi-card">
+
+            <div class="kpi-label">Anticipated / Applied Grants</div>
+
+            <div class="kpi-value" style="color:#a16207;">$${totalAnticipated.toLocaleString()}</div>
+
+          </div>
+
+          <div class="kpi-card">
+
+            <div class="kpi-label">Total Grant Pool</div>
+
+            <div class="kpi-value" style="color:var(--primary);">$${totalGrantsAll.toLocaleString()}</div>
+
+          </div>
+
+        </div>`;
+
+
+
+      state.grants.forEach(g => {
+
+        let showCheckboxes = state.productions.map(p => {
+
+          let isChecked = g.targetShowIds && g.targetShowIds.includes(p.id) ? 'checked' : '';
+
+          return `
+
+            <label class="checkbox-item">
+
+              <input type="checkbox" ${isChecked} onchange="toggleGrantShow(${g.id}, ${p.id}, this.checked)">
+
+              ${p.name} (${p.season||'2026-2027'})
+
+            </label>`;
+
+        }).join('');
+
+
+
+        let allocCount = g.targetShowIds ? g.targetShowIds.length : 0;
+
+        let perShowAmt = allocCount > 0 ? (g.amount / allocCount) : 0;
+
+
+
+        container.innerHTML += `
+
+          <div class="hub-card">
+
+            <div class="flex-between" style="margin-bottom:10px;">
+
+              <div style="display:flex; align-items:center; gap:12px;">
+
+                <input type="text" value="${g.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateGrant(${g.id}, 'name', this.value)">
+
+                <span class="badge ${g.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${g.status}</span>
+
+              </div>
+
+              <button class="btn-danger" onclick="deleteGrant(${g.id})">Delete Grant</button>
+
+            </div>
+
+            
+
+            <div class="grid-4" style="margin-bottom:12px;">
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">GRANT AMOUNT ($)</label><br>
+
+                $<input type="number" value="${g.amount}" min="0" style="font-weight:bold;" onchange="updateGrant(${g.id}, 'amount', Math.max(0, parseFloat(this.value)))">
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
+
+                <select onchange="updateGrant(${g.id}, 'status', this.value)">
+
+                  <option value="Awarded" ${g.status==='Awarded'?'selected':''}>Awarded / Confirmed</option>
+
+                  <option value="Anticipated" ${g.status==='Anticipated'?'selected':''}>Anticipated / Applied</option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+
+                <select onchange="updateGrant(${g.id}, 'season', this.value)">
+
+                  <option value="2025-2026" ${(g.season||'2026-2027')==='2025-2026'?'selected':''}>2025–2026</option>
+
+                  <option value="2026-2027" ${(g.season||'2026-2027')==='2026-2027'?'selected':''}>2026–2027</option>
+
+                  <option value="2027-2028" ${(g.season||'2026-2027')==='2027-2028'?'selected':''}>2027–2028</option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
+
+                <select onchange="updateGrant(${g.id}, 'year', this.value)">
+
+                  <option value="2025" ${(g.year||'2026')==='2025'?'selected':''}>2025</option>
+
+                  <option value="2026" ${(g.year||'2026')==='2026'?'selected':''}>2026</option>
+
+                  <option value="2027" ${(g.year||'2026')==='2027'?'selected':''}>2027</option>
+
+                  <option value="2028" ${(g.year||'2026')==='2028'?'selected':''}>2028</option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+
+            <div style="margin-bottom:10px;">
+
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW:</label>
+
+              <strong style="color:var(--primary); font-size:1.05rem; margin-left:6px;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+
+            </div>
+
+
+
+            <div>
+
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold; text-transform:uppercase;">Apportion Funds To Shows/Events:</label>
+
+              <div class="checkbox-group">${showCheckboxes}</div>
+
+            </div>
+
+          </div>`;
+
+      });
+
+    }
+
+
+
+    function toggleGrantShow(grantId, showId, isChecked) {
+
+      const grant = state.grants.find(g => g.id === grantId);
+
+      if (grant) {
+
+        if (!grant.targetShowIds) grant.targetShowIds = [];
+
+        if (isChecked && !grant.targetShowIds.includes(showId)) {
+
+          grant.targetShowIds.push(showId);
+
+        } else if (!isChecked) {
+
+          grant.targetShowIds = grant.targetShowIds.filter(id => id !== showId);
+
+        }
+
+        saveState();
+
+      }
+
+    }
+
+
+
+    function updateGrant(id, field, val) {
+
+      const item = state.grants.find(g => g.id === id);
+
+      if (item) { item[field] = val; saveState(); }
+
+    }
+
+    function addGrant() {
+
+      state.grants.push({ id: Date.now(), name: "New Grant Opportunity", amount: 2500, status: "Anticipated", targetShowIds: [], season: "2026-2027", year: "2026" });
+
+      saveState();
+
+    }
+
+    function deleteGrant(id) {
+
+      state.grants = state.grants.filter(g => g.id !== id);
+
+      saveState();
+
+    }
+
+
+
+    function renderSponsorshipsHub() {
+
+      const container = document.getElementById('sponsorships-container');
+
+      container.innerHTML = '';
+
+      if (!state.sponsorships) state.sponsorships = [];
+
+
+
+      state.sponsorships.forEach(s => {
+
+        let showCheckboxes = state.productions.map(p => {
+
+          let isChecked = s.targetShowIds && s.targetShowIds.includes(p.id) ? 'checked' : '';
+
+          return `
+
+            <label class="checkbox-item">
+
+              <input type="checkbox" ${isChecked} onchange="toggleSponsorShow(${s.id}, ${p.id}, this.checked)">
+
+              ${p.name} (${p.season||'2026-2027'})
+
+            </label>`;
+
+        }).join('');
+
+
+
+        let allocCount = s.targetShowIds ? s.targetShowIds.length : 0;
+
+        let perShowAmt = allocCount > 0 ? (s.amount / allocCount) : 0;
+
+
+
+        container.innerHTML += `
+
+          <div class="hub-card">
+
+            <div class="flex-between" style="margin-bottom:10px;">
+
+              <div style="display:flex; align-items:center; gap:12px;">
+
+                <input type="text" value="${s.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateSponsor(${s.id}, 'name', this.value)">
+
+                <span class="badge ${s.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${s.status}</span>
+
+              </div>
+
+              <button class="btn-danger" onclick="deleteSponsor(${s.id})">Delete Sponsor</button>
+
+            </div>
+
+            
+
+            <div class="grid-4" style="margin-bottom:12px;">
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">SPONSORSHIP AMOUNT ($)</label><br>
+
+                $<input type="number" value="${s.amount}" min="0" style="font-weight:bold;" onchange="updateSponsor(${s.id}, 'amount', Math.max(0, parseFloat(this.value)))">
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
+
+                <select onchange="updateSponsor(${s.id}, 'status', this.value)">
+
+                  <option value="Awarded" ${s.status==='Awarded'?'selected':''}>Awarded / Confirmed</option>
+
+                  <option value="Anticipated" ${s.status==='Anticipated'?'selected':''}>Anticipated / Pledged</option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+
+                <select onchange="updateSponsor(${s.id}, 'season', this.value)">
+
+                  <option value="2025-2026" ${(s.season||'2026-2027')==='2025-2026'?'selected':''}>2025–2026</option>
+
+                  <option value="2026-2027" ${(s.season||'2026-2027')==='2026-2027'?'selected':''}>2026–2027</option>
+
+                  <option value="2027-2028" ${(s.season||'2026-2027')==='2027-2028'?'selected':''}>2027–2028</option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
+
+                <select onchange="updateSponsor(${s.id}, 'year', this.value)">
+
+                  <option value="2025" ${(s.year||'2026')==='2025'?'selected':''}>2025</option>
+
+                  <option value="2026" ${(s.year||'2026')==='2026'?'selected':''}>2026</option>
+
+                  <option value="2027" ${(s.year||'2026')==='2027'?'selected':''}>2027</option>
+
+                  <option value="2028" ${(s.year||'2026')==='2028'?'selected':''}>2028</option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+
+            <div style="margin-bottom:10px;">
+
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">APPORTIONED PER ASSIGNED SHOW:</label>
+
+              <strong style="color:var(--primary); font-size:1.05rem; margin-left:6px;">$${perShowAmt.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+
+            </div>
+
+
+
+            <div>
+
+              <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold; text-transform:uppercase;">Apportion Funds To Shows/Events:</label>
+
+              <div class="checkbox-group">${showCheckboxes}</div>
+
+            </div>
+
+          </div>`;
+
+      });
+
+    }
+
+
+
+    function toggleSponsorShow(sponsorId, showId, isChecked) {
+
+      const sp = state.sponsorships.find(s => s.id === sponsorId);
+
+      if (sp) {
+
+        if (!sp.targetShowIds) sp.targetShowIds = [];
+
+        if (isChecked && !sp.targetShowIds.includes(showId)) {
+
+          sp.targetShowIds.push(showId);
+
+        } else if (!isChecked) {
+
+          sp.targetShowIds = sp.targetShowIds.filter(id => id !== showId);
+
+        }
+
+        saveState();
+
+      }
+
+    }
+
+
+
+    function updateSponsor(id, field, val) {
+
+      const item = state.sponsorships.find(s => s.id === id);
+
+      if (item) { item[field] = val; saveState(); }
+
+    }
+
+    function addSponsorship() {
+
+      if (!state.sponsorships) state.sponsorships = [];
+
+      state.sponsorships.push({ id: Date.now(), name: "New Sponsor Partner", amount: 1500, status: "Anticipated", targetShowIds: [], season: "2026-2027", year: "2026" });
+
+      saveState();
+
+    }
+
+    function deleteSponsor(id) {
+
+      state.sponsorships = state.sponsorships.filter(s => s.id !== id);
+
+      saveState();
+
+    }
+
+
+
+    function renderDonationsHub() {
+
+      const container = document.getElementById('donations-container');
+
+      container.innerHTML = '';
+
+      if (!state.donations) state.donations = [];
+
+
+
+      state.donations.forEach(d => {
+
+        container.innerHTML += `
+
+          <div class="hub-card">
+
+            <div class="flex-between" style="margin-bottom:10px;">
+
+              <div style="display:flex; align-items:center; gap:12px;">
+
+                <input type="text" value="${d.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateDonation(${d.id}, 'name', this.value)">
+
+                <span class="badge ${d.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${d.status}</span>
+
+              </div>
+
+              <button class="btn-danger" onclick="deleteDonation(${d.id})">Delete Campaign</button>
+
+            </div>
+
+            
+
+            <div class="grid-4">
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CAMPAIGN TYPE</label><br>
+
+                <select onchange="updateDonation(${d.id}, 'type', this.value)">
+
+                  <option value="Individual Donations" ${d.type==='Individual Donations'?'selected':''}>Individual Donations</option>
+
+                  <option value="Board Member Donations" ${d.type==='Board Member Donations'?'selected':''}>Board Member Donations</option>
+
+                  <option value="Special Events Revenue" ${d.type==='Special Events Revenue'?'selected':''}>Special Events Revenue</option>
+
+                  <option value="Donations In-Kind" ${d.type==='Donations In-Kind'?'selected':''}>Donations In-Kind</option>
+
+                  <option value="Advertising Revenue" ${d.type==='Advertising Revenue'?'selected':''}>Advertising Revenue</option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED AMOUNT ($)</label><br>
+
+                $<input type="number" value="${d.amount}" min="0" style="font-weight:bold;" onchange="updateDonation(${d.id}, 'amount', Math.max(0, parseFloat(this.value)))">
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
+
+                <select onchange="updateDonation(${d.id}, 'status', this.value)">
+
+                  <option value="Awarded" ${d.status==='Awarded'?'selected':''}>Received / Confirmed</option>
+
+                  <option value="Anticipated" ${d.status==='Anticipated'?'selected':''}>Anticipated / Goal</option>
+
+                </select>
+
+              </div>
+
+              <div>
+
+                <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
+
+                <select onchange="updateDonation(${d.id}, 'season', this.value)">
+
+                  <option value="2025-2026" ${d.season==='2025-2026'?'selected':''}>2025–2026</option>
+
+                  <option value="2026-2027" ${d.season==='2026-2027'?'selected':''}>2026–2027</option>
+
+                  <option value="2027-2028" ${d.season==='2027-2028'?'selected':''}>2027–2028</option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+          </div>`;
+
+      });
+
+    }
+
+
+
+    function updateDonation(id, field, val) {
+
+      const item = state.donations.find(d => d.id === id);
+
+      if (item) { item[field] = val; saveState(); }
+
+    }
+
+    function addDonation() {
+
+      if (!state.donations) state.donations = [];
+
+      state.donations.push({ id: Date.now(), name: "New Campaign Drive", type: "Individual Donations", amount: 1000, status: "Anticipated", season: "2026-2027", year: "2026" });
+
+      saveState();
+
+    }
+
+    function deleteDonation(id) {
+
+      state.donations = state.donations.filter(d => d.id !== id);
+
+      saveState();
+
+    }
+
+
+
+    function renderProductions(filteredShows, isFullCap, apportionedAdmin) {
+
+      const container = document.getElementById('productions-container');
+
+      container.innerHTML = '';
+
+
+
+      const seasons = ["2025-2026", "2026-2027", "2027-2028"];
+
+
+
+      seasons.forEach((seasonKey, sIdx) => {
+
+        const seasonShows = filteredShows.filter(p => p.season === seasonKey);
+
+        if (seasonShows.length === 0) return;
+
+
+
+        let seasonRev = 0;
+
+        let seasonExp = 0;
+
+
+
+        let showsHTML = seasonShows.map((p, pIdx) => {
+
+          let metrics = calculateShowBoxOffice(p, isFullCap);
+
+          let showGrantAlloc = getShowAllocatedGrants(p.id);
+
+          let showSponsorAlloc = getShowAllocatedSponsorships(p.id);
+
+
+
+          let showStipends = 0;
+
+          let expSum = 0;
+
+
+
+          if (p.items) {
+
+            LINE_ITEM_KEYS.forEach(k => {
+
+              let tot = getItemTotal(p.items, k);
+
+              if (STIPEND_KEYS.includes(k)) showStipends += tot;
+
+              else expSum += tot;
+
+            });
+
+          }
+
+
+
+          let totalShowExpenses = showStipends + expSum + apportionedAdmin;
+
+          let totalShowRev = metrics.totalTixRev + showGrantAlloc + showSponsorAlloc + (p.concessions||0) + (p.merch||0) + (p.showDonations||0) + (p.showSponsorship||0);
+
+          let showGross = totalShowRev - totalShowExpenses;
+
+
+
+          seasonRev += totalShowRev;
+
+          seasonExp += totalShowExpenses;
+
+
+
+          function renderItemInput(key, label, isQtyDisabled = false) {
+
+            const item = (p.items && p.items[key]) ? p.items[key] : { qty: 0, rate: 0 };
+
+            
+
+            if (key === 'rentFacilityRehearsal') item.qty = p.rehearsalWeeks || 0;
+
+            if (key === 'rentFacilityPerformance') item.qty = p.performanceWeeks || 0;
+
+
+
+            const tot = Math.max(0, item.qty || 0) * Math.max(0, item.rate || 0);
+
+            return `
+
+              <div class="line-item-row">
+
+                <label>${label}</label>
+
+                <input type="number" value="${item.qty}" min="0" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', Math.max(0, parseFloat(this.value)))">
+
+                <input type="number" value="${item.rate}" min="0" onchange="updateProdItem(${p.id}, '${key}', 'rate', Math.max(0, parseFloat(this.value)))">
+
+                <span class="line-item-total">$${tot.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
+
+              </div>`;
+
+          }
+
+
+
+          return `
+
+            <div class="show-card">
+
+              <div class="show-header" onclick="toggleAccordion('show-body-${sIdx}-${pIdx}', 'show-icon-${sIdx}-${pIdx}')">
+
+                <div style="display:flex; align-items:center; gap:8px;">
+
+                  <span id="show-icon-${sIdx}-${pIdx}" class="acc-icon">▶</span>
+
+                  <strong style="font-size:1.05rem;">${p.name}</strong>
+
+                </div>
+
+                <div style="display:flex; align-items:center; gap:16px;" onclick="event.stopPropagation();">
+
+                  <span style="font-size:0.85rem; color:var(--text-muted);">Net Margin: <strong style="color:${showGross>=0?'var(--success)':'var(--danger)'}">$${showGross.toLocaleString(undefined,{maximumFractionDigits:0})}</strong></span>
+
+                  <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteProd(${p.id})">Delete Show</button>
+
+                </div>
+
+              </div>
+
+
+
+              <div id="show-body-${sIdx}-${pIdx}" class="show-body" style="display:none;">
+
+                <div class="section-title">1. Performance & Capacity Parameters</div>
+
+                <div class="grid-4">
+
+                  <div><label>Show Name:</label><br><input type="text" value="${p.name}" onchange="updateProd(${p.id}, 'name', this.value)"></div>
+
+                  <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" min="0" onchange="updateProd(${p.id}, 'rehearsalWeeks', Math.max(0, parseInt(this.value)))"></div>
+
+                  <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" min="0" onchange="updateProd(${p.id}, 'performanceWeeks', Math.max(0, parseInt(this.value)))"></div>
+
+                  <div><label>Performances:</label><br><input type="number" value="${p.performances}" min="0" onchange="updateProd(${p.id}, 'performances', Math.max(0, parseInt(this.value)))"></div>
+
+                  <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity||57}" min="0" onchange="updateProd(${p.id}, 'capacity', Math.max(0, parseInt(this.value)))"></div>
+
+                  <div><label>Budget Year:</label><br>
+
+                    <select onchange="updateProd(${p.id}, 'year', this.value)">
+
+                      <option value="2025" ${(p.year||'2026')==='2025'?'selected':''}>2025</option>
+
+                      <option value="2026" ${(p.year||'2026')==='2026'?'selected':''}>2026</option>
+
+                      <option value="2027" ${(p.year||'2026')==='2027'?'selected':''}>2027</option>
+
+                      <option value="2028" ${(p.year||'2026')==='2028'?'selected':''}>2028</option>
+
+                    </select>
+
+                  </div>
+
+                </div>
+
+
+
+                <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
+
+                <div class="form-group">
+
+                  <label>GA Price ($):</label>
+
+                  <input type="number" value="${p.gaPrice||30.00}" min="0" onchange="updateProd(${p.id}, 'gaPrice', Math.max(0, parseFloat(this.value)))">
+
+                </div>
+
+
+
+                <div class="grid-2">
+
+                  <div><label>Pay It Forward Seats:</label><br><input type="number" value="${p.pifSeats||10}" min="0" onchange="updateProd(${p.id}, 'pifSeats', Math.max(0, parseFloat(this.value)))"></div>
+
+                  <div><label>Pay It Forward Price ($):</label><br><input type="number" value="${p.pifPrice||50.00}" min="0" onchange="updateProd(${p.id}, 'pifPrice', Math.max(0, parseFloat(this.value)))"></div>
+
+                </div>
+
+
+
+                <div class="form-group" style="margin-top:10px;">
+
+                  <label>ArtsKC "The Drop" Seats:</label>
+
+                  <input type="number" value="${p.dropSeats||15}" min="0" onchange="updateProd(${p.id}, 'dropSeats', Math.max(0, parseFloat(this.value)))">
+
+                </div>
+
+
+
+                <div class="grid-3" style="margin-top:10px;">
+
+                  <div><label>PWYW Nights Offered:</label><br><input type="number" value="${p.pwywNights||2}" min="0" onchange="updateProd(${p.id}, 'pwywNights', Math.max(0, parseFloat(this.value)))"></div>
+
+                  <div><label>PWYW Cap / Night:</label><br><input type="number" value="${p.pwywCapPerNight||15}" min="0" onchange="updateProd(${p.id}, 'pwywCapPerNight', Math.max(0, parseFloat(this.value)))"></div>
+
+                  <div><label>PWYW Price Floor ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" min="0" onchange="updateProd(${p.id}, 'pwywPrice', Math.max(0, parseFloat(this.value)))"></div>
+
+                </div>
+
+
+
+                <div class="grid-2" style="margin-top:10px;">
+
+                  <div><label>Company Comps:</label><br><input type="number" value="${p.companyComps||10}" min="0" onchange="updateProd(${p.id}, 'companyComps', Math.max(0, parseFloat(this.value)))"></div>
+
+                  <div><label>Production Comps:</label><br><strong style="color:var(--primary);">${metrics.autoProdComps} seats (2x Staff)</strong></div>
+
+                </div>
+
+
+
+                <div class="section-title">3. Non-Box Office Revenue</div>
+
+                <div class="grid-3">
+
+                  <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
+
+                  <div><label>Allocated Sponsorships Hub ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
+
+                  <div><label>Show Sponsorship ($):</label><br><input type="number" value="${p.showSponsorship||0}" min="0" onchange="updateProd(${p.id}, 'showSponsorship', Math.max(0, parseFloat(this.value)))"></div>
+
+                  <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" min="0" onchange="updateProd(${p.id}, 'concessions', Math.max(0, parseFloat(this.value)))"></div>
+
+                  <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" min="0" onchange="updateProd(${p.id}, 'merch', Math.max(0, parseFloat(this.value)))"></div>
+
+                  <div><label>Show Donations ($):</label><br><input type="number" value="${p.showDonations||0}" min="0" onchange="updateProd(${p.id}, 'showDonations', Math.max(0, parseFloat(this.value)))"></div>
+
+                </div>
+
+
+
+                <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
+
+                
+
+                <div class="sub-section-title">A. Artist Stipends</div>
+
+                <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
+
+                  <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
+
+                </div>
+
+                ${renderItemInput('actors', 'Actors')}
+
+                ${renderItemInput('musicians', 'Musicians')}
+
+                ${renderItemInput('dir', 'Director')}
+
+                ${renderItemInput('sm', 'Stage Manager')}
+
+                ${renderItemInput('asm', 'Assistant Stage Manager')}
+
+                ${renderItemInput('td', 'Technical Director')}
+
+                ${renderItemInput('setdes', 'Set Designer')}
+
+                ${renderItemInput('lightdes', 'Lighting Designer')}
+
+                ${renderItemInput('sounddes', 'Sound Designer')}
+
+                ${renderItemInput('costumedes', 'Costume Designer')}
+
+                ${renderItemInput('propdes', 'Props Designer')}
+
+                ${renderItemInput('graphic', 'Graphic / Art Designer')}
+
+                ${renderItemInput('musicdir', 'Music Director')}
+
+                ${renderItemInput('intimacy', 'Intimacy Choreographer')}
+
+                ${renderItemInput('fight', 'Fight Choreographer')}
+
+                ${renderItemInput('dance', 'Dance Choreographer')}
+
+                ${renderItemInput('carpentry', 'Carpentry / Set Construction (Hrs)')}
+
+                ${renderItemInput('boardop', 'Board Operator')}
+
+
+
+                <div class="sub-section-title">B. Production and Exhibition Costs</div>
+
+                ${renderItemInput('royalties', 'Script Royalties & Licensing Fees')}
+
+                ${renderItemInput('scripts', 'Scripts - Printing, Purchase or Rent')}
+
+                ${renderItemInput('scenicMaterials', 'Scenic Materials')}
+
+                ${renderItemInput('expProps', 'Props Purchases')}
+
+                ${renderItemInput('expCostumes', 'Costume Purchases')}
+
+
+
+                <div class="sub-section-title">C. Rentals & Operations</div>
+
+                ${renderItemInput('rentFacilityRehearsal', 'Facility Rental - Rehearsal Weeks', true)}
+
+                ${renderItemInput('rentFacilityPerformance', 'Facility Rental - Performance Weeks', true)}
+
+                ${renderItemInput('rentEquipment', 'Equipment Rental')}
+
+                ${renderItemInput('rentProps', 'Props Rental')}
+
+                ${renderItemInput('rentCostumes', 'Costume Rental')}
+
+                ${renderItemInput('rentSetPiece', 'Set Piece Rental')}
+
+                ${renderItemInput('rentAuto', 'Rental - Automobile')}
+
+                ${renderItemInput('fuel', 'Fuel')}
+
+                ${renderItemInput('supplies', 'Production Supplies')}
+
+
+
+                <div class="sub-section-title">D. Media & Marketing Documentation</div>
+
+                ${renderItemInput('photography', 'Photography')}
+
+                ${renderItemInput('videography', 'Videography')}
+
+
+
+                <div class="sub-section-title">E. Marketing & Promotion</div>
+
+                ${renderItemInput('printAds', 'Print Ads')}
+
+                ${renderItemInput('digitalAds', 'Digital Ads')}
+
+                ${renderItemInput('printedMaterials', 'Printed Materials (Posters, Flyers)')}
+
+
+
+                <div style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);">
+
+                  Apportioned Admin/Insurance Share: <strong>$${apportionedAdmin.toFixed(2)}</strong>
+
+                </div>
+
+              </div>
+
+            </div>`;
+
+        }).join('');
+
+
+
+        let seasonNet = seasonRev - seasonExp;
+
+
+
+        container.innerHTML += `
+
+          <div class="season-group">
+
+            <div class="season-header" onclick="toggleAccordion('show-season-content-${sIdx}', 'show-season-icon-${sIdx}')">
+
+              <div class="season-title">
+
+                <span id="show-season-icon-${sIdx}" class="acc-icon">▼</span>
+
+                🎭 ${seasonKey} Season (${seasonShows.length} Productions)
+
+              </div>
+
+              <div style="font-size:0.85rem;">
+
+                Rev: <strong style="color:var(--success);">$${seasonRev.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> | 
+
+                Exp: <strong style="color:var(--danger);">$${seasonExp.toLocaleString(undefined,{maximumFractionDigits:0})}</strong> | 
+
+                Net: <strong style="color:${seasonNet>=0?'var(--success)':'var(--danger)'};">$${seasonNet.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>
+
+              </div>
+
+            </div>
+
+            <div id="show-season-content-${sIdx}" class="season-content">
+
+              ${showsHTML}
+
+            </div>
+
+          </div>`;
+
+      });
+
+    }
+
+
+
+    function updateProd(id, field, val) {
+
+      const item = state.productions.find(p => p.id === id);
+
+      if (item) { item[field] = val; saveState(); }
+
+    }
+
+
+
+    function updateProdItem(showId, itemKey, prop, val) {
+
+      const show = state.productions.find(p => p.id === showId);
+
+      if (show) {
+
+        if (!show.items) show.items = {};
+
+        if (!show.items[itemKey]) show.items[itemKey] = { qty: 0, rate: 0 };
+
+        show.items[itemKey][prop] = isNaN(val) ? 0 : Math.max(0, val);
+
+        saveState();
+
+      }
+
+    }
+
+
+
+    function deleteProd(id) {
+
+      state.productions = state.productions.filter(p => p.id !== id);
+
+      state.grants.forEach(g => { if (g.targetShowIds) g.targetShowIds = g.targetShowIds.filter(sId => sId !== id); });
+
+      if (state.sponsorships) state.sponsorships.forEach(s => { if (s.targetShowIds) s.targetShowIds = s.targetShowIds.filter(sId => sId !== id); });
+
+      saveState();
+
+    }
+
+
+
+    // OPERATING OVERHEAD FILTERED BY TARGET PERIOD
+
+    function renderOverheadTable() {
+
+      const tbody = document.querySelector('#overhead-table tbody');
+
+      tbody.innerHTML = '';
+
+
+
+      const targetPeriod = document.getElementById('overheadPeriodSelect')?.value || '2026';
+
+      const sortBy = document.getElementById('overheadSort')?.value || 'parentCategory';
+
+
+
+      let periodOverhead = state.overhead.filter(o => (o.year || '2026') === targetPeriod);
+
+
+
+      let sortedOverhead = [...periodOverhead].sort((a, b) => {
+
+        if (sortBy === 'parentCategory') {
+
+          return (a.parentCategory || '').localeCompare(b.parentCategory || '');
+
+        } else if (sortBy === 'name') {
+
+          return (a.name || '').localeCompare(b.name || '');
+
+        } else if (sortBy === 'annual') {
+
+          return (b.annual || 0) - (a.annual || 0);
+
+        }
+
+        return 0;
+
+      });
+
+
+
+      sortedOverhead.forEach(item => {
+
+        let parentCatOptions = OVERHEAD_PARENT_CATEGORIES.map(cat => {
+
+          let selected = (item.parentCategory || "53000 Fees for Services (NonEmployees)") === cat ? 'selected' : '';
+
+          return `<option value="${cat}" ${selected}>${cat}</option>`;
+
+        }).join('');
+
+
+
+        tbody.innerHTML += `
+
+          <tr>
+
+            <td><input type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
+
+            <td><select style="width:100%; font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'parentCategory', this.value)">${parentCatOptions}</select></td>
+
+            <td>$<input type="number" value="${item.annual === 0 ? '' : item.annual}" placeholder="0" min="0" style="width:110px;" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value) || 0))"></td>
+
+            <td><input type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
+
+            <td><button class="btn-danger" onclick="deleteOverhead(${item.id})">Delete</button></td>
+
+          </tr>`;
+
+      });
+
+    }
+
+
+
+    function updateOverhead(id, field, val) {
+
+      const item = state.overhead.find(o => o.id === id);
+
+      if (item) { item[field] = val; saveState(); }
+
+    }
+
+    
+
+    function addOverhead() {
+
+      const currentPeriod = document.getElementById('overheadPeriodSelect')?.value || '2026';
+
+      state.overhead.push({ id: Date.now(), name: "New Custom Expense Item", parentCategory: "53000 Fees for Services (NonEmployees)", year: currentPeriod, fy: `${currentPeriod}-${parseInt(currentPeriod)+1}`, annual: 0, apportion: false });
+
+      saveState();
+
+    }
+
+
+
+    function copyOverheadFromPreviousYear() {
+
+      const currentPeriod = document.getElementById('overheadPeriodSelect')?.value || '2026';
+
+      const prevPeriod = (parseInt(currentPeriod) - 1).toString();
+
+
+
+      const prevItems = state.overhead.filter(o => (o.year || '2026') === prevPeriod);
+
+      if (prevItems.length === 0) {
+
+        alert(`No overhead entries found for ${prevPeriod} to copy from.`);
+
+        return;
+
+      }
+
+
+
+      if (confirm(`Copy ${prevItems.length} overhead template items from ${prevPeriod} to ${currentPeriod}?`)) {
+
+        prevItems.forEach(item => {
+
+          state.overhead.push({
+
+            id: Date.now() + Math.random(),
+
+            name: item.name,
+
+            parentCategory: item.parentCategory,
+
+            year: currentPeriod,
+
+            fy: `${currentPeriod}-${parseInt(currentPeriod)+1}`,
+
+            annual: item.annual,
+
+            apportion: item.apportion
+
+          });
+
+        });
+
+        saveState();
+
+      }
+
+    }
+
+    
+
+    function deleteOverhead(id) {
+
+      state.overhead = state.overhead.filter(o => o.id !== id);
+
+      saveState();
+
+    }
+
+
+
+    function renderChart(tixRev, nonBoxRev, prodExp, overheadExp) {
+
+      const ctx = document.getElementById('financialChart').getContext('2d');
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+
+        type: 'bar',
+
+        data: {
+
+          labels: ['Season Budget Overview'],
+
+          datasets: [
+
+            { label: 'Ticket Revenue', data: [tixRev], backgroundColor: '#4f46e5' },
+
+            { label: 'Grants, Sponsorships, Donations, Rentals & Concessions', data: [nonBoxRev], backgroundColor: '#818cf8' },
+
+            { label: 'Production Costs & Stipends', data: [prodExp], backgroundColor: '#ef4444' },
+
+            { label: 'General Operating Overhead', data: [overheadExp], backgroundColor: '#f87171' }
+
+          ]
+
+        },
+
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+
+      });
+
+    }
+
+
+
+    function exportData() {
+
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+
+      const a = document.createElement('a');
+
+      a.href = URL.createObjectURL(blob);
+
+      a.download = `whim_budget_${new Date().toISOString().slice(0,10)}.json`;
+
+      a.click();
+
+    }
+
+
+
+    function importData(e) {
+
+      const file = e.target.files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(evt) {
+
+        state = JSON.parse(evt.target.result);
+
+        saveState();
+
+      };
+
+      reader.readAsText(file);
+
+    }
+
+
+
+    function printReport() {
+
+      window.print();
+
+    }
+
+
+
+    renderApp();
+
+  </script>
+
+</body>
+
+</html> 
+
