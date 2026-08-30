@@ -198,7 +198,7 @@
         <div>
           <h3>Master Financial Statement (GAAP Compliant)</h3>
           <p style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">
-            Comprehensive GAAP financial rollup statement. Seperates cash contributions, gifts-in-kind (ASU 2020-07), rental income, and inventory sales.
+            Comprehensive GAAP financial rollup statement. Separates cash contributions, gifts-in-kind, rental income, and inventory sales.
           </p>
         </div>
         <div style="display:flex; gap:12px; align-items:center;">
@@ -302,49 +302,73 @@
         <div class="line-item-row" style="font-weight:bold; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">
           <span>Item</span><span>Qty / Units</span><span>Rate ($)</span><span style="text-align:right">Total</span>
         </div>
-        <div class="line-item-row">
-          <label>Actors</label>
-          <input type="number" id="f_actors_qty" value="6" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_actors_rate" value="400" min="0" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_actors_tot">$0</span>
-        </div>
-        <div class="line-item-row">
-          <label>Musicians</label>
-          <input type="number" id="f_musicians_qty" value="0" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_musicians_rate" value="150" min="0" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_musicians_tot">$0</span>
-        </div>
-        <div class="line-item-row">
-          <label>Director</label>
-          <input type="number" id="f_dir_qty" value="1" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_dir_rate" value="700" min="0" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_dir_tot">$0</span>
-        </div>
-        <div class="line-item-row">
-          <label>Stage Manager</label>
-          <input type="number" id="f_sm_qty" value="1" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_sm_rate" value="800" min="0" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_sm_tot">$0</span>
-        </div>
-        <div class="line-item-row">
-          <label>Assistant Stage Manager</label>
-          <input type="number" id="f_asm_qty" value="0" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_asm_rate" value="400" min="0" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_asm_tot">$0</span>
-        </div>
-        <div class="line-item-row">
-          <label>Technical Director</label>
-          <input type="number" id="f_td_qty" value="1" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_td_rate" value="600" min="0" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_td_tot">$0</span>
-        </div>
-        <div class="line-item-row">
-          <label>Set Designer</label>
-          <input type="number" id="f_setdes_qty" value="1" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_setdes_rate" value="600" min="0" oninput="calculateBuilder()">
-          <span class="line-item-total" id="f_setdes_tot">$0</span>
-        </div>
-        <div class="line-item-row">
-          <label>Lighting Designer</label>
-          <input type="number" id="f_lightdes_qty" value="1" min="0" oninput="calculateBuilder()">
-          <input type="number" id="f_lightdes_rate" value="50
+        <div class="line-item-row"><label>Actors</label><input type="number" id="f_actors_qty" value="6" min="0" oninput="calculateBuilder()"><input type="number" id="f_actors_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_actors_tot">$0</span></div>
+        <div class="line-item-row"><label>Musicians</label><input type="number" id="f_musicians_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_musicians_rate" value="150" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_musicians_tot">$0</span></div>
+        <div class="line-item-row"><label>Director</label><input type="number" id="f_dir_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_dir_rate" value="700" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_dir_tot">$0</span></div>
+        <div class="line-item-row"><label>Stage Manager</label><input type="number" id="f_sm_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_sm_rate" value="800" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_sm_tot">$0</span></div>
+        <div class="line-item-row"><label>Assistant Stage Manager</label><input type="number" id="f_asm_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_asm_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_asm_tot">$0</span></div>
+        <div class="line-item-row"><label>Technical Director</label><input type="number" id="f_td_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_td_rate" value="600" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_td_tot">$0</span></div>
+        <div class="line-item-row"><label>Set Designer</label><input type="number" id="f_setdes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_setdes_rate" value="600" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_setdes_tot">$0</span></div>
+        <div class="line-item-row"><label>Lighting Designer</label><input type="number" id="f_lightdes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_lightdes_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_lightdes_tot">$0</span></div>
+        <div class="line-item-row"><label>Sound Designer</label><input type="number" id="f_sounddes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_sounddes_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_sounddes_tot">$0</span></div>
+        <div class="line-item-row"><label>Costume Designer</label><input type="number" id="f_costumedes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_costumedes_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_costumedes_tot">$0</span></div>
+        <div class="line-item-row"><label>Props Designer</label><input type="number" id="f_propdes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_propdes_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_propdes_tot">$0</span></div>
+        <div class="line-item-row"><label>Graphic / Art Designer</label><input type="number" id="f_graphic_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_graphic_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_graphic_tot">$0</span></div>
+        <div class="line-item-row"><label>Music Director</label><input type="number" id="f_musicdir_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_musicdir_rate" value="0" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_musicdir_tot">$0</span></div>
+        <div class="line-item-row"><label>Intimacy Choreographer</label><input type="number" id="f_intimacy_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_intimacy_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_intimacy_tot">$0</span></div>
+        <div class="line-item-row"><label>Fight Choreographer</label><input type="number" id="f_fight_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_fight_rate" value="350" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_fight_tot">$0</span></div>
+        <div class="line-item-row"><label>Dance Choreographer</label><input type="number" id="f_dance_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_dance_rate" value="0" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_dance_tot">$0</span></div>
+        <div class="line-item-row"><label>Carpentry / Set Construction (Hrs)</label><input type="number" id="f_carpentry_qty" value="40" min="0" oninput="calculateBuilder()"><input type="number" id="f_carpentry_rate" value="20" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_carpentry_tot">$0</span></div>
+        <div class="line-item-row"><label>Board Operator</label><input type="number" id="f_boardop_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_boardop_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_boardop_tot">$0</span></div>
+
+        <div class="sub-section-title">B. Production and Exhibition Costs</div>
+        <div class="line-item-row"><label>Script Royalties & Licensing Fees</label><input type="number" id="f_royalties_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_royalties_rate" value="500" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_royalties_tot">$0</span></div>
+        <div class="line-item-row"><label>Scripts - Printing, Purchase or Rent</label><input type="number" id="f_scripts_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_scripts_rate" value="100" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_scripts_tot">$0</span></div>
+        <div class="line-item-row"><label>Scenic Materials</label><input type="number" id="f_scenicMaterials_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_scenicMaterials_rate" value="800" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_scenicMaterials_tot">$0</span></div>
+        <div class="line-item-row"><label>Props Purchases</label><input type="number" id="f_expProps_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_expProps_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_expProps_tot">$0</span></div>
+        <div class="line-item-row"><label>Costume Purchases</label><input type="number" id="f_expCostumes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_expCostumes_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_expCostumes_tot">$0</span></div>
+
+        <div class="sub-section-title">C. Rentals & Operations</div>
+        <div class="line-item-row"><label>Facility Rental - Rehearsal Weeks</label><input type="number" id="f_rentFacilityRehearsal_qty" value="4" disabled style="background:#f1f5f9;"><input type="number" id="f_rentFacilityRehearsal_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentFacilityRehearsal_tot">$0</span></div>
+        <div class="line-item-row"><label>Facility Rental - Performance Weeks</label><input type="number" id="f_rentFacilityPerformance_qty" value="3" disabled style="background:#f1f5f9;"><input type="number" id="f_rentFacilityPerformance_rate" value="700" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentFacilityPerformance_tot">$0</span></div>
+        <div class="line-item-row"><label>Equipment Rental</label><input type="number" id="f_rentEquipment_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentEquipment_rate" value="200" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentEquipment_tot">$0</span></div>
+        <div class="line-item-row"><label>Props Rental</label><input type="number" id="f_rentProps_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentProps_rate" value="100" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentProps_tot">$0</span></div>
+        <div class="line-item-row"><label>Costume Rental</label><input type="number" id="f_rentCostumes_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentCostumes_rate" value="150" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentCostumes_tot">$0</span></div>
+        <div class="line-item-row"><label>Set Piece Rental</label><input type="number" id="f_rentSetPiece_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentSetPiece_rate" value="100" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentSetPiece_tot">$0</span></div>
+        <div class="line-item-row"><label>Rental - Automobile</label><input type="number" id="f_rentAuto_qty" value="0" min="0" oninput="calculateBuilder()"><input type="number" id="f_rentAuto_rate" value="0" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_rentAuto_tot">$0</span></div>
+        <div class="line-item-row"><label>Fuel</label><input type="number" id="f_fuel_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_fuel_rate" value="50" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_fuel_tot">$0</span></div>
+        <div class="line-item-row"><label>Production Supplies</label><input type="number" id="f_supplies_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_supplies_rate" value="200" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_supplies_tot">$0</span></div>
+
+        <div class="sub-section-title">D. Media & Marketing Documentation</div>
+        <div class="line-item-row"><label>Photography</label><input type="number" id="f_photography_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_photography_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_photography_tot">$0</span></div>
+        <div class="line-item-row"><label>Videography</label><input type="number" id="f_videography_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_videography_rate" value="400" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_videography_tot">$0</span></div>
+
+        <div class="sub-section-title">E. Marketing & Promotion</div>
+        <div class="line-item-row"><label>Print Ads</label><input type="number" id="f_printAds_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_printAds_rate" value="200" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_printAds_tot">$0</span></div>
+        <div class="line-item-row"><label>Digital Ads</label><input type="number" id="f_digitalAds_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_digitalAds_rate" value="300" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_digitalAds_tot">$0</span></div>
+        <div class="line-item-row"><label>Printed Materials (Posters, Flyers)</label><input type="number" id="f_printedMaterials_qty" value="1" min="0" oninput="calculateBuilder()"><input type="number" id="f_printedMaterials_rate" value="150" min="0" oninput="calculateBuilder()"><span class="line-item-total" id="f_printedMaterials_tot">$0</span></div>
+      </div>
+
+      <div>
+        <div class="card" style="background: #faf5ff; border-color: #d8b4fe;">
+          <h3 style="color: #6b21a8;">Anticipated Outcome Preview</h3>
+          <p style="font-size:0.85rem; color:#7e22ce; margin-bottom:16px;">
+            Dynamic ticket tier calculation & stipend summary. These numbers do not account for any grant allocation.
+          </p>
+
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Anticipated Ticket Rev</div>
+              <div class="kpi-value" id="prev-tix">$0</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);" id="prev-tix-sub">0 seats sold</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Effective Avg Ticket</div>
+              <div class="kpi-value" id="prev-avg-tix">$0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Direct Show Expenses</div>
+              <div class="kpi-value" id="prev-direct-exp">$0</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Form entries only</div>
+            </div>
+            <div class="
