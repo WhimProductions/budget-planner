@@ -1122,6 +1122,15 @@
       const prodContainer = document.getElementById('productions-container');
       const isFirstLoad = !prodContainer || prodContainer.innerHTML.trim() === '';
       
+      const currentScroll = window.scrollY;
+      const activeEl = document.activeElement;
+      const activeElementId = activeEl && activeEl.id ? activeEl.id : null;
+      let cursorPosition = null;
+      
+      if (activeElementId && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+        try { cursorPosition = activeEl.selectionStart; } catch (e) {} // May fail on number inputs, perfectly normal
+      }
+
       const openShows = new Set();
       const closedSeasons = new Set();
 
@@ -1212,6 +1221,7 @@
 
       // --- 2. RESTORE STATE AFTER RE-DRAW ---
       if (!isFirstLoad) {
+        // Restore Accordions
         document.querySelectorAll('.show-body').forEach(el => {
           if (openShows.has(el.id)) {
             el.style.display = 'block';
@@ -1227,6 +1237,22 @@
             if (icon) icon.innerText = '▶';
           }
         });
+      }
+
+      // Restore Scroll Position
+      window.scrollTo(0, currentScroll);
+
+      // Restore Cursor Focus
+      if (activeElementId) {
+        setTimeout(() => {
+          const elToFocus = document.getElementById(activeElementId);
+          if (elToFocus) {
+            elToFocus.focus();
+            if (cursorPosition !== null && elToFocus.tagName === 'INPUT' && elToFocus.type === 'text') {
+              try { elToFocus.setSelectionRange(cursorPosition, cursorPosition); } catch(e) {}
+            }
+          }
+        }, 0);
       }
     }
 
@@ -1518,8 +1544,8 @@
           <div class="hub-card">
             <div class="flex-between" style="margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:12px;">
-                <input type="text" value="${r.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateRental(${r.id}, 'name', this.value)">
-                <select style="font-weight:bold; font-size:0.85rem;" onchange="updateRental(${r.id}, 'category', this.value)">
+                <input id="rent-${r.id}-name" type="text" value="${r.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateRental(${r.id}, 'name', this.value)">
+                <select id="rent-${r.id}-category" style="font-weight:bold; font-size:0.85rem;" onchange="updateRental(${r.id}, 'category', this.value)">
                   <option value="Theater Production Rental" ${r.category==='Theater Production Rental'?'selected':''}>Theater Production Rental</option>
                   <option value="KC Fringe Rental" ${r.category==='KC Fringe Rental'?'selected':''}>KC Fringe Rental</option>
                   <option value="Burlesque Rentals" ${r.category==='Burlesque Rentals'?'selected':''}>Burlesque Rentals</option>
@@ -1533,15 +1559,15 @@
             <div class="grid-4">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">RENTAL FEE INCOME ($)</label><br>
-                $<input type="number" value="${r.rentalFee||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'rentalFee', Math.max(0, parseFloat(this.value)))">
+                $<input id="rent-${r.id}-rentalFee" type="number" value="${r.rentalFee||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'rentalFee', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED CONCESSIONS REV ($)</label><br>
-                $<input type="number" value="${r.concessionsRev||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'concessionsRev', Math.max(0, parseFloat(this.value)))">
+                $<input id="rent-${r.id}-concessionsRev" type="number" value="${r.concessionsRev||0}" min="0" style="font-weight:bold;" onchange="updateRental(${r.id}, 'concessionsRev', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
-                <select onchange="updateRental(${r.id}, 'season', this.value)">
+                <select id="rent-${r.id}-season" onchange="updateRental(${r.id}, 'season', this.value)">
                   <option value="2025-2026" ${r.season==='2025-2026'?'selected':''}>2025–2026</option>
                   <option value="2026-2027" ${r.season==='2026-2027'?'selected':''}>2026–2027</option>
                   <option value="2027-2028" ${r.season==='2027-2028'?'selected':''}>2027–2028</option>
@@ -1549,7 +1575,7 @@
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
-                <select onchange="updateRental(${r.id}, 'year', this.value)">
+                <select id="rent-${r.id}-year" onchange="updateRental(${r.id}, 'year', this.value)">
                   <option value="2025" ${r.year==='2025'?'selected':''}>2025</option>
                   <option value="2026" ${r.year==='2026'?'selected':''}>2026</option>
                   <option value="2027" ${r.year==='2027'?'selected':''}>2027</option>
@@ -1621,7 +1647,7 @@
           let isChecked = g.targetShowIds && g.targetShowIds.includes(p.id) ? 'checked' : '';
           return `
             <label class="checkbox-item">
-              <input type="checkbox" ${isChecked} onchange="toggleGrantShow(${g.id}, ${p.id}, this.checked)">
+              <input id="grant-${g.id}-show-${p.id}" type="checkbox" ${isChecked} onchange="toggleGrantShow(${g.id}, ${p.id}, this.checked)">
               ${p.name} (${p.season||'2026-2027'})
             </label>`;
         }).join('');
@@ -1633,7 +1659,7 @@
           <div class="hub-card">
             <div class="flex-between" style="margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:12px;">
-                <input type="text" value="${g.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateGrant(${g.id}, 'name', this.value)">
+                <input id="grant-${g.id}-name" type="text" value="${g.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateGrant(${g.id}, 'name', this.value)">
                 <span class="badge ${g.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${g.status}</span>
               </div>
               <button class="btn-danger" onclick="deleteGrant(${g.id})">Delete Grant</button>
@@ -1642,25 +1668,25 @@
             <div class="grid-4" style="margin-bottom:12px;">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">GRANT TYPE</label><br>
-                <select onchange="updateGrant(${g.id}, 'grantType', this.value)">
+                <select id="grant-${g.id}-grantType" onchange="updateGrant(${g.id}, 'grantType', this.value)">
                   <option value="Non-Government Grant" ${(g.grantType||'Non-Government Grant')==='Non-Government Grant'?'selected':''}>Non-Government Grant</option>
                   <option value="Government Grant" ${(g.grantType||'Non-Government Grant')==='Government Grant'?'selected':''}>Government Grant</option>
                 </select>
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">GRANT AMOUNT ($)</label><br>
-                $<input type="number" value="${g.amount}" min="0" style="font-weight:bold;" onchange="updateGrant(${g.id}, 'amount', Math.max(0, parseFloat(this.value)))">
+                $<input id="grant-${g.id}-amount" type="number" value="${g.amount}" min="0" style="font-weight:bold;" onchange="updateGrant(${g.id}, 'amount', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
-                <select onchange="updateGrant(${g.id}, 'status', this.value)">
+                <select id="grant-${g.id}-status" onchange="updateGrant(${g.id}, 'status', this.value)">
                   <option value="Awarded" ${g.status==='Awarded'?'selected':''}>Awarded / Confirmed</option>
                   <option value="Anticipated" ${g.status==='Anticipated'?'selected':''}>Anticipated / Applied</option>
                 </select>
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
-                <select onchange="updateGrant(${g.id}, 'season', this.value)">
+                <select id="grant-${g.id}-season" onchange="updateGrant(${g.id}, 'season', this.value)">
                   <option value="2025-2026" ${(g.season||'2026-2027')==='2025-2026'?'selected':''}>2025–2026</option>
                   <option value="2026-2027" ${(g.season||'2026-2027')==='2026-2027'?'selected':''}>2026–2027</option>
                   <option value="2027-2028" ${(g.season||'2026-2027')==='2027-2028'?'selected':''}>2027–2028</option>
@@ -1717,7 +1743,7 @@
           let isChecked = s.targetShowIds && s.targetShowIds.includes(p.id) ? 'checked' : '';
           return `
             <label class="checkbox-item">
-              <input type="checkbox" ${isChecked} onchange="toggleSponsorShow(${s.id}, ${p.id}, this.checked)">
+              <input id="sponsor-${s.id}-show-${p.id}" type="checkbox" ${isChecked} onchange="toggleSponsorShow(${s.id}, ${p.id}, this.checked)">
               ${p.name} (${p.season||'2026-2027'})
             </label>`;
         }).join('');
@@ -1729,7 +1755,7 @@
           <div class="hub-card">
             <div class="flex-between" style="margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:12px;">
-                <input type="text" value="${s.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateSponsor(${s.id}, 'name', this.value)">
+                <input id="sponsor-${s.id}-name" type="text" value="${s.name}" style="font-weight:bold; font-size:1.1rem; width:260px;" onchange="updateSponsor(${s.id}, 'name', this.value)">
                 <span class="badge ${s.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${s.status}</span>
               </div>
               <button class="btn-danger" onclick="deleteSponsor(${s.id})">Delete Sponsor</button>
@@ -1738,18 +1764,18 @@
             <div class="grid-4" style="margin-bottom:12px;">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">SPONSORSHIP AMOUNT ($)</label><br>
-                $<input type="number" value="${s.amount}" min="0" style="font-weight:bold;" onchange="updateSponsor(${s.id}, 'amount', Math.max(0, parseFloat(this.value)))">
+                $<input id="sponsor-${s.id}-amount" type="number" value="${s.amount}" min="0" style="font-weight:bold;" onchange="updateSponsor(${s.id}, 'amount', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
-                <select onchange="updateSponsor(${s.id}, 'status', this.value)">
+                <select id="sponsor-${s.id}-status" onchange="updateSponsor(${s.id}, 'status', this.value)">
                   <option value="Awarded" ${s.status==='Awarded'?'selected':''}>Awarded / Confirmed</option>
                   <option value="Anticipated" ${s.status==='Anticipated'?'selected':''}>Anticipated / Pledged</option>
                 </select>
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
-                <select onchange="updateSponsor(${s.id}, 'season', this.value)">
+                <select id="sponsor-${s.id}-season" onchange="updateSponsor(${s.id}, 'season', this.value)">
                   <option value="2025-2026" ${(s.season||'2026-2027')==='2025-2026'?'selected':''}>2025–2026</option>
                   <option value="2026-2027" ${(s.season||'2026-2027')==='2026-2027'?'selected':''}>2026–2027</option>
                   <option value="2027-2028" ${(s.season||'2026-2027')==='2027-2028'?'selected':''}>2027–2028</option>
@@ -1757,7 +1783,7 @@
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CALENDAR YEAR</label><br>
-                <select onchange="updateSponsor(${s.id}, 'year', this.value)">
+                <select id="sponsor-${s.id}-year" onchange="updateSponsor(${s.id}, 'year', this.value)">
                   <option value="2025" ${(s.year||'2026')==='2025'?'selected':''}>2025</option>
                   <option value="2026" ${(s.year||'2026')==='2026'?'selected':''}>2026</option>
                   <option value="2027" ${(s.year||'2026')==='2027'?'selected':''}>2027</option>
@@ -1816,7 +1842,7 @@
           <div class="hub-card">
             <div class="flex-between" style="margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:12px;">
-                <input type="text" value="${d.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateDonation(${d.id}, 'name', this.value)">
+                <input id="donation-${d.id}-name" type="text" value="${d.name}" style="font-weight:bold; font-size:1.1rem; width:280px;" onchange="updateDonation(${d.id}, 'name', this.value)">
                 <span class="badge ${d.status==='Awarded'?'badge-awarded':'badge-anticipated'}">${d.status}</span>
               </div>
               <button class="btn-danger" onclick="deleteDonation(${d.id})">Delete Campaign</button>
@@ -1825,7 +1851,7 @@
             <div class="grid-4">
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">CAMPAIGN TYPE</label><br>
-                <select onchange="updateDonation(${d.id}, 'type', this.value)">
+                <select id="donation-${d.id}-type" onchange="updateDonation(${d.id}, 'type', this.value)">
                   <option value="Individual Donations" ${d.type==='Individual Donations'?'selected':''}>Individual Donations</option>
                   <option value="Board Member Donations" ${d.type==='Board Member Donations'?'selected':''}>Board Member Donations</option>
                   <option value="Special Events Revenue" ${d.type==='Special Events Revenue'?'selected':''}>Special Events Revenue</option>
@@ -1835,18 +1861,18 @@
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">PROJECTED AMOUNT ($)</label><br>
-                $<input type="number" value="${d.amount}" min="0" style="font-weight:bold;" onchange="updateDonation(${d.id}, 'amount', Math.max(0, parseFloat(this.value)))">
+                $<input id="donation-${d.id}-amount" type="number" value="${d.amount}" min="0" style="font-weight:bold;" onchange="updateDonation(${d.id}, 'amount', Math.max(0, parseFloat(this.value)))">
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">STATUS</label><br>
-                <select onchange="updateDonation(${d.id}, 'status', this.value)">
+                <select id="donation-${d.id}-status" onchange="updateDonation(${d.id}, 'status', this.value)">
                   <option value="Awarded" ${d.status==='Awarded'?'selected':''}>Received / Confirmed</option>
                   <option value="Anticipated" ${d.status==='Anticipated'?'selected':''}>Anticipated / Goal</option>
                 </select>
               </div>
               <div>
                 <label style="font-size:0.8rem; color:var(--text-muted); font-weight:bold;">TARGET SEASON</label><br>
-                <select onchange="updateDonation(${d.id}, 'season', this.value)">
+                <select id="donation-${d.id}-season" onchange="updateDonation(${d.id}, 'season', this.value)">
                   <option value="2025-2026" ${d.season==='2025-2026'?'selected':''}>2025–2026</option>
                   <option value="2026-2027" ${d.season==='2026-2027'?'selected':''}>2026–2027</option>
                   <option value="2027-2028" ${d.season==='2027-2028'?'selected':''}>2027–2028</option>
@@ -1917,8 +1943,8 @@
             return `
               <div class="line-item-row">
                 <label>${label}</label>
-                <input type="number" value="${item.qty}" min="0" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', Math.max(0, parseFloat(this.value)))">
-                <input type="number" value="${item.rate}" min="0" onchange="updateProdItem(${p.id}, '${key}', 'rate', Math.max(0, parseFloat(this.value)))">
+                <input id="prod-${p.id}-${key}-qty" type="number" value="${item.qty}" min="0" ${isQtyDisabled ? 'disabled style="background:#f1f5f9;"' : ''} onchange="updateProdItem(${p.id}, '${key}', 'qty', Math.max(0, parseFloat(this.value)))">
+                <input id="prod-${p.id}-${key}-rate" type="number" value="${item.rate}" min="0" onchange="updateProdItem(${p.id}, '${key}', 'rate', Math.max(0, parseFloat(this.value)))">
                 <span class="line-item-total">$${tot.toLocaleString(undefined,{maximumFractionDigits:0})}</span>
               </div>`;
           }
@@ -1939,13 +1965,13 @@
               <div id="show-body-${sIdx}-${pIdx}" class="show-body" style="display:none;">
                 <div class="section-title">1. Performance & Capacity Parameters</div>
                 <div class="grid-4">
-                  <div><label>Show Name:</label><br><input type="text" value="${p.name}" onchange="updateProd(${p.id}, 'name', this.value)"></div>
-                  <div><label>Rehearsal Weeks:</label><br><input type="number" value="${p.rehearsalWeeks||4}" min="0" onchange="updateProd(${p.id}, 'rehearsalWeeks', Math.max(0, parseInt(this.value)))"></div>
-                  <div><label>Performance Weeks:</label><br><input type="number" value="${p.performanceWeeks||3}" min="0" onchange="updateProd(${p.id}, 'performanceWeeks', Math.max(0, parseInt(this.value)))"></div>
-                  <div><label>Performances:</label><br><input type="number" value="${p.performances}" min="0" onchange="updateProd(${p.id}, 'performances', Math.max(0, parseInt(this.value)))"></div>
-                  <div><label>Venue Capacity:</label><br><input type="number" value="${p.capacity||57}" min="0" onchange="updateProd(${p.id}, 'capacity', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Show Name:</label><br><input id="prod-${p.id}-name" type="text" value="${p.name}" onchange="updateProd(${p.id}, 'name', this.value)"></div>
+                  <div><label>Rehearsal Weeks:</label><br><input id="prod-${p.id}-rehearsalWeeks" type="number" value="${p.rehearsalWeeks||4}" min="0" onchange="updateProd(${p.id}, 'rehearsalWeeks', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Performance Weeks:</label><br><input id="prod-${p.id}-performanceWeeks" type="number" value="${p.performanceWeeks||3}" min="0" onchange="updateProd(${p.id}, 'performanceWeeks', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Performances:</label><br><input id="prod-${p.id}-performances" type="number" value="${p.performances}" min="0" onchange="updateProd(${p.id}, 'performances', Math.max(0, parseInt(this.value)))"></div>
+                  <div><label>Venue Capacity:</label><br><input id="prod-${p.id}-capacity" type="number" value="${p.capacity||57}" min="0" onchange="updateProd(${p.id}, 'capacity', Math.max(0, parseInt(this.value)))"></div>
                   <div><label>Budget Year:</label><br>
-                    <select onchange="updateProd(${p.id}, 'year', this.value)">
+                    <select id="prod-${p.id}-year" onchange="updateProd(${p.id}, 'year', this.value)">
                       <option value="2025" ${(p.year||'2026')==='2025'?'selected':''}>2025</option>
                       <option value="2026" ${(p.year||'2026')==='2026'?'selected':''}>2026</option>
                       <option value="2027" ${(p.year||'2026')==='2027'?'selected':''}>2027</option>
@@ -1957,27 +1983,27 @@
                 <div class="section-title">2. Box Office & Ticket Tier Parameters</div>
                 <div class="form-group">
                   <label>GA Price ($):</label>
-                  <input type="number" value="${p.gaPrice||30.00}" min="0" onchange="updateProd(${p.id}, 'gaPrice', Math.max(0, parseFloat(this.value)))">
+                  <input id="prod-${p.id}-gaPrice" type="number" value="${p.gaPrice||30.00}" min="0" onchange="updateProd(${p.id}, 'gaPrice', Math.max(0, parseFloat(this.value)))">
                 </div>
 
                 <div class="grid-2">
-                  <div><label>Pay It Forward Seats:</label><br><input type="number" value="${p.pifSeats||10}" min="0" onchange="updateProd(${p.id}, 'pifSeats', Math.max(0, parseFloat(this.value)))"></div>
-                  <div><label>Pay It Forward Price ($):</label><br><input type="number" value="${p.pifPrice||50.00}" min="0" onchange="updateProd(${p.id}, 'pifPrice', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Pay It Forward Seats:</label><br><input id="prod-${p.id}-pifSeats" type="number" value="${p.pifSeats||10}" min="0" onchange="updateProd(${p.id}, 'pifSeats', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Pay It Forward Price ($):</label><br><input id="prod-${p.id}-pifPrice" type="number" value="${p.pifPrice||50.00}" min="0" onchange="updateProd(${p.id}, 'pifPrice', Math.max(0, parseFloat(this.value)))"></div>
                 </div>
 
                 <div class="form-group" style="margin-top:10px;">
                   <label>ArtsKC "The Drop" Seats:</label>
-                  <input type="number" value="${p.dropSeats||15}" min="0" onchange="updateProd(${p.id}, 'dropSeats', Math.max(0, parseFloat(this.value)))">
+                  <input id="prod-${p.id}-dropSeats" type="number" value="${p.dropSeats||15}" min="0" onchange="updateProd(${p.id}, 'dropSeats', Math.max(0, parseFloat(this.value)))">
                 </div>
 
                 <div class="grid-3" style="margin-top:10px;">
-                  <div><label>PWYW Nights Offered:</label><br><input type="number" value="${p.pwywNights||2}" min="0" onchange="updateProd(${p.id}, 'pwywNights', Math.max(0, parseFloat(this.value)))"></div>
-                  <div><label>PWYW Cap / Night:</label><br><input type="number" value="${p.pwywCapPerNight||15}" min="0" onchange="updateProd(${p.id}, 'pwywCapPerNight', Math.max(0, parseFloat(this.value)))"></div>
-                  <div><label>PWYW Price Floor ($):</label><br><input type="number" value="${p.pwywPrice||15.00}" min="0" onchange="updateProd(${p.id}, 'pwywPrice', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>PWYW Nights Offered:</label><br><input id="prod-${p.id}-pwywNights" type="number" value="${p.pwywNights||2}" min="0" onchange="updateProd(${p.id}, 'pwywNights', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>PWYW Cap / Night:</label><br><input id="prod-${p.id}-pwywCapPerNight" type="number" value="${p.pwywCapPerNight||15}" min="0" onchange="updateProd(${p.id}, 'pwywCapPerNight', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>PWYW Price Floor ($):</label><br><input id="prod-${p.id}-pwywPrice" type="number" value="${p.pwywPrice||15.00}" min="0" onchange="updateProd(${p.id}, 'pwywPrice', Math.max(0, parseFloat(this.value)))"></div>
                 </div>
 
                 <div class="grid-2" style="margin-top:10px;">
-                  <div><label>Company Comps:</label><br><input type="number" value="${p.companyComps||10}" min="0" onchange="updateProd(${p.id}, 'companyComps', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Company Comps:</label><br><input id="prod-${p.id}-companyComps" type="number" value="${p.companyComps||10}" min="0" onchange="updateProd(${p.id}, 'companyComps', Math.max(0, parseFloat(this.value)))"></div>
                   <div><label>Production Comps:</label><br><strong style="color:var(--primary);">${metrics.autoProdComps} seats (2x Staff)</strong></div>
                 </div>
 
@@ -1985,10 +2011,10 @@
                 <div class="grid-3">
                   <div><label>Allocated Grants ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showGrantAlloc.toLocaleString()}</strong></div>
                   <div><label>Allocated Sponsorships Hub ($):</label><br><strong style="color:var(--primary); font-size:1.05rem;">$${showSponsorAlloc.toLocaleString()}</strong></div>
-                  <div><label>Show Sponsorship ($):</label><br><input type="number" value="${p.showSponsorship||0}" min="0" onchange="updateProd(${p.id}, 'showSponsorship', Math.max(0, parseFloat(this.value)))"></div>
-                  <div><label>Concessions ($):</label><br><input type="number" value="${p.concessions||0}" min="0" onchange="updateProd(${p.id}, 'concessions', Math.max(0, parseFloat(this.value)))"></div>
-                  <div><label>Merchandise ($):</label><br><input type="number" value="${p.merch||0}" min="0" onchange="updateProd(${p.id}, 'merch', Math.max(0, parseFloat(this.value)))"></div>
-                  <div><label>Show Donations ($):</label><br><input type="number" value="${p.showDonations||0}" min="0" onchange="updateProd(${p.id}, 'showDonations', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Show Sponsorship ($):</label><br><input id="prod-${p.id}-showSponsorship" type="number" value="${p.showSponsorship||0}" min="0" onchange="updateProd(${p.id}, 'showSponsorship', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Concessions ($):</label><br><input id="prod-${p.id}-concessions" type="number" value="${p.concessions||0}" min="0" onchange="updateProd(${p.id}, 'concessions', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Merchandise ($):</label><br><input id="prod-${p.id}-merch" type="number" value="${p.merch||0}" min="0" onchange="updateProd(${p.id}, 'merch', Math.max(0, parseFloat(this.value)))"></div>
+                  <div><label>Show Donations ($):</label><br><input id="prod-${p.id}-showDonations" type="number" value="${p.showDonations||0}" min="0" onchange="updateProd(${p.id}, 'showDonations', Math.max(0, parseFloat(this.value)))"></div>
                 </div>
 
                 <div class="section-title">4. Production Budget Line Items (Quantity x Rate Breakdown)</div>
@@ -2154,10 +2180,10 @@
 
         tbody.innerHTML += `
           <tr>
-            <td><input type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
-            <td><select style="width:100%; font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'parentCategory', this.value)">${parentCatOptions}</select></td>
-            <td>$<input type="number" value="${item.annual === 0 ? '' : item.annual}" placeholder="0" min="0" style="width:110px;" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value) || 0))"></td>
-            <td><input type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
+            <td><input id="overhead-${item.id}-name" type="text" value="${item.name}" style="width:100%" onchange="updateOverhead(${item.id}, 'name', this.value)"></td>
+            <td><select id="overhead-${item.id}-parentCategory" style="width:100%; font-size:0.85rem;" onchange="updateOverhead(${item.id}, 'parentCategory', this.value)">${parentCatOptions}</select></td>
+            <td>$<input id="overhead-${item.id}-annual" type="number" value="${item.annual === 0 ? '' : item.annual}" placeholder="0" min="0" style="width:110px;" onchange="updateOverhead(${item.id}, 'annual', Math.max(0, parseFloat(this.value) || 0))"></td>
+            <td><input id="overhead-${item.id}-apportion" type="checkbox" ${item.apportion ? 'checked' : ''} onchange="updateOverhead(${item.id}, 'apportion', this.checked)"> (Apportion 1/12th)</td>
             <td><button class="btn-danger" onclick="deleteOverhead(${item.id})">Delete</button></td>
           </tr>`;
       });
